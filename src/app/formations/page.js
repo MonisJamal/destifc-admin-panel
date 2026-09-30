@@ -1,0 +1,221 @@
+'use client';
+import { useState, useRef, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
+import LiquidButton from '@/components/LiquidButton';
+import { Save, CheckCircle2, RotateCcw } from 'lucide-react';
+
+const DEFAULT_FORMATIONS = {
+  '4-3-3 Attack': {
+    'LW': [0.15, 0.20], 'ST': [0.50, 0.12], 'RW': [0.85, 0.20],
+    'CAM': [0.50, 0.42], 'CM1': [0.28, 0.54], 'CM2': [0.72, 0.54],
+    'LB': [0.10, 0.78], 'CB1': [0.35, 0.82], 'CB2': [0.65, 0.82], 'RB': [0.90, 0.78],
+    'GK': [0.50, 0.95]
+  },
+  '4-1-2-1-2 Narrow': {
+    'ST1': [0.36, 0.12], 'ST2': [0.64, 0.12],
+    'CAM': [0.50, 0.32],
+    'CM1': [0.26, 0.50], 'CM2': [0.74, 0.50],
+    'CDM': [0.50, 0.66],
+    'LB': [0.08, 0.80], 'CB1': [0.34, 0.84], 'CB2': [0.66, 0.84], 'RB': [0.92, 0.80],
+    'GK': [0.50, 0.96]
+  },
+  '4-4-2 Flat': {
+    'ST1': [0.35, 0.14], 'ST2': [0.65, 0.14],
+    'LM': [0.12, 0.45], 'CM1': [0.36, 0.50], 'CM2': [0.64, 0.50], 'RM': [0.88, 0.45],
+    'LB': [0.08, 0.80], 'CB1': [0.34, 0.84], 'CB2': [0.66, 0.84], 'RB': [0.92, 0.80],
+    'GK': [0.50, 0.96]
+  },
+  '3-4-3 Flat': {
+    'LW': [0.15, 0.18], 'ST': [0.50, 0.12], 'RW': [0.85, 0.18],
+    'LM': [0.10, 0.46], 'CM1': [0.36, 0.50], 'CM2': [0.64, 0.50], 'RM': [0.90, 0.46],
+    'CB1': [0.22, 0.82], 'CB2': [0.50, 0.84], 'CB3': [0.78, 0.82],
+    'GK': [0.50, 0.96]
+  },
+  '5-3-2': {
+    'ST1': [0.36, 0.14], 'ST2': [0.64, 0.14],
+    'CM1': [0.25, 0.48], 'CM2': [0.50, 0.52], 'CM3': [0.75, 0.48],
+    'LWB': [0.06, 0.74], 'CB1': [0.26, 0.82], 'CB2': [0.50, 0.85], 'CB3': [0.74, 0.82], 'RWB': [0.94, 0.74],
+    'GK': [0.50, 0.96]
+  }
+};
+
+export default function FormationsPage() {
+  const [selectedFormation, setSelectedFormation] = useState('4-1-2-1-2 Narrow');
+  const [positions, setPositions] = useState(DEFAULT_FORMATIONS['4-1-2-1-2 Narrow']);
+  const [activeNode, setActiveNode] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const pitchRef = useRef(null);
+
+  useEffect(() => {
+    fetchFormation(selectedFormation);
+  }, [selectedFormation]);
+
+  const fetchFormation = async (name) => {
+    try {
+      const res = await fetch('/api/formations');
+      const data = await res.json();
+      if (data.success) {
+        const found = data.layouts.find(l => l.name === name);
+        if (found && found.positions) {
+          setPositions(found.positions);
+          return;
+        }
+      }
+    } catch (e) {}
+    setPositions(DEFAULT_FORMATIONS[name] || DEFAULT_FORMATIONS['4-3-3 Attack']);
+  };
+
+  const handlePointerDown = (pos) => (e) => {
+    e.preventDefault();
+    setActiveNode(pos);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!activeNode || !pitchRef.current) return;
+    const rect = pitchRef.current.getBoundingClientRect();
+    let x = (e.clientX - rect.left) / rect.width;
+    let y = (e.clientY - rect.top) / rect.height;
+
+    x = Math.max(0.02, Math.min(0.98, parseFloat(x.toFixed(3))));
+    y = Math.max(0.05, Math.min(0.96, parseFloat(y.toFixed(3))));
+
+    setPositions(prev => ({
+      ...prev,
+      [activeNode]: [x, y]
+    }));
+  };
+
+  const handlePointerUp = () => {
+    setActiveNode(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSavedSuccess(false);
+    try {
+      const res = await fetch('/api/formations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formationName: selectedFormation, positions }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
+    } catch (e) {}
+    finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setPositions(DEFAULT_FORMATIONS[selectedFormation] || DEFAULT_FORMATIONS['4-3-3 Attack']);
+  };
+
+  return (
+    <div className="flex min-h-screen" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
+      <Sidebar />
+      <main className="ml-64 flex-1 p-10 select-none">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-neutral-900">3D Formation Visualizer</h1>
+              <p className="text-sm text-neutral-500 mt-1">Drag tactical player nodes to adjust 3D pitch perspective in Supabase.</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/60 hover:bg-white text-xs font-semibold text-neutral-600 transition-all border border-white"
+              >
+                <RotateCcw className="w-4 h-4" /> Reset Default
+              </button>
+              <LiquidButton
+                text={saving ? "Syncing..." : (savedSuccess ? "Saved to Cloud!" : "Save Layout")}
+                onClick={handleSave}
+                disabled={saving}
+                width="200px"
+                height="50px"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="glass-card p-6 space-y-6">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Select Formation</label>
+                <select
+                  value={selectedFormation}
+                  onChange={(e) => setSelectedFormation(e.target.value)}
+                  className="apple-input font-bold"
+                >
+                  {Object.keys(DEFAULT_FORMATIONS).map(f => (
+                    <option key={f} value={f}>{f}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <span className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Tactical Positions ({Object.keys(positions).length})</span>
+                <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                  {Object.entries(positions).map(([pos, coords]) => (
+                    <div key={pos} className="flex items-center justify-between p-2.5 rounded-xl bg-white/40 text-xs font-mono">
+                      <span className="font-bold text-neutral-800">{pos}</span>
+                      <span className="text-neutral-500">X: {coords[0]} | Y: {coords[1]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3 glass-card p-6">
+              <div
+                ref={pitchRef}
+                className="w-full aspect-[16/9] rounded-3xl relative overflow-hidden shadow-2xl border-4 border-white/40 cursor-crosshair bg-emerald-700"
+                style={{
+                  backgroundImage: 'radial-gradient(ellipse at center 35%, #238b45 0%, #1a6332 75%, #0e3d1d 100%)',
+                }}
+              >
+                {/* 3D Pitch Lines */}
+                <div className="absolute inset-x-12 top-6 bottom-6 border-2 border-white/40 rounded-2xl pointer-events-none">
+                  {/* Halfway line */}
+                  <div className="absolute top-1/2 inset-x-0 h-0.5 bg-white/40 -translate-y-1/2"></div>
+                  {/* Center circle */}
+                  <div className="absolute top-1/2 left-1/2 w-36 h-36 rounded-full border-2 border-white/40 -translate-x-1/2 -translate-y-1/2"></div>
+                  {/* Penalty Box Top */}
+                  <div className="absolute top-0 left-1/2 w-72 h-28 border-2 border-white/40 border-t-0 -translate-x-1/2"></div>
+                  {/* Penalty Box Bottom */}
+                  <div className="absolute bottom-0 left-1/2 w-72 h-28 border-2 border-white/40 border-b-0 -translate-x-1/2"></div>
+                </div>
+
+                {/* Tactical Nodes */}
+                {Object.entries(positions).map(([pos, coords]) => {
+                  const xPercent = coords[0] * 100;
+                  const yPercent = coords[1] * 100;
+                  const isSelected = activeNode === pos;
+
+                  return (
+                    <div
+                      key={pos}
+                      onPointerDown={handlePointerDown(pos)}
+                      style={{ left: `${xPercent}%`, top: `${yPercent}%` }}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-shadow ${
+                        isSelected
+                          ? 'bg-blue-600 text-white shadow-xl scale-110 z-30 ring-4 ring-white'
+                          : 'bg-neutral-900/90 hover:bg-neutral-900 text-white shadow-lg z-20 border border-white/30'
+                      }`}
+                    >
+                      <span className="text-[11px] font-black tracking-wider leading-none">{pos}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
