@@ -6,35 +6,39 @@ import { RotateCcw, Image as ImageIcon, Upload, Trash2, CheckCircle2, Sparkles, 
 
 const ALL_FORMATIONS = [
   '4-3-3 Attack',
-  '4-1-2-1-2 Narrow',
-  '4-4-2 Flat',
-  '4-2-3-1 Wide',
-  '4-2-3-1 Narrow',
+  '4-3-3 Flat',
   '4-3-3 Holding',
   '4-3-3 Defend',
-  '4-3-3 Flat',
   '4-3-3 False 9',
+  '4-1-2-1-2 Narrow',
   '4-1-2-1-2 Wide',
   '4-2-2-2',
+  '4-2-3-1 Narrow',
+  '4-2-3-1 Wide',
+  '4-2-1-3',
+  '4-3-1-2',
+  '4-3-2-1',
+  '4-4-2 Flat',
+  '4-4-2 Holding',
+  '4-4-1-1 Flat',
+  '4-4-1-1 Attack',
+  '4-1-3-2',
+  '4-1-4-1',
   '4-5-1 Flat',
   '4-5-1 Attack',
-  '4-4-1-1 Midfield',
-  '4-4-1-1 Attack',
-  '4-3-2-1',
-  '4-3-1-2',
+  '4-2-4',
+  '3-5-2',
+  '3-1-4-2',
+  '3-4-1-2',
+  '3-4-2-1',
   '3-4-3 Flat',
   '3-4-3 Diamond',
-  '3-5-2',
-  '3-4-1-2',
-  '3-1-4-2',
-  '3-4-2-1',
   '3-5-1-1',
-  '5-3-2',
   '5-2-1-2',
-  '5-4-1 Flat',
-  '5-4-1 Diamond',
   '5-2-2-1',
-  '5-2-3'
+  '5-3-2',
+  '5-4-1 Flat',
+  '5-4-1 Defend'
 ];
 
 const THEMES = [
@@ -278,9 +282,33 @@ export default function FormationsPage() {
       const data = await res.json();
       if (data.success && data.layouts) {
         const found = data.layouts.find(l => l.name === name);
-        if (found && found.positions && Object.keys(found.positions).length > 0) {
-          setPositions(found.positions);
-          return;
+        if (found && found.positions) {
+          let posObj = {};
+          if (Array.isArray(found.positions)) {
+            found.positions.forEach(item => {
+              if (item && item.id) {
+                const xVal = item.x > 1 ? item.x / 100 : item.x;
+                const yVal = item.y > 1 ? item.y / 100 : item.y;
+                posObj[item.id] = [parseFloat(Number(xVal).toFixed(3)), parseFloat(Number(yVal).toFixed(3))];
+              }
+            });
+          } else if (typeof found.positions === 'object') {
+            Object.entries(found.positions).forEach(([k, v]) => {
+              if (Array.isArray(v) && v.length >= 2) {
+                const xVal = v[0] > 1 ? v[0] / 100 : v[0];
+                const yVal = v[1] > 1 ? v[1] / 100 : v[1];
+                posObj[k] = [parseFloat(Number(xVal).toFixed(3)), parseFloat(Number(yVal).toFixed(3))];
+              } else if (typeof v === 'object' && v !== null) {
+                const xVal = v.x > 1 ? v.x / 100 : v.x;
+                const yVal = v.y > 1 ? v.y / 100 : v.y;
+                posObj[k] = [parseFloat(Number(xVal).toFixed(3)), parseFloat(Number(yVal).toFixed(3))];
+              }
+            });
+          }
+          if (Object.keys(posObj).length >= 5) {
+            setPositions(posObj);
+            return;
+          }
         }
       }
     } catch (e) {}
