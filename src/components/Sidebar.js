@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, PlusCircle, Database, Network, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -15,15 +15,16 @@ export default function Sidebar() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin-commands', label: 'Admin Commands', icon: Sliders },
     { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle },
     { href: '/database', label: 'Database', icon: Database },
-    { href: '/formations', label: 'Formations', icon: Network },
+    { href: '/formations', label: 'Formations 3D', icon: Network },
   ];
 
   return (
     <aside className="w-64 fixed top-0 left-0 h-screen p-6 flex flex-col justify-between glass-card rounded-none border-r border-white/40 z-40 bg-white/30 backdrop-blur-xl">
       <div>
-        <div className="flex items-center gap-3 mb-10 px-2">
+        <div className="flex items-center gap-3 mb-8 px-2">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
             <ShieldCheck className="w-5 h-5" />
           </div>
