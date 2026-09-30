@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Package, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock } from 'lucide-react';
+import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock } from 'lucide-react';
 
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -83,7 +83,7 @@ export default function SignatureBoxAdminPage() {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSaving(true);
     setMessage({ type: '', text: '' });
 
@@ -118,7 +118,7 @@ export default function SignatureBoxAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: '✅ Signature Box saved and synchronized live to Discord Bot!' });
+        setMessage({ type: 'success', text: 'Signature Box saved and synchronized live to Discord Bot.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save Signature Box' });
       }
@@ -135,22 +135,22 @@ export default function SignatureBoxAdminPage() {
       const res = await fetch('/api/signature-box', { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        alert('✅ Successfully reset all user Signature Box draws!');
+        alert('Successfully reset all user Signature Box draws.');
       } else {
-        alert(`❌ Error: ${data.error}`);
+        alert(`Error: ${data.error}`);
       }
     } catch (e) {
-      alert(`❌ Network error: ${e.message}`);
+      alert(`Network error: ${e.message}`);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-neutral-900 text-white">
+      <div className="flex min-h-screen bg-[#0d0914] text-white">
         <Sidebar />
         <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex items-center gap-3 text-neutral-400 font-medium">
-            <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+            <RefreshCw className="w-6 h-6 animate-spin text-fuchsia-400" />
             Loading Signature Box Editor...
           </div>
         </main>
@@ -159,18 +159,20 @@ export default function SignatureBoxAdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0d0f15] text-neutral-100 font-sans">
+    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans selection:bg-fuchsia-500/30">
       <Sidebar />
 
       <main className="flex-1 ml-64 p-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-800">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-black shadow-lg shadow-amber-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-fuchsia-500/20">
                 <Gift className="w-6 h-6" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight">Signature Box Manager</h1>
+              <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+                Signature Box Manager
+              </h1>
             </div>
             <p className="text-sm text-neutral-400">
               Create and manage limited-time 10-reward Signature Box draws with non-repeatable prizes and increasing costs.
@@ -185,9 +187,13 @@ export default function SignatureBoxAdminPage() {
               <RefreshCw className="w-3.5 h-3.5" />
               Reset Player Progress
             </button>
-            <LiquidButton onClick={handleSave} disabled={saving}>
+            <LiquidButton
+              onClick={handleSave}
+              disabled={saving}
+              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
+            >
               {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save & Publish Live'}
+              {saving ? 'Saving...' : 'Save and Publish Live'}
             </LiquidButton>
           </div>
         </div>
@@ -195,9 +201,9 @@ export default function SignatureBoxAdminPage() {
         {/* Status Alerts */}
         {message.text && (
           <div className={`p-4 mb-6 rounded-2xl flex items-center gap-3 text-sm font-medium ${
-            message.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+            message.type === 'success' ? 'bg-fuchsia-950/40 border border-fuchsia-500/40 text-fuchsia-200' : 'bg-red-950/40 border border-red-500/40 text-red-200'
           }`}>
-            {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+            {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-fuchsia-400" /> : <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />}
             {message.text}
           </div>
         )}
@@ -207,9 +213,9 @@ export default function SignatureBoxAdminPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Box Header Settings */}
-            <div className="lg:col-span-5 bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-200">
-                <Gift className="w-5 h-5 text-amber-400" />
+            <div className="lg:col-span-5 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+                <Gift className="w-5 h-5 text-fuchsia-400" />
                 Box Configuration
               </h2>
 
@@ -220,7 +226,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="e.g. FC SIGNATURE BOX"
                     required
                   />
@@ -232,7 +238,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={subtitle}
                     onChange={(e) => setSubtitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="e.g. 10 Exclusive Limited Time Rewards"
                   />
                 </div>
@@ -243,7 +249,7 @@ export default function SignatureBoxAdminPage() {
                     type="url"
                     value={bannerUrl}
                     onChange={(e) => setBannerUrl(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="https://..."
                   />
                 </div>
@@ -255,7 +261,7 @@ export default function SignatureBoxAdminPage() {
                       type="datetime-local"
                       value={expiresAt}
                       onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-xs focus:outline-none text-neutral-300"
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none text-neutral-300"
                     />
                   </div>
                   <div>
@@ -265,11 +271,11 @@ export default function SignatureBoxAdminPage() {
                       onClick={() => setIsActive(!isActive)}
                       className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                         isActive
-                          ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-sm shadow-emerald-500/10'
-                          : 'bg-neutral-950 border-neutral-800 text-neutral-500'
+                          ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
+                          : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
                       }`}
                     >
-                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600'}`} />
+                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
                       {isActive ? 'ACTIVE & LIVE' : 'DISABLED / CLOSED'}
                     </button>
                   </div>
@@ -278,11 +284,11 @@ export default function SignatureBoxAdminPage() {
             </div>
 
             {/* Signature Exclusive Card Customizer */}
-            <div className="lg:col-span-7 bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden">
-              <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="lg:col-span-7 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden">
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-amber-300">
-                <Sparkles className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-fuchsia-300">
+                <Sparkles className="w-5 h-5 text-fuchsia-400" />
                 Featured Exclusive Signature Card (Good Reward #10)
               </h2>
 
@@ -293,7 +299,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none font-semibold text-white"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-semibold text-white"
                     placeholder="e.g. Zinedine Zidane"
                     required
                   />
@@ -307,7 +313,7 @@ export default function SignatureBoxAdminPage() {
                     max="125"
                     value={cardRating}
                     onChange={(e) => setCardRating(parseInt(e.target.value, 10))}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none font-bold text-amber-400"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-bold text-fuchsia-300"
                     required
                   />
                 </div>
@@ -318,7 +324,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={cardPosition}
                     onChange={(e) => setCardPosition(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="CAM, ST, RW, CB..."
                     required
                   />
@@ -330,7 +336,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={cardClub}
                     onChange={(e) => setCardClub(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="Real Madrid, Barcelona..."
                   />
                 </div>
@@ -341,7 +347,7 @@ export default function SignatureBoxAdminPage() {
                     type="text"
                     value={cardNation}
                     onChange={(e) => setCardNation(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="France, Argentina..."
                   />
                 </div>
@@ -355,7 +361,7 @@ export default function SignatureBoxAdminPage() {
                     max="2.0"
                     value={cardBoost}
                     onChange={(e) => setCardBoost(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none text-amber-300 font-semibold"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
                     placeholder="1.25 (+25% buff)"
                   />
                 </div>
@@ -366,25 +372,25 @@ export default function SignatureBoxAdminPage() {
                     type="url"
                     value={cardBackgroundUrl}
                     onChange={(e) => setCardBackgroundUrl(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-xs focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none"
                     placeholder="https://images.unsplash.com/..."
                   />
                 </div>
               </div>
 
-              <div className="mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-xs text-amber-300">
-                <Shield className="w-4 h-4 flex-shrink-0 text-amber-400" />
-                <span>This card is <strong>exclusive to the Signature Box</strong> with 1% initial drop rate and custom in-game match aura. It will not appear in regular drafts or exchanges.</span>
+              <div className="mt-4 p-3 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center gap-3 text-xs text-fuchsia-300">
+                <Shield className="w-4 h-4 flex-shrink-0 text-fuchsia-400" />
+                <span>This card is exclusive to the Signature Box with 1% initial drop rate and custom in-game match aura. It will not appear in regular drafts or exchanges.</span>
               </div>
             </div>
           </div>
 
           {/* 10 Rewards Matrix */}
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
+          <div className="bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-lg font-bold flex items-center gap-2">
-                  <Package className="w-5 h-5 text-blue-400" />
+                  <Box className="w-5 h-5 text-fuchsia-400" />
                   10-Reward Pool Matrix (2 Bad, 5 Mid, 3 Good)
                 </h2>
                 <p className="text-xs text-neutral-400 mt-1">
@@ -395,8 +401,8 @@ export default function SignatureBoxAdminPage() {
 
             <div className="space-y-3">
               {rewards.map((r, idx) => {
-                const tierColor = r.tier === 'good' ? 'border-amber-500/40 bg-amber-500/5' : (r.tier === 'mid' ? 'border-blue-500/30 bg-blue-500/5' : 'border-neutral-800 bg-neutral-950/60');
-                const tierBadge = r.tier === 'good' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : (r.tier === 'mid' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-neutral-800 text-neutral-400 border-neutral-700');
+                const tierColor = r.tier === 'good' ? 'border-fuchsia-500/40 bg-fuchsia-500/5' : (r.tier === 'mid' ? 'border-purple-500/30 bg-purple-500/5' : 'border-purple-900/20 bg-neutral-950/60');
+                const tierBadge = r.tier === 'good' ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30' : (r.tier === 'mid' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-neutral-800 text-neutral-400 border-neutral-700');
 
                 return (
                   <div key={r.id || idx} className={`p-4 rounded-2xl border ${tierColor} grid grid-cols-1 md:grid-cols-12 gap-4 items-center transition-all`}>
@@ -404,9 +410,10 @@ export default function SignatureBoxAdminPage() {
                       <span>#{r.id}</span>
                       <input
                         type="text"
-                        value={r.icon || '🎁'}
+                        value={r.icon || ''}
                         onChange={(e) => handleRewardChange(idx, 'icon', e.target.value)}
-                        className="w-8 text-center bg-transparent border-b border-neutral-700 text-lg focus:outline-none"
+                        placeholder="Tag"
+                        className="w-10 text-center bg-transparent border-b border-purple-900/40 text-xs focus:outline-none text-neutral-300"
                       />
                     </div>
 
@@ -415,7 +422,7 @@ export default function SignatureBoxAdminPage() {
                         type="text"
                         value={r.name}
                         onChange={(e) => handleRewardChange(idx, 'name', e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white focus:outline-none focus:border-blue-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-sm font-semibold text-white focus:outline-none focus:border-pink-500"
                         placeholder="Reward display title"
                       />
                     </div>
@@ -426,9 +433,9 @@ export default function SignatureBoxAdminPage() {
                         onChange={(e) => handleRewardChange(idx, 'tier', e.target.value)}
                         className={`w-full px-2.5 py-1.5 rounded-lg border text-xs font-bold uppercase focus:outline-none ${tierBadge}`}
                       >
-                        <option value="bad">⚠️ BAD</option>
-                        <option value="mid">✨ MID</option>
-                        <option value="good">👑 GOOD</option>
+                        <option value="bad">BAD Tier</option>
+                        <option value="mid">MID Tier</option>
+                        <option value="good">GOOD Tier</option>
                       </select>
                     </div>
 
@@ -436,14 +443,14 @@ export default function SignatureBoxAdminPage() {
                       <select
                         value={r.type}
                         onChange={(e) => handleRewardChange(idx, 'type', e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-medium focus:outline-none text-neutral-300"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-xs font-medium focus:outline-none text-neutral-300"
                       >
                         <option value="coins">Coins</option>
                         <option value="vouchers">Draft Vouchers</option>
                         <option value="gems">Gems</option>
                         <option value="fans">Fans</option>
                         <option value="pack">Card Pack</option>
-                        <option value="signature_card">🌟 Signature Card</option>
+                        <option value="signature_card">Signature Card</option>
                       </select>
                     </div>
 
@@ -453,7 +460,7 @@ export default function SignatureBoxAdminPage() {
                         value={r.amount || 0}
                         onChange={(e) => handleRewardChange(idx, 'amount', parseInt(e.target.value, 10))}
                         disabled={r.type === 'signature_card'}
-                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-bold text-neutral-200 focus:outline-none"
+                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-xs font-bold text-neutral-200 focus:outline-none"
                         placeholder="Amount"
                       />
                     </div>
@@ -468,9 +475,9 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* 10-Step Draw Cost Manager */}
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
-            <h2 className="text-lg font-bold mb-2 flex items-center gap-2 text-emerald-400">
-              <Coins className="w-5 h-5 text-emerald-400" />
+          <div className="bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
+            <h2 className="text-lg font-bold mb-2 flex items-center gap-2 text-fuchsia-300">
+              <Coins className="w-5 h-5 text-fuchsia-400" />
               10-Draw Step Cost Progression
             </h2>
             <p className="text-xs text-neutral-400 mb-6">
@@ -479,17 +486,17 @@ export default function SignatureBoxAdminPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {drawCosts.map((cost, idx) => (
-                <div key={cost.draw || idx} className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 flex flex-col justify-between space-y-3">
+                <div key={cost.draw || idx} className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 flex flex-col justify-between space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-amber-400 font-mono">DRAW #{cost.draw || idx + 1}</span>
+                    <span className="text-fuchsia-300 font-mono">DRAW #{cost.draw || idx + 1}</span>
                     <select
                       value={cost.currency}
                       onChange={(e) => handleCostChange(idx, 'currency', e.target.value)}
-                      className="bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-md px-1.5 py-0.5 text-xs focus:outline-none"
+                      className="bg-neutral-900 border border-purple-900/40 text-neutral-300 rounded-md px-1.5 py-0.5 text-xs focus:outline-none"
                     >
-                      <option value="coins">🪙 Coins</option>
-                      <option value="vouchers">🎟️ Vouchers</option>
-                      <option value="gems">💎 Gems</option>
+                      <option value="coins">Coins</option>
+                      <option value="vouchers">Vouchers</option>
+                      <option value="gems">Gems</option>
                     </select>
                   </div>
 
@@ -500,7 +507,7 @@ export default function SignatureBoxAdminPage() {
                       step="1000000"
                       value={cost.amount}
                       onChange={(e) => handleCostChange(idx, 'amount', e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-xs font-mono font-bold text-white focus:outline-none focus:border-pink-500"
                     />
                     <div className="text-[10px] text-neutral-500 mt-1 font-mono text-right">
                       {parseInt(cost.amount, 10).toLocaleString()} {cost.currency}
@@ -512,13 +519,17 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* Bottom Save bar */}
-          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/90 border border-neutral-800/80 backdrop-blur-xl flex items-center justify-between shadow-2xl">
+          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/90 border border-purple-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl">
             <div className="text-xs text-neutral-400">
-              ⚡ Changes saved here apply instantly in real-time to the Discord <code>/signature_box</code> command.
+              Changes saved here apply instantly in real-time to the Discord <code>/signature_box</code> command.
             </div>
-            <LiquidButton onClick={handleSave} disabled={saving}>
+            <LiquidButton
+              onClick={handleSave}
+              disabled={saving}
+              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
+            >
               {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save & Publish Live'}
+              {saving ? 'Saving...' : 'Save and Publish Live'}
             </LiquidButton>
           </div>
         </form>

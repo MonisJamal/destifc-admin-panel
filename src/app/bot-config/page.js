@@ -46,7 +46,7 @@ export default function BotConfigAdminPage() {
   // Maintenance State
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState(
-    "🛠️ DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused!"
+    "DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused."
   );
 
   // Command Toggles
@@ -69,7 +69,7 @@ export default function BotConfigAdminPage() {
         setMaintenanceMode(Boolean(c.maintenance_mode));
         setMaintenanceMessage(
           c.maintenance_message ||
-            "🛠️ DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused!"
+            "DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused."
         );
         setCommandsEnabled(c.commands_enabled || {});
       }
@@ -117,7 +117,7 @@ export default function BotConfigAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: '✨ Bot System & Presence settings saved! Live Discord bot updated.' });
+        setMessage({ type: 'success', text: 'Bot System and Presence settings saved. Live Discord bot updated.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save bot settings.' });
       }
@@ -132,11 +132,11 @@ export default function BotConfigAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white flex">
+      <div className="min-h-screen bg-[#0d0914] text-white flex">
         <Sidebar />
         <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
-            <RefreshCw className="w-8 h-8 animate-spin text-blue-400" />
+            <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
             <p className="text-sm font-medium">Loading Bot System Configuration...</p>
           </div>
         </main>
@@ -145,22 +145,22 @@ export default function BotConfigAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d14] text-neutral-100 flex selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-fuchsia-500/30">
       <Sidebar />
       <main className="flex-1 ml-64 p-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-800/80">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center gap-1.5">
-                <Bot className="w-3.5 h-3.5" /> Bot Presence & Core Operations
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5" /> Bot Presence and Core Operations
               </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
                 Live Discord Sync
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-              Bot Status, Maintenance & Permissions
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              Bot Status, Maintenance and Permissions
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
               Control Discord rich presence activity, emergency maintenance mode switches, and individual slash command permissions.
@@ -170,14 +170,14 @@ export default function BotConfigAdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={fetchConfig}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 border border-neutral-700/60 transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 border border-purple-900/40 transition-colors flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" /> Reset
             </button>
             <LiquidButton
               onClick={handleSave}
               disabled={saving}
-              className="!px-6 !py-2.5 !bg-blue-600 hover:!bg-blue-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-blue-600/30 flex items-center gap-2"
+              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Bot Config'}
@@ -190,12 +190,12 @@ export default function BotConfigAdminPage() {
           <div
             className={`mb-8 p-4 rounded-2xl border flex items-center gap-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 ${
               message.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                ? 'bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-200'
                 : 'bg-red-950/40 border-red-500/40 text-red-200'
             }`}
           >
             {message.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-fuchsia-400 shrink-0" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
             )}
@@ -205,14 +205,14 @@ export default function BotConfigAdminPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Discord Presence Settings */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-neutral-800">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
+          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+              <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-300 flex items-center justify-center border border-pink-500/30">
                 <Radio className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="text-base font-bold text-white">Discord Rich Presence</h2>
-                <p className="text-xs text-neutral-400">Status activity displayed on the bot&apos;s Discord profile</p>
+                <p className="text-xs text-neutral-400">Status activity displayed on the bot Discord profile</p>
               </div>
             </div>
 
@@ -222,7 +222,7 @@ export default function BotConfigAdminPage() {
                 <select
                   value={activityType}
                   onChange={(e) => setActivityType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-pink-500"
                 >
                   <option value="Playing">Playing (e.g. Playing FC Mobile 27)</option>
                   <option value="Streaming">Streaming (e.g. Streaming DestiFC Live)</option>
@@ -239,7 +239,7 @@ export default function BotConfigAdminPage() {
                   value={statusText}
                   onChange={(e) => setStatusText(e.target.value)}
                   placeholder="e.g. FC Mobile 27"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-pink-500"
                 />
               </div>
 
@@ -248,22 +248,22 @@ export default function BotConfigAdminPage() {
                 <select
                   value={statusState}
                   onChange={(e) => setStatusState(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-pink-500"
                 >
-                  <option value="online">🟢 Online (Green Indicator)</option>
-                  <option value="idle">🟡 Idle (Yellow Moon)</option>
-                  <option value="dnd">🔴 Do Not Disturb (Red Minus)</option>
+                  <option value="online">Online (Green Indicator)</option>
+                  <option value="idle">Idle (Yellow Moon)</option>
+                  <option value="dnd">Do Not Disturb (Red Minus)</option>
                 </select>
               </div>
             </div>
           </div>
 
           {/* Maintenance Mode Controls */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-purple-900/20">
               <div className="flex items-center gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
-                  maintenanceMode ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  maintenanceMode ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30'
                 }`}>
                   <ShieldAlert className="w-5 h-5" />
                 </div>
@@ -277,7 +277,7 @@ export default function BotConfigAdminPage() {
                 type="button"
                 onClick={() => setMaintenanceMode(!maintenanceMode)}
                 className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-200 ${
-                  maintenanceMode ? 'bg-red-600 justify-end' : 'bg-neutral-700 justify-start'
+                  maintenanceMode ? 'bg-red-600 justify-end' : 'bg-neutral-800 justify-start'
                 }`}
               >
                 <div className="w-5 h-5 rounded-full bg-white shadow-md" />
@@ -286,11 +286,11 @@ export default function BotConfigAdminPage() {
 
             <div className="space-y-4">
               <div className={`p-3.5 rounded-2xl border text-xs ${
-                maintenanceMode ? 'bg-red-950/40 border-red-500/40 text-red-300' : 'bg-neutral-800/60 border-neutral-700 text-neutral-400'
+                maintenanceMode ? 'bg-red-950/40 border-red-500/40 text-red-300' : 'bg-neutral-950 border-purple-900/30 text-neutral-400'
               }`}>
                 {maintenanceMode
-                  ? '⚠️ MAINTENANCE MODE IS ACTIVE: Standard users cannot run commands. Only Bot Admins & Owners have access.'
-                  : '✅ Bot is operating normally. All users have full command access.'}
+                  ? 'Maintenance mode is active: Standard users cannot run commands. Only Bot Admins and Owners have access.'
+                  : 'Bot is operating normally. All users have full command access.'}
               </div>
 
               <div>
@@ -299,7 +299,7 @@ export default function BotConfigAdminPage() {
                   rows={3}
                   value={maintenanceMessage}
                   onChange={(e) => setMaintenanceMessage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 text-sm focus:outline-none focus:border-red-500 resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-red-500 resize-none"
                 />
               </div>
             </div>
@@ -307,10 +307,10 @@ export default function BotConfigAdminPage() {
         </div>
 
         {/* Individual Command Toggles */}
-        <div className="mt-8 p-6 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-neutral-800">
+        <div className="mt-8 p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-purple-900/20">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-300 flex items-center justify-center border border-purple-500/30">
                 <Sliders className="w-5 h-5" />
               </div>
               <div>
@@ -322,13 +322,13 @@ export default function BotConfigAdminPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleToggleAllCommands(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 transition"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-fuchsia-500/15 hover:bg-fuchsia-500/25 text-fuchsia-300 border border-fuchsia-500/30 transition"
               >
                 Enable All
               </button>
               <button
                 onClick={() => handleToggleAllCommands(false)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 transition"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 transition"
               >
                 Disable All
               </button>
@@ -343,7 +343,7 @@ export default function BotConfigAdminPage() {
                   key={cmd.key}
                   className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                     isEnabled
-                      ? 'bg-neutral-800/50 border-neutral-700/80'
+                      ? 'bg-neutral-950/80 border-purple-900/30'
                       : 'bg-red-950/20 border-red-500/30 opacity-75'
                   }`}
                 >
@@ -351,7 +351,7 @@ export default function BotConfigAdminPage() {
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-bold text-white">{cmd.label}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${
-                        isEnabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                        isEnabled ? 'bg-fuchsia-500/20 text-fuchsia-300' : 'bg-red-500/20 text-red-400'
                       }`}>
                         {isEnabled ? 'Active' : 'Disabled'}
                       </span>
@@ -363,7 +363,7 @@ export default function BotConfigAdminPage() {
                     type="button"
                     onClick={() => toggleCommand(cmd.key)}
                     className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 shrink-0 ${
-                      isEnabled ? 'bg-emerald-600 justify-end' : 'bg-neutral-700 justify-start'
+                      isEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-neutral-800 justify-start'
                     }`}
                   >
                     <div className="w-4 h-4 rounded-full bg-white shadow-md" />
@@ -379,7 +379,7 @@ export default function BotConfigAdminPage() {
           <LiquidButton
             onClick={handleSave}
             disabled={saving}
-            className="!px-8 !py-3.5 !bg-blue-600 hover:!bg-blue-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-blue-600/30 flex items-center gap-3 text-base"
+            className="!px-8 !py-3.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-fuchsia-600/30 flex items-center gap-3 text-base"
           >
             <Save className="w-5 h-5" />
             {saving ? 'Saving System Rates...' : 'Save & Sync Bot Configuration'}

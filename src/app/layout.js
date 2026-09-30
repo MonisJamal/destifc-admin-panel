@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'DestiFC - Cloud Admin Portal',
-  description: 'Manage custom cards, players, database, and 3D formations directly in the cloud.',
+  title: 'DestiFC Admin Portal',
+  description: 'Manage custom cards, players, database, drop rates, and bot configuration directly in the cloud.',
 };
 
 export default function RootLayout({ children }) {
@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
       <head>
         <meta name="referrer" content="no-referrer" />
       </head>
-      <body className="antialiased min-h-screen text-neutral-900 selection:bg-blue-500 selection:text-white">
+      <body className="antialiased min-h-screen bg-[#0d0914] text-neutral-100 selection:bg-fuchsia-500/30 selection:text-fuchsia-200">
         {children}
       </body>
     </html>

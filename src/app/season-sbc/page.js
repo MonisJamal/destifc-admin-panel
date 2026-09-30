@@ -126,7 +126,7 @@ export default function SeasonSbcAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: '✨ Season Pass configuration saved! Live bot updated.' });
+        setMessage({ type: 'success', text: 'Season Pass configuration saved. Live bot updated.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save season config.' });
       }
@@ -141,12 +141,12 @@ export default function SeasonSbcAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white flex">
+      <div className="min-h-screen bg-[#0d0914] text-white flex">
         <Sidebar />
         <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
-            <RefreshCw className="w-8 h-8 animate-spin text-amber-400" />
-            <p className="text-sm font-medium">Loading Season Pass & SBC Manager...</p>
+            <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
+            <p className="text-sm font-medium">Loading Season Pass and SBC Manager...</p>
           </div>
         </main>
       </div>
@@ -154,22 +154,22 @@ export default function SeasonSbcAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d14] text-neutral-100 flex selection:bg-amber-500/30">
+    <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-fuchsia-500/30">
       <Sidebar />
       <main className="flex-1 ml-64 p-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-800/80">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5" /> Progression & Challenges
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" /> Progression and Challenges
               </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
                 Live Discord Sync
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-              Season Pass & SBC Architect
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              Season Pass and SBC Architect
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
               Configure season progression tiers, XP thresholds, tier rewards, and inspect active Squad Building Challenges.
@@ -179,14 +179,14 @@ export default function SeasonSbcAdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={fetchData}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 border border-neutral-700/60 transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 border border-purple-900/40 transition-colors flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" /> Reset
             </button>
             <LiquidButton
               onClick={handleSave}
               disabled={saving}
-              className="!px-6 !py-2.5 !bg-amber-600 hover:!bg-amber-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-amber-600/30 flex items-center gap-2"
+              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Season Pass'}
@@ -199,12 +199,12 @@ export default function SeasonSbcAdminPage() {
           <div
             className={`mb-8 p-4 rounded-2xl border flex items-center gap-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 ${
               message.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                ? 'bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-200'
                 : 'bg-red-950/40 border-red-500/40 text-red-200'
             }`}
           >
             {message.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-fuchsia-400 shrink-0" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
             )}
@@ -213,9 +213,9 @@ export default function SeasonSbcAdminPage() {
         )}
 
         {/* Season Metadata */}
-        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl mb-8 space-y-4">
+        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl mb-8 space-y-4">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-amber-400" /> Active Season Pass Settings
+            <Calendar className="w-4 h-4 text-fuchsia-400" /> Active Season Pass Settings
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -225,7 +225,7 @@ export default function SeasonSbcAdminPage() {
                 type="number"
                 value={seasonNumber}
                 onChange={(e) => setSeasonNumber(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 font-mono text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
               />
             </div>
             <div>
@@ -234,7 +234,7 @@ export default function SeasonSbcAdminPage() {
                 type="text"
                 value={seasonTitle}
                 onChange={(e) => setSeasonTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-pink-500"
               />
             </div>
             <div>
@@ -243,27 +243,27 @@ export default function SeasonSbcAdminPage() {
                 type="number"
                 value={xpPerTier}
                 onChange={(e) => setXpPerTier(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 font-mono text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
               />
             </div>
           </div>
         </div>
 
         {/* Tiers Editor Table */}
-        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-purple-900/20">
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-blue-400" /> Season Pass Progression Tiers ({tiers.length} Tiers)
+                <Layers className="w-4 h-4 text-purple-400" /> Season Pass Progression Tiers ({tiers.length} Tiers)
               </h2>
               <p className="text-xs text-neutral-400">Claimable milestone rewards as players earn season XP</p>
             </div>
 
             <button
               onClick={handleAddTier}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-purple-900/40 transition flex items-center gap-1.5"
             >
-              <Plus className="w-3.5 h-3.5 text-amber-400" /> Add Tier
+              <Plus className="w-3.5 h-3.5 text-fuchsia-400" /> Add Tier
             </button>
           </div>
 
@@ -271,10 +271,10 @@ export default function SeasonSbcAdminPage() {
             {tiers.map((t, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-neutral-800/40 border border-neutral-700/60 flex flex-wrap items-center justify-between gap-4"
+                className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 flex flex-wrap items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-3">
-                  <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-neutral-950 font-extrabold flex items-center justify-center font-mono text-sm shadow-md">
+                  <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-md">
                     {t.tier}
                   </span>
                   <div>
@@ -287,11 +287,11 @@ export default function SeasonSbcAdminPage() {
                   <select
                     value={t.reward_type}
                     onChange={(e) => handleTierChange(idx, 'reward_type', e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-neutral-100 focus:outline-none focus:border-amber-500"
+                    className="px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-xs text-neutral-100 focus:outline-none focus:border-pink-500"
                   >
-                    <option value="coins">🪙 Coins</option>
-                    <option value="vouchers">🎫 Vouchers</option>
-                    <option value="card">👑 Player Card</option>
+                    <option value="coins">Coins</option>
+                    <option value="vouchers">Vouchers</option>
+                    <option value="card">Player Card</option>
                   </select>
 
                   <input
@@ -299,7 +299,7 @@ export default function SeasonSbcAdminPage() {
                     value={t.reward_name}
                     onChange={(e) => handleTierChange(idx, 'reward_name', e.target.value)}
                     placeholder="Reward Display Name..."
-                    className="flex-1 px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-neutral-100 focus:outline-none focus:border-amber-500"
+                    className="flex-1 px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-xs text-neutral-100 focus:outline-none focus:border-pink-500"
                   />
 
                   <input
@@ -307,7 +307,7 @@ export default function SeasonSbcAdminPage() {
                     value={t.reward_value}
                     onChange={(e) => handleTierChange(idx, 'reward_value', e.target.value)}
                     placeholder="Value..."
-                    className="w-32 px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-xs text-neutral-100 font-mono focus:outline-none focus:border-amber-500 text-right"
+                    className="w-32 px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-xs text-neutral-100 font-mono focus:outline-none focus:border-pink-500 text-right"
                   />
                 </div>
 
@@ -328,7 +328,7 @@ export default function SeasonSbcAdminPage() {
           <LiquidButton
             onClick={handleSave}
             disabled={saving}
-            className="!px-8 !py-3.5 !bg-amber-600 hover:!bg-amber-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-amber-600/30 flex items-center gap-3 text-base"
+            className="!px-8 !py-3.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-fuchsia-600/30 flex items-center gap-3 text-base"
           >
             <Save className="w-5 h-5" />
             {saving ? 'Saving...' : 'Save Season Pass'}

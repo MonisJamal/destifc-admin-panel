@@ -96,11 +96,9 @@ export default function PriceSetterAdminPage() {
     setPrices((prev) => {
       const current = prev[ovr] || { min_price: 0, max_price: 0, quicksell: 0 };
       const updated = { ...current, [field]: num };
-      // If min_price updated and quicksell was unset or 0, suggest 70%
       if (field === 'min_price' && (!current.quicksell || current.quicksell === 0)) {
         updated.quicksell = Math.round(num * 0.7);
       }
-      // If min_price updated and max_price was 0, suggest 2x
       if (field === 'min_price' && (!current.max_price || current.max_price === 0)) {
         updated.max_price = num * 2;
       }
@@ -128,7 +126,7 @@ export default function PriceSetterAdminPage() {
       }
     }));
     setNewOvr('');
-    setMessage({ type: 'success', text: `Added OVR ${ovrNum} row! Adjust prices and click Save.` });
+    setMessage({ type: 'success', text: `Added OVR ${ovrNum} row. Adjust prices and click Save.` });
     setTimeout(() => setMessage({ type: '', text: '' }), 4000);
   };
 
@@ -154,7 +152,7 @@ export default function PriceSetterAdminPage() {
       });
       return updated;
     });
-    setMessage({ type: 'success', text: '✨ Recalculated QuickSell (70% of Min) and Max (2x Min) across all OVRs!' });
+    setMessage({ type: 'success', text: 'Recalculated QuickSell (70% of Min) and Max (2x Min) across all OVRs.' });
     setTimeout(() => setMessage({ type: '', text: '' }), 4000);
   };
 
@@ -171,13 +169,13 @@ export default function PriceSetterAdminPage() {
       });
       return updated;
     });
-    setMessage({ type: 'success', text: `Scaled all OVR prices by ${(multiplier * 100).toFixed(0)}%! Click Save to apply.` });
+    setMessage({ type: 'success', text: `Scaled all OVR prices by ${(multiplier * 100).toFixed(0)}%. Click Save to apply.` });
     setTimeout(() => setMessage({ type: '', text: '' }), 4000);
   };
 
   const handleApplyPreset = (preset) => {
     setPrices(preset);
-    setMessage({ type: 'success', text: 'Loaded official standard price curve! Click Save to apply.' });
+    setMessage({ type: 'success', text: 'Loaded standard price curve. Click Save to apply.' });
     setTimeout(() => setMessage({ type: '', text: '' }), 4000);
   };
 
@@ -193,7 +191,7 @@ export default function PriceSetterAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: '✨ All OVR Price limits saved! Discord market, quicksell, and inventory updated live.' });
+        setMessage({ type: 'success', text: 'All OVR Price limits saved. Discord market, quicksell, and inventory updated live.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save prices.' });
       }
@@ -206,7 +204,6 @@ export default function PriceSetterAdminPage() {
     }
   };
 
-  // Sort OVRs descending
   const sortedOvrs = Object.keys(prices)
     .map(Number)
     .sort((a, b) => b - a)
@@ -214,11 +211,11 @@ export default function PriceSetterAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white flex">
+      <div className="min-h-screen bg-[#0d0914] text-white flex">
         <Sidebar />
         <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
-            <RefreshCw className="w-8 h-8 animate-spin text-amber-400" />
+            <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
             <p className="text-sm font-medium">Loading OVR Price Matrix...</p>
           </div>
         </main>
@@ -227,22 +224,22 @@ export default function PriceSetterAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d14] text-neutral-100 flex selection:bg-amber-500/30">
+    <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-fuchsia-500/30">
       <Sidebar />
       <main className="flex-1 ml-64 p-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-800/80">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
-                <Coins className="w-3.5 h-3.5" /> Economy & Market Engine
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
+                <Coins className="w-3.5 h-3.5" /> Economy and Market Engine
               </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
                 Live Bot Synchronization
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-              OVR Price Limits & QuickSell Setter
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              OVR Price Limits and QuickSell Setter
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
               Configure minimum price floors, maximum price ceilings, and quicksell values for each player card OVR rating.
@@ -252,14 +249,14 @@ export default function PriceSetterAdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={fetchPrices}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 border border-neutral-700/60 transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 border border-purple-900/40 transition-colors flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" /> Reset
             </button>
             <LiquidButton
               onClick={handleSave}
               disabled={saving}
-              className="!px-6 !py-2.5 !bg-amber-600 hover:!bg-amber-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-amber-600/30 flex items-center gap-2"
+              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving Live...' : 'Save All Prices'}
@@ -272,12 +269,12 @@ export default function PriceSetterAdminPage() {
           <div
             className={`mb-8 p-4 rounded-2xl border flex items-center gap-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 ${
               message.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                ? 'bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-200'
                 : 'bg-red-950/40 border-red-500/40 text-red-200'
             }`}
           >
             {message.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-fuchsia-400 shrink-0" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
             )}
@@ -286,7 +283,7 @@ export default function PriceSetterAdminPage() {
         )}
 
         {/* Toolbar & Batch Actions */}
-        <div className="mb-8 p-5 rounded-3xl bg-neutral-900/60 border border-neutral-800 space-y-4">
+        <div className="mb-8 p-5 rounded-3xl bg-neutral-900/50 border border-purple-900/30 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[240px] max-w-sm">
@@ -296,7 +293,7 @@ export default function PriceSetterAdminPage() {
                 placeholder="Filter by OVR (e.g. 120)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-fuchsia-500"
               />
             </div>
 
@@ -307,46 +304,46 @@ export default function PriceSetterAdminPage() {
                 placeholder="New OVR..."
                 value={newOvr}
                 onChange={(e) => setNewOvr(e.target.value)}
-                className="w-28 px-3 py-2 rounded-xl bg-neutral-800 border border-neutral-700 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-500 text-center font-mono"
+                className="w-28 px-3 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-fuchsia-500 text-center font-mono"
               />
               <button
                 onClick={handleAddNewOvr}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-purple-900/40 transition flex items-center gap-1.5"
               >
-                <Plus className="w-3.5 h-3.5 text-amber-400" /> Add OVR
+                <Plus className="w-3.5 h-3.5 text-fuchsia-400" /> Add OVR
               </button>
             </div>
           </div>
 
           {/* Quick Tools */}
-          <div className="pt-3 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="pt-3 border-t border-purple-900/20 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-amber-400" />
+              <Calculator className="w-4 h-4 text-fuchsia-400" />
               <span className="font-semibold text-neutral-300">Quick Tools:</span>
               <button
                 onClick={handleAutoCalcAll}
-                className="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 font-medium transition"
+                className="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-purple-900/30 font-medium transition"
               >
-                ⚡ Auto QS (70%) & Max (2x)
+                Auto QuickSell (70%) and Max (2x)
               </button>
               <button
                 onClick={() => handleScaleAll(1.2)}
-                className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 font-medium transition"
+                className="px-2.5 py-1.5 rounded-lg bg-fuchsia-500/15 hover:bg-fuchsia-500/25 text-fuchsia-300 border border-fuchsia-500/30 font-medium transition"
               >
-                📈 +20% All Prices
+                +20% All Prices
               </button>
               <button
                 onClick={() => handleScaleAll(0.8)}
-                className="px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 font-medium transition"
+                className="px-2.5 py-1.5 rounded-lg bg-pink-500/15 hover:bg-pink-500/25 text-pink-300 border border-pink-500/30 font-medium transition"
               >
-                📉 -20% All Prices
+                -20% All Prices
               </button>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleApplyPreset(DEFAULT_PRESET_OFFICIAL)}
-                className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/20 font-semibold transition"
+                className="px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 font-semibold transition"
               >
                 Reset to Standard Curve
               </button>
@@ -355,11 +352,11 @@ export default function PriceSetterAdminPage() {
         </div>
 
         {/* Prices Table */}
-        <div className="rounded-3xl bg-neutral-900/50 border border-neutral-800/80 backdrop-blur-xl overflow-hidden shadow-2xl">
+        <div className="rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-neutral-800 bg-neutral-900/80 text-xs uppercase font-bold text-neutral-400 tracking-wider">
+                <tr className="border-b border-purple-900/30 bg-neutral-900/80 text-xs uppercase font-bold text-neutral-400 tracking-wider">
                   <th className="py-4 px-6">OVR Rating</th>
                   <th className="py-4 px-6">Min Price Floor (Coins)</th>
                   <th className="py-4 px-6">Max Price Ceiling (Coins)</th>
@@ -367,7 +364,7 @@ export default function PriceSetterAdminPage() {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-800/50 text-sm">
+              <tbody className="divide-y divide-purple-900/20 text-sm">
                 {sortedOvrs.map((ovr) => {
                   const item = prices[ovr] || { min_price: 0, max_price: 0, quicksell: 0 };
                   const isHighTier = ovr >= 120;
@@ -376,8 +373,8 @@ export default function PriceSetterAdminPage() {
                   return (
                     <tr 
                       key={ovr} 
-                      className={`hover:bg-neutral-800/30 transition-colors ${
-                        isPrime ? 'bg-amber-500/[0.02]' : (isHighTier ? 'bg-purple-500/[0.02]' : '')
+                      className={`hover:bg-purple-900/10 transition-colors ${
+                        isPrime ? 'bg-fuchsia-500/[0.04]' : (isHighTier ? 'bg-purple-500/[0.03]' : '')
                       }`}
                     >
                       {/* OVR Badge */}
@@ -386,10 +383,10 @@ export default function PriceSetterAdminPage() {
                           <span
                             className={`w-11 h-11 rounded-2xl flex items-center justify-center font-extrabold text-base shadow-md font-mono ${
                               isPrime
-                                ? 'bg-gradient-to-tr from-amber-500 to-yellow-300 text-neutral-950 shadow-amber-500/20 ring-2 ring-amber-400/40'
+                                ? 'bg-gradient-to-tr from-pink-500 to-fuchsia-400 text-white shadow-fuchsia-500/20 ring-2 ring-fuchsia-400/40'
                                 : isHighTier
                                 ? 'bg-gradient-to-tr from-purple-600 to-pink-500 text-white shadow-purple-500/20'
-                                : 'bg-neutral-800 text-neutral-200 border border-neutral-700'
+                                : 'bg-neutral-800 text-neutral-200 border border-purple-900/30'
                             }`}
                           >
                             {ovr}
@@ -414,10 +411,10 @@ export default function PriceSetterAdminPage() {
                               min="1"
                               value={item.min_price || ''}
                               onChange={(e) => handlePriceChange(ovr, 'min_price', e.target.value)}
-                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 font-mono text-sm focus:outline-none focus:border-amber-500 font-semibold"
+                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
                             />
-                            <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20">
-                              🪙 {formatShortPrice(item.min_price)}
+                            <span className="text-xs font-mono font-bold text-pink-400 bg-pink-500/10 px-2 py-1 rounded-lg border border-pink-500/20">
+                              {formatShortPrice(item.min_price)}
                             </span>
                           </div>
                         </div>
@@ -432,10 +429,10 @@ export default function PriceSetterAdminPage() {
                               min="1"
                               value={item.max_price || ''}
                               onChange={(e) => handlePriceChange(ovr, 'max_price', e.target.value)}
-                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 font-mono text-sm focus:outline-none focus:border-blue-500 font-semibold"
+                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
                             />
-                            <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded-lg border border-blue-500/20">
-                              🪙 {formatShortPrice(item.max_price)}
+                            <span className="text-xs font-mono font-bold text-purple-300 bg-purple-500/10 px-2 py-1 rounded-lg border border-purple-500/20">
+                              {formatShortPrice(item.max_price)}
                             </span>
                           </div>
                         </div>
@@ -450,10 +447,10 @@ export default function PriceSetterAdminPage() {
                               min="1"
                               value={item.quicksell || ''}
                               onChange={(e) => handlePriceChange(ovr, 'quicksell', e.target.value)}
-                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-100 font-mono text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                              className="w-44 px-3 py-1.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                             />
-                            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
-                              🪙 {formatShortPrice(item.quicksell)}
+                            <span className="text-xs font-mono font-bold text-fuchsia-300 bg-fuchsia-500/10 px-2 py-1 rounded-lg border border-fuchsia-500/20">
+                              {formatShortPrice(item.quicksell)}
                             </span>
                           </div>
                         </div>
@@ -490,7 +487,7 @@ export default function PriceSetterAdminPage() {
           <LiquidButton
             onClick={handleSave}
             disabled={saving}
-            className="!px-8 !py-3.5 !bg-amber-600 hover:!bg-amber-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-amber-600/30 flex items-center gap-3 text-base"
+            className="!px-8 !py-3.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-fuchsia-600/30 flex items-center gap-3 text-base"
           >
             <Save className="w-5 h-5" />
             {saving ? 'Saving System Rates...' : 'Save & Sync Economy Rates'}
