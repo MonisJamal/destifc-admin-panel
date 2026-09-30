@@ -47,9 +47,9 @@ export async function POST(request) {
         return NextResponse.json({ success: false, error: 'User ID and Player Data required' }, { status: 400 });
       }
 
-      const pid = playerData.id || `admin_card_${Date.now()}`;
-      const pname = playerData.name || playerData.cardName || playerData.player_name || 'Admin Card';
-      const ovr = parseInt(playerData.ovr || playerData.rating || 120, 10);
+      const pid = playerData.assetId || playerData.id || `admin_card_${Date.now()}`;
+      const pname = playerData.cardName || playerData.name || playerData.player_name || 'Admin Card';
+      const ovr = parseInt(playerData.rating || playerData.ovr || 120, 10);
 
       await query(`
         INSERT INTO inventory (user_id, player_id, player_name, ovr, player_data)

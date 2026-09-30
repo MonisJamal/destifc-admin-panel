@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Coins, Gift, RefreshCw, Trash2, CheckCircle2, AlertCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
+import { Coins, Gift, RefreshCw, Trash2, CheckCircle2, AlertCircle, ShieldAlert, Image as ImageIcon, Search, Sparkles, X, Check } from 'lucide-react';
 
 export default function AdminCommandsPage() {
   const [userId, setUserId] = useState('');
@@ -16,6 +16,43 @@ export default function AdminCommandsPage() {
   const [cardOvr, setCardOvr] = useState(122);
   const [cardPos, setCardPos] = useState('ST');
   const [cardImage, setCardImage] = useState('');
+  const [selectedOfficialCard, setSelectedOfficialCard] = useState(null);
+
+  // RenderZ Search
+  const [rzSearch, setRzSearch] = useState('');
+  const [rzResults, setRzResults] = useState([]);
+  const [rzLoading, setRzLoading] = useState(false);
+
+  useEffect(() => {
+    if (!rzSearch.trim() || rzSearch.length < 2) {
+      setRzResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setRzLoading(true);
+      try {
+        const res = await fetch(`/api/renderz/cards?query=${encodeURIComponent(rzSearch.trim())}&size=6`);
+        const data = await res.json();
+        if (data.success) {
+          setRzResults(data.cards || []);
+        }
+      } catch (e) {}
+      finally {
+        setRzLoading(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [rzSearch]);
+
+  const selectRzCard = (card) => {
+    setSelectedOfficialCard(card);
+    setCardName(card.cardName || card.lastName);
+    setCardOvr(card.rating || card.ovr);
+    setCardPos(card.position || 'ST');
+    setCardImage(card.images?.playerCardImage || card.images?.playerImage || '');
+    setRzResults([]);
+    setRzSearch('');
+  };
 
   const handleCardFileUpload = (e) => {
     const file = e.target.files?.[0];
@@ -71,18 +108,24 @@ export default function AdminCommandsPage() {
 
   const handleCardSubmit = (e) => {
     e.preventDefault();
+    const baseData = selectedOfficialCard ? { ...selectedOfficialCard } : {};
     executeAction({
       action: 'give_card',
       userId: cardUserId,
       playerData: {
-        id: `admin_${Date.now()}`,
+        ...baseData,
+        id: baseData.assetId || `admin_${Date.now()}`,
+        assetId: baseData.assetId,
         name: cardName,
         cardName: cardName,
+        player_name: cardName,
         rating: parseInt(cardOvr, 10),
+        ovr: parseInt(cardOvr, 10),
         position: cardPos,
         images: {
-          playerImage: cardImage || 'https://renderz.app/placeholder.webp',
-          playerCardImage: cardImage || 'https://renderz.app/placeholder.webp',
+          ...baseData.images,
+          playerImage: cardImage || baseData.images?.playerImage || 'https://renderz.app/placeholder.webp',
+          playerCardImage: cardImage || baseData.images?.playerCardImage || 'https://renderz.app/placeholder.webp',
         }
       }
     });
@@ -212,6 +255,67 @@ export default function AdminCommandsPage() {
               </div>
 
               <form onSubmit={handleCardSubmit} className="space-y-4">
+                {/* RenderZ Search Auto-fill */}
+                <div className="p-4 rounded-2xl bg-white/50 border border-purple-200/60 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-xs font-bold text-purple-900 uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                      Pick from Official RenderZ Database
+                    </label>
+                    {selectedOfficialCard && (
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Official Linked
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-purple-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={rzSearch}
+                      onChange={(e) => setRzSearch(e.target.value)}
+                      placeholder="Search official player (e.g. Messi, R9, Vieira, Mbappé)..."
+                      className="apple-input pl-9 text-xs border-purple-200 focus:border-purple-500"
+                    />
+                    {rzLoading && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-purple-500 animate-pulse">
+                        Searching...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Dropdown Results */}
+                  {rzResults.length > 0 && (
+                    <div className="mt-2 p-1.5 rounded-xl bg-white shadow-xl border border-purple-100 divide-y divide-neutral-100 max-h-56 overflow-y-auto">
+                      {rzResults.map((card) => (
+                        <button
+                          key={card.id || card.assetId}
+                          type="button"
+                          onClick={() => selectRzCard(card)}
+                          className="w-full p-2 rounded-lg hover:bg-purple-50 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <div className="w-9 h-9 rounded-lg bg-neutral-900 text-amber-400 font-bold flex flex-col items-center justify-center text-[10px] shrink-0">
+                              <span>{card.rating || card.ovr}</span>
+                              <span className="text-[8px] text-white/80">{card.position}</span>
+                            </div>
+                            <div className="truncate">
+                              <div className="font-bold text-xs text-neutral-900 truncate">{card.cardName || card.lastName}</div>
+                              <div className="text-[10px] text-neutral-500 truncate">
+                                {card.club?.name || 'Club'} • {card.nation?.name || 'Nation'}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 font-bold text-[10px] shrink-0">
+                            {card.program?.name || 'Select'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Target Discord User ID</label>
                   <input
@@ -277,7 +381,10 @@ export default function AdminCommandsPage() {
                       {cardImage && (
                         <button
                           type="button"
-                          onClick={() => setCardImage('')}
+                          onClick={() => {
+                            setCardImage('');
+                            setSelectedOfficialCard(null);
+                          }}
                           className="px-2.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 text-xs font-semibold"
                         >
                           ✕
