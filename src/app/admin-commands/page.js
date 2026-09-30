@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Coins, Gift, RefreshCw, Trash2, CheckCircle2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Coins, Gift, RefreshCw, Trash2, CheckCircle2, AlertCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
 
 export default function AdminCommandsPage() {
   const [userId, setUserId] = useState('');
@@ -16,6 +16,20 @@ export default function AdminCommandsPage() {
   const [cardOvr, setCardOvr] = useState(122);
   const [cardPos, setCardPos] = useState('ST');
   const [cardImage, setCardImage] = useState('');
+
+  const handleCardFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file (.webp, .png, or .jpg)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      setCardImage(uploadEvent.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Wipe
   const [wipeUserId, setWipeUserId] = useState('');
@@ -234,7 +248,7 @@ export default function AdminCommandsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Position</label>
                     <select
@@ -242,21 +256,45 @@ export default function AdminCommandsPage() {
                       onChange={(e) => setCardPos(e.target.value)}
                       className="apple-input font-medium"
                     >
-                      {['ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'LB', 'CB', 'RB', 'GK'].map(pos => (
+                      {['ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'LB', 'CB', 'RB', 'LWB', 'RWB', 'GK'].map(pos => (
                         <option key={pos} value={pos}>{pos}</option>
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Card Image URL</label>
-                    <input
-                      type="url"
-                      value={cardImage}
-                      onChange={(e) => setCardImage(e.target.value)}
-                      placeholder="https://..."
-                      className="apple-input"
-                    />
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Upload .webp / .png</label>
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-white/70 hover:bg-white border-2 border-dashed border-purple-400/60 hover:border-purple-500 text-purple-600 font-semibold text-xs transition-all cursor-pointer shadow-sm">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        <span>{cardImage ? "File Loaded ✓" : "📁 Choose .webp / .png"}</span>
+                        <input
+                          type="file"
+                          accept="image/png, image/webp, image/jpeg, image/jpg"
+                          onChange={handleCardFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {cardImage && (
+                        <button
+                          type="button"
+                          onClick={() => setCardImage('')}
+                          className="px-2.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 text-xs font-semibold"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    value={cardImage.startsWith('data:') ? '' : cardImage}
+                    onChange={(e) => setCardImage(e.target.value)}
+                    placeholder={cardImage.startsWith('data:') ? 'Using uploaded file (Data URL)' : 'Or paste image URL (Optional)'}
+                    className="apple-input text-xs"
+                  />
                 </div>
 
                 <div className="pt-2">

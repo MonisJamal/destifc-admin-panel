@@ -25,7 +25,19 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, ovr, position, imageUrl, inDrafts = true, nationId = 38, clubId = 112139 } = body;
+    const {
+      name,
+      ovr,
+      position,
+      imageUrl,
+      inDrafts = true,
+      nationName = 'World',
+      clubName = 'Custom FC',
+      programName = 'Custom Release',
+      quantity = null,
+      nationId = 1,
+      clubId = 1
+    } = body;
 
     if (!name || !ovr || !position) {
       return NextResponse.json({ success: false, error: 'Name, OVR, and Position are required.' }, { status: 400 });
@@ -42,9 +54,10 @@ export async function POST(request) {
         playerImage: imageUrl || 'https://renderz.app/placeholder.webp',
         playerCardImage: imageUrl || 'https://renderz.app/placeholder.webp',
       },
-      nation: { id: nationId, name: 'Custom' },
-      club: { id: clubId, name: 'Custom FC' },
-      program: { name: 'Admin Custom Release' },
+      nation: { id: nationId, name: nationName || 'World' },
+      club: { id: clubId, name: clubName || 'Custom FC' },
+      program: { name: programName || 'Admin Custom Release' },
+      supply: quantity ? parseInt(quantity, 10) : null,
       created_at: new Date().toISOString(),
     };
 
@@ -56,6 +69,20 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, card: playerData });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Card ID required' }, { status: 400 });
+    }
+    await query('DELETE FROM custom_draft_cards WHERE id = $1', [id]);
+    return NextResponse.json({ success: true, message: `Custom card #${id} deleted.` });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
