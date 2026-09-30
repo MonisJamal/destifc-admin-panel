@@ -15,32 +15,65 @@ import {
   X,
   Flame,
   Maximize2,
-  Lock
+  Lock,
+  Filter,
+  ArrowUpDown
 } from 'lucide-react';
 
 export default function DatabasePage() {
-  const [tab, setTab] = useState('official'); // default to 'official' so cards are visible right away
+  const [tab, setTab] = useState('official'); // 'official' | 'inventory' | 'market' | 'users'
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [minOvr, setMinOvr] = useState('');
+  const [maxOvr, setMaxOvr] = useState('');
+  const [position, setPosition] = useState('ALL');
+  const [program, setProgram] = useState('ALL');
+  const [sort, setSort] = useState('ovr_desc');
   const [page, setPage] = useState(1);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [maxDbOvr, setMaxDbOvr] = useState(124);
   const [loading, setLoading] = useState(false);
   const [inspectCard, setInspectCard] = useState(null);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   useEffect(() => {
     fetchData();
-  }, [tab, page, search]);
+  }, [tab, page, debouncedSearch, minOvr, maxOvr, position, program, sort]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/database?tab=${tab}&search=${encodeURIComponent(search)}&page=${page}`);
+      const params = new URLSearchParams({
+        tab,
+        search: debouncedSearch,
+        page: page.toString(),
+        sort
+      });
+
+      if (minOvr) params.append('minOvr', minOvr);
+      if (maxOvr) params.append('maxOvr', maxOvr);
+      if (position && position !== 'ALL') params.append('position', position);
+      if (program && program !== 'ALL') params.append('program', program);
+
+      const res = await fetch(`/api/database?${params.toString()}`);
       const json = await res.json();
       if (json.success) {
         setData(json.data);
         setTotal(json.total);
         setTotalPages(json.totalPages);
+        if (json.maxOvr) {
+          setMaxDbOvr(json.maxOvr);
+        }
       }
     } catch (e) {}
     finally {
@@ -52,6 +85,11 @@ export default function DatabasePage() {
     setTab(newTab);
     setPage(1);
     setSearch('');
+    setDebouncedSearch('');
+    setMinOvr('');
+    setMaxOvr('');
+    setPosition('ALL');
+    setProgram('ALL');
   };
 
   const getProxyUrl = (url) => {
@@ -60,12 +98,31 @@ export default function DatabasePage() {
     return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
 
+  // Dynamic OVR Presets based on highest OVR available
+  const topTierMin = Math.max(120, maxDbOvr - 2);
+  const eliteTierMin = Math.max(115, maxDbOvr - 5);
+  const eliteTierMax = Math.max(117, maxDbOvr - 3);
+  const standardTierMin = Math.max(110, maxDbOvr - 10);
+  const standardTierMax = Math.max(112, maxDbOvr - 6);
+
+  const ovrPresets = [
+    { label: 'All Ratings', min: '', max: '' },
+    { label: `${topTierMin} - ${maxDbOvr}+ (Pool A Walkouts)`, min: topTierMin.toString(), max: maxDbOvr.toString() },
+    { label: `${eliteTierMin} - ${eliteTierMax} (Pool B Elites)`, min: eliteTierMin.toString(), max: eliteTierMax.toString() },
+    { label: `${standardTierMin} - ${standardTierMax} (Pool C Standards)`, min: standardTierMin.toString(), max: standardTierMax.toString() },
+    { label: '100 - 111 (Base / Events)', min: '100', max: '111' },
+    { label: '< 100 (Core / Silvers / Bronzes)', min: '45', max: '99' },
+  ];
+
+  const positions = ['ALL', 'ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'GK'];
+  const programs = ['ALL', 'ICON', 'HERO', 'TOTY', 'TOTS', 'UCL', 'BALLON', 'RETRO', 'RIVALS', 'BASE'];
+
   // Reusable Layered Mini Card Renderer with Text & Logos
   const renderCardThumbnail = (row) => {
     const ovr = row.rating || row.ovr || 100;
     const pos = row.position || 'ST';
-    const isMaster = ovr >= 120;
-    const isElite = ovr >= 115 && ovr < 120;
+    const isMaster = ovr >= topTierMin;
+    const isElite = ovr >= eliteTierMin && ovr < topTierMin;
 
     return (
       <div 
@@ -162,23 +219,34 @@ export default function DatabasePage() {
               <div className="flex items-center gap-2">
                 <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Cloud Database Explorer</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                  Supabase Live Sync
+                  Max OVR: {maxDbOvr}+
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                  {total.toLocaleString()} Total Records
                 </span>
               </div>
               <p className="text-sm text-neutral-500 mt-1">
-                Direct query inspection of Supabase PostgreSQL tables with full FC Mobile card visuals, logos, stats & ownership.
+                Direct query inspection of Supabase PostgreSQL tables with exact OVR tiers, positions, events, logos & stats.
               </p>
             </div>
 
-            <div className="relative w-full md:w-72">
+            <div className="relative w-full md:w-80">
               <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                placeholder={`Search ${tab}...`}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${tab} by name, asset ID, or source...`}
                 className="apple-input pl-10 text-sm"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -190,7 +258,7 @@ export default function DatabasePage() {
                 tab === 'official' ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >
-              <Database className="w-4 h-4" /> Official Cards Pool
+              <Database className="w-4 h-4" /> Official Cards Pool ({total.toLocaleString()})
             </button>
             <button
               onClick={() => handleTabChange('inventory')}
@@ -217,6 +285,111 @@ export default function DatabasePage() {
               <User className="w-4 h-4" /> Users & Balances
             </button>
           </div>
+
+          {/* Exact Filter Controls (for official, inventory, and market tabs) */}
+          {tab !== 'users' && (
+            <div className="glass-card p-6 space-y-4">
+              {/* OVR Presets */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 mr-2 flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5" /> OVR Tier:
+                </span>
+                {ovrPresets.map((preset, idx) => {
+                  const isActive = minOvr === preset.min && maxOvr === preset.max;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setMinOvr(preset.min);
+                        setMaxOvr(preset.max);
+                        setPage(1);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-neutral-900 text-amber-400 shadow-sm'
+                          : 'bg-white/60 text-neutral-600 hover:bg-white hover:text-neutral-900 border border-white/80'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Exact Controls Row */}
+              <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-black/5">
+                {/* Custom Min / Max OVR */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-neutral-500">Min OVR:</span>
+                  <input
+                    type="number"
+                    min="45"
+                    max={maxDbOvr}
+                    value={minOvr}
+                    onChange={(e) => { setMinOvr(e.target.value); setPage(1); }}
+                    placeholder="45"
+                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900"
+                  />
+                  <span className="text-xs font-semibold text-neutral-500">Max OVR:</span>
+                  <input
+                    type="number"
+                    min="45"
+                    max={maxDbOvr + 5}
+                    value={maxOvr}
+                    onChange={(e) => { setMaxOvr(e.target.value); setPage(1); }}
+                    placeholder={maxDbOvr.toString()}
+                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900"
+                  />
+                </div>
+
+                {/* Position Filter */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-neutral-500">Position:</span>
+                  <select
+                    value={position}
+                    onChange={(e) => { setPosition(e.target.value); setPage(1); }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                  >
+                    {positions.map((pos) => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Program Filter */}
+                {tab === 'official' && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-neutral-500">Event / Program:</span>
+                    <select
+                      value={program}
+                      onChange={(e) => { setProgram(e.target.value); setPage(1); }}
+                      className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                    >
+                      {programs.map((prog) => (
+                        <option key={prog} value={prog}>{prog}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Sort Order */}
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="text-xs font-semibold text-neutral-500 flex items-center gap-1">
+                    <ArrowUpDown className="w-3.5 h-3.5" /> Sort:
+                  </span>
+                  <select
+                    value={sort}
+                    onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                  >
+                    <option value="ovr_desc">OVR: High to Low</option>
+                    <option value="ovr_asc">OVR: Low to High</option>
+                    <option value="name_asc">Player Name: A-Z</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Table Container */}
           <div className="glass-card overflow-hidden rounded-3xl border border-white/80 shadow-xl">
@@ -298,24 +471,27 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-800">{row.user_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-neutral-700">{row.user_id}</td>
                             <td className="py-4 px-6">
                               <div className="font-bold text-neutral-900">{row.player_name}</div>
-                              <div className="text-[11px] font-semibold text-blue-600 uppercase">{row.program || 'Standard'}</div>
+                              <div className="text-xs text-neutral-500">{row.program}</div>
                             </td>
-                            <td className="py-4 px-6 font-bold text-amber-500">{row.ovr} OVR</td>
-                            <td className="py-4 px-6 text-xs text-neutral-500">
-                              {row.club_name || 'Club'} • {row.nation_name || 'Nation'}
+                            <td className="py-4 px-6">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                                {row.ovr} {row.position}
+                              </span>
                             </td>
-                            <td className="py-4 px-6 text-xs">
-                              {row.locked ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+                            <td className="py-4 px-6 text-xs text-neutral-600">
+                              <div>🛡️ {row.club_name}</div>
+                              <div>🌍 {row.nation_name}</div>
+                            </td>
+                            <td className="py-4 px-6">
+                              {row.locked === 1 ? (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20">
                                   <Lock className="w-3 h-3" /> Locked
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
-                                  🟢 Unlocked
-                                </span>
+                                <span className="text-xs text-neutral-400 font-medium">Unlocked</span>
                               )}
                             </td>
                           </>
@@ -325,14 +501,22 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-800">{row.seller_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-neutral-700">{row.seller_id}</td>
                             <td className="py-4 px-6">
                               <div className="font-bold text-neutral-900">{row.player_name}</div>
-                              <div className="text-[11px] font-semibold text-blue-600 uppercase">{row.program || 'Market'}</div>
+                              <div className="text-xs text-neutral-500">{row.program}</div>
                             </td>
-                            <td className="py-4 px-6 font-bold text-amber-500">{row.ovr} OVR</td>
-                            <td className="py-4 px-6 font-bold text-emerald-600">🪙 {parseInt(row.price || 0).toLocaleString()}</td>
-                            <td className="py-4 px-6 text-xs text-neutral-400">{new Date(row.listed_at).toLocaleString()}</td>
+                            <td className="py-4 px-6">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                                {row.ovr} {row.position}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6 font-bold text-emerald-600">
+                              🪙 {parseInt(row.price || 0).toLocaleString()}
+                            </td>
+                            <td className="py-4 px-6 text-xs text-neutral-500 font-mono">
+                              {new Date(row.listed_at).toLocaleString()}
+                            </td>
                           </>
                         )}
                         {tab === 'official' && (
@@ -340,33 +524,23 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-500">#{row.asset_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-neutral-600">#{row.asset_id}</td>
                             <td className="py-4 px-6">
-                              <div className="font-bold text-neutral-900 text-base">{row.player_name}</div>
-                              <div className="text-xs text-neutral-500 flex items-center gap-2 mt-0.5">
-                                <span>{row.club_name || 'Club'}</span>
-                                <span>•</span>
-                                <span>{row.nation_name || 'Nation'}</span>
-                              </div>
+                              <div className="font-bold text-neutral-900">{row.player_name}</div>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="font-black text-amber-500 text-base">{row.rating}</span>{' '}
-                              <span className="text-xs font-bold text-neutral-700 px-1.5 py-0.5 rounded bg-neutral-100 border border-black/5 ml-1">
-                                {row.position}
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                                {row.rating} {row.position}
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-xs font-bold text-blue-600 uppercase tracking-wide">
-                              {row.program || row.source || 'Standard'}
+                            <td className="py-4 px-6">
+                              <span className="px-2 py-0.5 rounded text-xs font-semibold bg-neutral-100 text-neutral-700 border border-neutral-200">
+                                {row.program}
+                              </span>
                             </td>
-                            <td className="py-4 px-6 text-xs text-neutral-600 font-medium">
-                              <div className="flex items-center gap-1.5">
-                                <Shield className="w-3.5 h-3.5 text-neutral-400" />
-                                <span>{row.club_name || 'Club'}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 mt-0.5 text-neutral-500">
-                                <Globe className="w-3.5 h-3.5 text-neutral-400" />
-                                <span>{row.nation_name || 'Nation'}</span>
-                              </div>
+                            <td className="py-4 px-6 text-xs text-neutral-600">
+                              <div>🛡️ {row.club_name}</div>
+                              <div>🌍 {row.nation_name}</div>
                             </td>
                           </>
                         )}
@@ -378,23 +552,24 @@ export default function DatabasePage() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="p-4 border-t border-black/5 flex items-center justify-between text-xs font-medium text-neutral-500 bg-white/20">
-              <span>Showing {data.length} of {total.toLocaleString()} total records</span>
+            <div className="p-4 border-t border-black/5 flex items-center justify-between bg-white/40">
+              <span className="text-xs font-semibold text-neutral-500">
+                Showing Page <span className="text-neutral-900 font-bold">{page}</span> of <span className="text-neutral-900 font-bold">{totalPages}</span> ({total.toLocaleString()} records)
+              </span>
               <div className="flex items-center gap-2">
                 <button
-                  disabled={page <= 1}
-                  onClick={() => setPage(p => p - 1)}
-                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white cursor-pointer shadow-sm"
+                  disabled={page <= 1 || loading}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 rounded-xl border border-black/10 text-xs font-bold text-neutral-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-3.5 h-3.5" /> Previous
                 </button>
-                <span className="font-bold text-neutral-700">Page {page} of {totalPages || 1}</span>
                 <button
-                  disabled={page >= totalPages}
-                  onClick={() => setPage(p => p + 1)}
-                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white cursor-pointer shadow-sm"
+                  disabled={page >= totalPages || loading}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="px-3 py-1.5 rounded-xl border border-black/10 text-xs font-bold text-neutral-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  Next <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
