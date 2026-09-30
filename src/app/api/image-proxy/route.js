@@ -6,8 +6,15 @@ const MAX_CACHE_SIZE = 1000;
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    let url = searchParams.get('url');
+    const rawReqUrl = request.url;
+    let url = '';
+
+    const urlIdx = rawReqUrl.indexOf('url=');
+    if (urlIdx !== -1) {
+      const rawParam = rawReqUrl.substring(urlIdx + 4);
+      // Safely decode only once without converting %2B to spaces
+      url = decodeURIComponent(rawParam);
+    }
 
     if (!url) {
       return new Response('Missing URL parameter', { status: 400 });
@@ -49,7 +56,7 @@ export async function GET(request) {
 
     const resp = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Referer': 'https://renderz.app/',
         'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9'

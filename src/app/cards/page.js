@@ -284,6 +284,11 @@ export default function RenderZDatabasePage() {
                             className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm"
                             loading="lazy"
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              if (card.images?.playerCardBackground) {
+                                e.currentTarget.src = card.images.playerCardBackground;
+                              }
+                            }}
                           />
                         )}
                         {card.images?.playerCardImage || card.images?.playerImage ? (
@@ -293,6 +298,12 @@ export default function RenderZDatabasePage() {
                             loading="lazy"
                             referrerPolicy="no-referrer"
                             className="relative z-10 w-36 h-36 object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-300"
+                            onError={(e) => {
+                              const direct = card.images?.playerCardImage || card.images?.playerImage;
+                              if (direct) {
+                                e.currentTarget.src = direct;
+                              }
+                            }}
                           />
                         ) : (
                           <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-300">
