@@ -1,7 +1,24 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck, Sparkles, Flame, Gift, Clover, Coins } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  PlusCircle, 
+  Database, 
+  Network, 
+  Sliders, 
+  LogOut, 
+  ShieldCheck, 
+  Sparkles, 
+  Flame, 
+  Gift, 
+  Clover, 
+  Coins, 
+  Bot, 
+  Gamepad2, 
+  Award, 
+  Briefcase 
+} from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -13,51 +30,74 @@ export default function Sidebar() {
     router.refresh();
   };
 
-  const navItems = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/prices', label: 'Price Setter 💰', icon: Coins },
-    { href: '/signature-box', label: 'Signature Box 🎁', icon: Gift },
-    { href: '/luck', label: 'Luck Controls 🍀', icon: Clover },
-    { href: '/leaks', label: 'Leaks Drafts', icon: Flame },
-    { href: '/cards', label: 'Card Database', icon: Sparkles },
-    { href: '/admin-commands', label: 'Admin Commands', icon: Sliders },
-    { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle },
-    { href: '/database', label: 'Cloud Tables', icon: Database },
-    { href: '/formations', label: 'Formations 3D', icon: Network },
+  const navSections = [
+    {
+      title: 'Bot & Economy Controls',
+      items: [
+        { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/bot-config', label: 'Bot Status & Maint. 🤖', icon: Bot },
+        { href: '/prices', label: 'Price Setter 💰', icon: Coins },
+        { href: '/luck', label: 'Luck & Drop Rates 🍀', icon: Clover },
+        { href: '/signature-box', label: 'Signature Box 🎁', icon: Gift },
+        { href: '/economy-config', label: 'Economy & Rewards 🪙', icon: Briefcase },
+        { href: '/gameplay-config', label: 'Gameplay & Matches 🏆', icon: Gamepad2 },
+        { href: '/season-sbc', label: 'Season Pass & SBCs 🎖️', icon: Award },
+      ]
+    },
+    {
+      title: 'Cards & Content',
+      items: [
+        { href: '/leaks', label: 'Leaks Drafts 🔥', icon: Flame },
+        { href: '/cards', label: 'Card Database ✨', icon: Sparkles },
+        { href: '/custom-cards', label: 'Custom Cards ➕', icon: PlusCircle },
+        { href: '/formations', label: 'Formations 3D 🌐', icon: Network },
+        { href: '/admin-commands', label: 'Admin Commands 🎛️', icon: Sliders },
+        { href: '/database', label: 'Cloud Tables 🗄️', icon: Database },
+      ]
+    }
   ];
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-screen p-6 flex flex-col justify-between glass-card rounded-none border-r border-white/40 z-40 bg-white/30 backdrop-blur-xl">
-      <div>
-        <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+    <aside className="w-64 fixed top-0 left-0 h-screen p-5 flex flex-col justify-between glass-card rounded-none border-r border-white/40 z-40 bg-white/30 backdrop-blur-xl overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex items-center gap-3 mb-6 px-2 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
             <h1 className="font-bold text-lg leading-none tracking-tight text-neutral-900">DestiFC</h1>
-            <span className="text-xs text-neutral-500 font-medium tracking-wide uppercase">Admin Portal</span>
+            <span className="text-xs text-neutral-500 font-medium tracking-wide uppercase">Admin Master Suite</span>
           </div>
         </div>
 
-        <nav className="space-y-1.5">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 ${
-                  isActive
-                    ? 'bg-white/80 text-blue-600 shadow-sm shadow-black/5 font-semibold'
-                    : 'text-neutral-600 hover:bg-white/40 hover:text-neutral-900'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-neutral-500'}`} />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 space-y-6 overflow-y-auto pr-1 pb-4 scrollbar-thin">
+          {navSections.map((section) => (
+            <div key={section.title}>
+              <h2 className="px-3 text-[10px] font-bold tracking-wider text-neutral-500 uppercase mb-2">
+                {section.title}
+              </h2>
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all duration-200 ${
+                        isActive
+                          ? 'bg-white/80 text-blue-600 shadow-sm shadow-black/5 font-bold'
+                          : 'text-neutral-600 hover:bg-white/40 hover:text-neutral-900'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-neutral-500'}`} />
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </div>
 
