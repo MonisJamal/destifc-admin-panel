@@ -13,7 +13,7 @@ export default function CustomCardsPage() {
   const [nationName, setNationName] = useState('Argentina');
   const [programName, setProgramName] = useState('Custom Master');
   const [quantity, setQuantity] = useState('');
-  const [inDrafts, setInDrafts] = useState(true);
+  const [targetUserId, setTargetUserId] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [existingCards, setExistingCards] = useState([]);
@@ -50,15 +50,17 @@ export default function CustomCardsPage() {
           nationName,
           programName,
           quantity: quantity ? parseInt(quantity, 10) : null,
-          inDrafts
+          targetUserId: targetUserId ? targetUserId.trim() : null
         }),
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: `Successfully minted ${name} (${ovr}) with full walkout data (🛡️ ${clubName} | 🌍 ${nationName})!` });
+        const grantNote = targetUserId ? ` and granted directly to Discord ID ${targetUserId.trim()}` : '';
+        setMessage({ type: 'success', text: `Successfully saved ${name} (${ovr}) to Custom Catalog${grantNote}!` });
         setName('');
         setImageUrl('');
         setQuantity('');
+        setTargetUserId('');
         fetchCards();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to create card' });
@@ -301,22 +303,25 @@ export default function CustomCardsPage() {
                   />
                 </div>
 
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/40 border border-white/60">
-                  <input
-                    type="checkbox"
-                    id="inDrafts"
-                    checked={inDrafts}
-                    onChange={(e) => setInDrafts(e.target.checked)}
-                    className="w-5 h-5 rounded-lg text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <label htmlFor="inDrafts" className="text-sm font-medium text-neutral-800 cursor-pointer">
-                    Enable in Global Draft Packs (Pool A / Walkouts)
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">
+                    Direct Grant to Discord User ID (Optional)
                   </label>
+                  <input
+                    type="text"
+                    value={targetUserId}
+                    onChange={(e) => setTargetUserId(e.target.value)}
+                    placeholder="e.g. 485160482748235827 (or leave blank to save to catalog only)"
+                    className="apple-input font-mono text-sm"
+                  />
+                  <span className="text-[11px] text-neutral-400 mt-1 block">
+                    Custom cards are private and granted exclusively by admins. They will never appear in standard draft packs.
+                  </span>
                 </div>
 
                 <div className="pt-2">
                   <LiquidButton
-                    text={loading ? "Publishing..." : "Mint & Release Card"}
+                    text={loading ? "Saving..." : "Save to Custom Catalog"}
                     type="submit"
                     disabled={loading}
                     width="260px"

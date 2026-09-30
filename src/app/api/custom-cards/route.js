@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const res = await query('SELECT id, player_data FROM custom_draft_cards ORDER BY id DESC LIMIT 100');
+    const res = await query('SELECT id, card_name, ovr, player_data, created_at FROM custom_cards_catalog ORDER BY id DESC LIMIT 100');
     const cards = res.rows.map(r => {
       let data = {};
       try {
@@ -15,7 +15,9 @@ export async function GET() {
         ...data,
         id: r.id,
         db_id: r.id,
-        custom_id: data.id || `custom_${r.id}`
+        custom_id: data.id || `custom_${r.id}`,
+        card_name: r.card_name || data.cardName,
+        ovr: r.ovr || data.rating
       };
     });
     return NextResponse.json({ success: true, cards });
@@ -32,7 +34,7 @@ export async function POST(request) {
       ovr,
       position,
       imageUrl,
-      inDrafts = true,
+      targetUserId = null,
       nationName = 'World',
       clubName = 'Custom FC',
       programName = 'Custom Release',
@@ -61,16 +63,28 @@ export async function POST(request) {
       program: { name: programName || 'Admin Custom Release' },
       supply: quantity ? parseInt(quantity, 10) : null,
       created_at: new Date().toISOString(),
+      is_custom: true,
     };
 
-    if (inDrafts) {
+    // Save to permanent Admin Custom Cards Catalog
+    const insertRes = await query(
+      'INSERT INTO custom_cards_catalog (card_name, ovr, player_data) VALUES ($1, $2, $3) RETURNING id',
+      [name, parseInt(ovr, 10), JSON.stringify(playerData)]
+    );
+
+    // If target Discord User ID provided, grant immediately to inventory
+    if (targetUserId && targetUserId.toString().trim()) {
+      const cleanUid = targetUserId.toString().trim();
       await query(
-        'INSERT INTO custom_draft_cards (player_data) VALUES ($1)',
-        [JSON.stringify(playerData)]
+        'INSERT INTO inventory (user_id, player_name, ovr, player_data) VALUES ($1, $2, $3, $4)',
+        [cleanUid, name, parseInt(ovr, 10), JSON.stringify(playerData)]
       );
     }
 
-    return NextResponse.json({ success: true, card: playerData });
+    return NextResponse.json({ 
+      success: true, 
+      card: { ...playerData, id: insertRes.rows[0]?.id } 
+    });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -86,12 +100,12 @@ export async function DELETE(request) {
     
     const trimmedId = id.trim();
     if (/^\d+$/.test(trimmedId)) {
-      await query('DELETE FROM custom_draft_cards WHERE id = $1', [parseInt(trimmedId, 10)]);
+      await query('DELETE FROM custom_cards_catalog WHERE id = $1', [parseInt(trimmedId, 10)]);
     } else {
-      await query('DELETE FROM custom_draft_cards WHERE player_data::text LIKE $1', [`%${trimmedId}%`]);
+      await query('DELETE FROM custom_cards_catalog WHERE player_data::text LIKE $1', [`%${trimmedId}%`]);
     }
     
-    return NextResponse.json({ success: true, message: `Custom card deleted successfully.` });
+    return NextResponse.json({ success: true, message: `Custom card deleted from catalog.` });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
