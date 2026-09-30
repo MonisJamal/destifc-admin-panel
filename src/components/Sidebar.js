@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck, Sparkles } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck, Sparkles, Flame } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -15,6 +15,7 @@ export default function Sidebar() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/leaks', label: 'Leaks Drafts', icon: Flame },
     { href: '/cards', label: 'Card Database', icon: Sparkles },
     { href: '/admin-commands', label: 'Admin Commands', icon: Sliders },
     { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle },
