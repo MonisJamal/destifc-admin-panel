@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck, Sparkles, Flame, Gift, Clover } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Database, Network, Sliders, LogOut, ShieldCheck, Sparkles, Flame, Gift, Clover, Coins } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -15,6 +15,7 @@ export default function Sidebar() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/prices', label: 'Price Setter 💰', icon: Coins },
     { href: '/signature-box', label: 'Signature Box 🎁', icon: Gift },
     { href: '/luck', label: 'Luck Controls 🍀', icon: Clover },
     { href: '/leaks', label: 'Leaks Drafts', icon: Flame },
