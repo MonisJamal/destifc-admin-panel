@@ -1,0 +1,528 @@
+'use client';
+import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
+import LiquidButton from '@/components/LiquidButton';
+import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Package, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock } from 'lucide-react';
+
+export default function SignatureBoxAdminPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Main Box State
+  const [title, setTitle] = useState('FC SIGNATURE BOX');
+  const [subtitle, setSubtitle] = useState('Exclusive 10-Reward Limited Box Draw');
+  const [isActive, setIsActive] = useState(true);
+  const [bannerUrl, setBannerUrl] = useState('');
+  const [expiresAt, setExpiresAt] = useState('');
+
+  // Exclusive Signature Card
+  const [cardName, setCardName] = useState('Zinedine Zidane');
+  const [cardRating, setCardRating] = useState(124);
+  const [cardPosition, setCardPosition] = useState('CAM');
+  const [cardClub, setCardClub] = useState('Real Madrid');
+  const [cardNation, setCardNation] = useState('France');
+  const [cardBackgroundUrl, setCardBackgroundUrl] = useState('');
+  const [cardBoost, setCardBoost] = useState(1.25);
+
+  // 10 Rewards
+  const [rewards, setRewards] = useState([]);
+
+  // 10 Draw Costs
+  const [drawCosts, setDrawCosts] = useState([]);
+
+  useEffect(() => {
+    fetchBox();
+  }, []);
+
+  const fetchBox = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/signature-box');
+      const data = await res.json();
+      if (data.success && data.box) {
+        const b = data.box;
+        setTitle(b.title || 'FC SIGNATURE BOX');
+        setSubtitle(b.subtitle || '10 Exclusive Limited Time Rewards');
+        setIsActive(b.is_active !== undefined ? b.is_active : true);
+        setBannerUrl(b.banner_url || '');
+        if (b.expires_at) {
+          const dt = new Date(b.expires_at);
+          setExpiresAt(dt.toISOString().slice(0, 16));
+        }
+
+        const card = b.signature_card_data || {};
+        setCardName(card.cardName || 'Zinedine Zidane');
+        setCardRating(card.rating || 124);
+        setCardPosition(card.position || 'CAM');
+        setCardClub(card.club?.name || 'Real Madrid');
+        setCardNation(card.nation?.name || 'France');
+        setCardBackgroundUrl(card.custom_background_url || '');
+        setCardBoost(card.performance_boost || 1.25);
+
+        setRewards(b.rewards_json || []);
+        setDrawCosts(b.draw_costs_json || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRewardChange = (index, field, value) => {
+    const updated = [...rewards];
+    updated[index] = { ...updated[index], [field]: value };
+    setRewards(updated);
+  };
+
+  const handleCostChange = (index, field, value) => {
+    const updated = [...drawCosts];
+    updated[index] = { ...updated[index], [field]: field === 'amount' ? parseInt(value, 10) || 0 : value };
+    setDrawCosts(updated);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const payload = {
+        title,
+        subtitle,
+        is_active: isActive,
+        banner_url: bannerUrl,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
+        signature_card_data: {
+          id: `sig_${cardName.toLowerCase().replace(/\s+/g, '_')}_${cardRating}`,
+          cardName,
+          rating: parseInt(cardRating, 10),
+          position: cardPosition,
+          club: { name: cardClub },
+          nation: { name: cardNation },
+          source: 'SIGNATURE_BOX',
+          is_signature_box: true,
+          is_custom: true,
+          performance_boost: parseFloat(cardBoost) || 1.25,
+          custom_background_url: cardBackgroundUrl
+        },
+        rewards_json: rewards,
+        draw_costs_json: drawCosts
+      };
+
+      const res = await fetch('/api/signature-box', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: 'success', text: '✅ Signature Box saved and synchronized live to Discord Bot!' });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to save Signature Box' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Network connection error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResetUserDraws = async () => {
+    if (!confirm('Are you sure you want to reset all players\' Signature Box progress? They will start from Draw #1 again.')) return;
+    try {
+      const res = await fetch('/api/signature-box', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Successfully reset all user Signature Box draws!');
+      } else {
+        alert(`❌ Error: ${data.error}`);
+      }
+    } catch (e) {
+      alert(`❌ Network error: ${e.message}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-neutral-900 text-white">
+        <Sidebar />
+        <main className="flex-1 ml-64 p-8 flex items-center justify-center">
+          <div className="flex items-center gap-3 text-neutral-400 font-medium">
+            <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+            Loading Signature Box Editor...
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-[#0d0f15] text-neutral-100 font-sans">
+      <Sidebar />
+
+      <main className="flex-1 ml-64 p-8 max-w-7xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-neutral-800">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-black shadow-lg shadow-amber-500/20">
+                <Gift className="w-6 h-6" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">Signature Box Manager</h1>
+            </div>
+            <p className="text-sm text-neutral-400">
+              Create and manage limited-time 10-reward Signature Box draws with non-repeatable prizes and increasing costs.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleResetUserDraws}
+              className="px-4 py-2.5 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-semibold flex items-center gap-2 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Reset Player Progress
+            </button>
+            <LiquidButton onClick={handleSave} disabled={saving}>
+              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'Saving...' : 'Save & Publish Live'}
+            </LiquidButton>
+          </div>
+        </div>
+
+        {/* Status Alerts */}
+        {message.text && (
+          <div className={`p-4 mb-6 rounded-2xl flex items-center gap-3 text-sm font-medium ${
+            message.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+          }`}>
+            {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSave} className="space-y-8">
+          {/* Top Grid: General Settings + Exclusive Signature Card */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Box Header Settings */}
+            <div className="lg:col-span-5 bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-200">
+                <Gift className="w-5 h-5 text-amber-400" />
+                Box Configuration
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Title</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="e.g. FC SIGNATURE BOX"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Subtitle / Tagline</label>
+                  <input
+                    type="text"
+                    value={subtitle}
+                    onChange={(e) => setSubtitle(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="e.g. 10 Exclusive Limited Time Rewards"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Banner Image URL</label>
+                  <input
+                    type="url"
+                    value={bannerUrl}
+                    onChange={(e) => setBannerUrl(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Expires At (UTC)</label>
+                    <input
+                      type="datetime-local"
+                      value={expiresAt}
+                      onChange={(e) => setExpiresAt(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-xs focus:outline-none text-neutral-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Status</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsActive(!isActive)}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                        isActive
+                          ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-sm shadow-emerald-500/10'
+                          : 'bg-neutral-950 border-neutral-800 text-neutral-500'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600'}`} />
+                      {isActive ? 'ACTIVE & LIVE' : 'DISABLED / CLOSED'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Signature Exclusive Card Customizer */}
+            <div className="lg:col-span-7 bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden">
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-amber-300">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+                Featured Exclusive Signature Card (Good Reward #10)
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Player Name</label>
+                  <input
+                    type="text"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none font-semibold text-white"
+                    placeholder="e.g. Zinedine Zidane"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">OVR Rating (120 - 125)</label>
+                  <input
+                    type="number"
+                    min="115"
+                    max="125"
+                    value={cardRating}
+                    onChange={(e) => setCardRating(parseInt(e.target.value, 10))}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none font-bold text-amber-400"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Position</label>
+                  <input
+                    type="text"
+                    value={cardPosition}
+                    onChange={(e) => setCardPosition(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="CAM, ST, RW, CB..."
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Club Name</label>
+                  <input
+                    type="text"
+                    value={cardClub}
+                    onChange={(e) => setCardClub(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="Real Madrid, Barcelona..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Nation Name</label>
+                  <input
+                    type="text"
+                    value={cardNation}
+                    onChange={(e) => setCardNation(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none"
+                    placeholder="France, Argentina..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">In-Game Match Buff</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="1.0"
+                    max="2.0"
+                    value={cardBoost}
+                    onChange={(e) => setCardBoost(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-sm focus:outline-none text-amber-300 font-semibold"
+                    placeholder="1.25 (+25% buff)"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Custom Background / Card Art URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={cardBackgroundUrl}
+                    onChange={(e) => setCardBackgroundUrl(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 focus:border-amber-500 text-xs focus:outline-none"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-xs text-amber-300">
+                <Shield className="w-4 h-4 flex-shrink-0 text-amber-400" />
+                <span>This card is <strong>exclusive to the Signature Box</strong> with 1% initial drop rate and custom in-game match aura. It will not appear in regular drafts or exchanges.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 10 Rewards Matrix */}
+          <div className="bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <Package className="w-5 h-5 text-blue-400" />
+                  10-Reward Pool Matrix (2 Bad, 5 Mid, 3 Good)
+                </h2>
+                <p className="text-xs text-neutral-400 mt-1">
+                  Configure the 10 rewards. Each reward can only be won once per player cycle.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {rewards.map((r, idx) => {
+                const tierColor = r.tier === 'good' ? 'border-amber-500/40 bg-amber-500/5' : (r.tier === 'mid' ? 'border-blue-500/30 bg-blue-500/5' : 'border-neutral-800 bg-neutral-950/60');
+                const tierBadge = r.tier === 'good' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : (r.tier === 'mid' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-neutral-800 text-neutral-400 border-neutral-700');
+
+                return (
+                  <div key={r.id || idx} className={`p-4 rounded-2xl border ${tierColor} grid grid-cols-1 md:grid-cols-12 gap-4 items-center transition-all`}>
+                    <div className="md:col-span-1 flex items-center gap-2 font-mono font-bold text-neutral-500 text-sm">
+                      <span>#{r.id}</span>
+                      <input
+                        type="text"
+                        value={r.icon || '🎁'}
+                        onChange={(e) => handleRewardChange(idx, 'icon', e.target.value)}
+                        className="w-8 text-center bg-transparent border-b border-neutral-700 text-lg focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="md:col-span-4">
+                      <input
+                        type="text"
+                        value={r.name}
+                        onChange={(e) => handleRewardChange(idx, 'name', e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-sm font-semibold text-white focus:outline-none focus:border-blue-500"
+                        placeholder="Reward display title"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <select
+                        value={r.tier}
+                        onChange={(e) => handleRewardChange(idx, 'tier', e.target.value)}
+                        className={`w-full px-2.5 py-1.5 rounded-lg border text-xs font-bold uppercase focus:outline-none ${tierBadge}`}
+                      >
+                        <option value="bad">⚠️ BAD</option>
+                        <option value="mid">✨ MID</option>
+                        <option value="good">👑 GOOD</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <select
+                        value={r.type}
+                        onChange={(e) => handleRewardChange(idx, 'type', e.target.value)}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-medium focus:outline-none text-neutral-300"
+                      >
+                        <option value="coins">Coins</option>
+                        <option value="vouchers">Draft Vouchers</option>
+                        <option value="gems">Gems</option>
+                        <option value="fans">Fans</option>
+                        <option value="pack">Card Pack</option>
+                        <option value="signature_card">🌟 Signature Card</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <input
+                        type="number"
+                        value={r.amount || 0}
+                        onChange={(e) => handleRewardChange(idx, 'amount', parseInt(e.target.value, 10))}
+                        disabled={r.type === 'signature_card'}
+                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-bold text-neutral-200 focus:outline-none"
+                        placeholder="Amount"
+                      />
+                    </div>
+
+                    <div className="md:col-span-1 text-right text-xs font-mono font-bold text-neutral-400">
+                      {r.base_weight}% wt
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 10-Step Draw Cost Manager */}
+          <div className="bg-neutral-900/60 border border-neutral-800 rounded-3xl p-6 backdrop-blur-xl">
+            <h2 className="text-lg font-bold mb-2 flex items-center gap-2 text-emerald-400">
+              <Coins className="w-5 h-5 text-emerald-400" />
+              10-Draw Step Cost Progression
+            </h2>
+            <p className="text-xs text-neutral-400 mb-6">
+              Customize the currency and price required for each consecutive draw from Draw #1 to Draw #10.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {drawCosts.map((cost, idx) => (
+                <div key={cost.draw || idx} className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-amber-400 font-mono">DRAW #{cost.draw || idx + 1}</span>
+                    <select
+                      value={cost.currency}
+                      onChange={(e) => handleCostChange(idx, 'currency', e.target.value)}
+                      className="bg-neutral-900 border border-neutral-800 text-neutral-300 rounded-md px-1.5 py-0.5 text-xs focus:outline-none"
+                    >
+                      <option value="coins">🪙 Coins</option>
+                      <option value="vouchers">🎟️ Vouchers</option>
+                      <option value="gems">💎 Gems</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-1">Cost</label>
+                    <input
+                      type="number"
+                      step="1000000"
+                      value={cost.amount}
+                      onChange={(e) => handleCostChange(idx, 'amount', e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-mono font-bold text-white focus:outline-none focus:border-emerald-500"
+                    />
+                    <div className="text-[10px] text-neutral-500 mt-1 font-mono text-right">
+                      {parseInt(cost.amount, 10).toLocaleString()} {cost.currency}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Save bar */}
+          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/90 border border-neutral-800/80 backdrop-blur-xl flex items-center justify-between shadow-2xl">
+            <div className="text-xs text-neutral-400">
+              ⚡ Changes saved here apply instantly in real-time to the Discord <code>/signature_box</code> command.
+            </div>
+            <LiquidButton onClick={handleSave} disabled={saving}>
+              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'Saving...' : 'Save & Publish Live'}
+            </LiquidButton>
+          </div>
+        </form>
+      </main>
+    </div>
+  );
+}
