@@ -273,7 +273,11 @@ export default function RenderZDatabasePage() {
                       <div className="my-3 flex items-center justify-center relative py-2">
                         {card.images?.playerCardImage || card.images?.playerImage ? (
                           <img
-                            src={card.images.playerCardImage || card.images.playerImage}
+                            src={
+                              (card.images.playerCardImage || card.images.playerImage).includes('renderz.app')
+                                ? `/api/image-proxy?url=${encodeURIComponent(card.images.playerCardImage || card.images.playerImage)}`
+                                : (card.images.playerCardImage || card.images.playerImage)
+                            }
                             alt={card.cardName}
                             loading="lazy"
                             className="w-32 h-32 object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"

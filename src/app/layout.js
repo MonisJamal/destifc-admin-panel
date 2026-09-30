@@ -8,6 +8,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="referrer" content="no-referrer" />
+      </head>
       <body className="antialiased min-h-screen text-neutral-900 selection:bg-blue-500 selection:text-white">
         {children}
       </body>
