@@ -14,10 +14,11 @@ import {
   Gift, 
   Percent, 
   Coins, 
-  Bot, 
+  Bot,
   Gamepad2, 
   Award, 
-  Briefcase 
+  Briefcase,
+  Activity
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -35,6 +36,7 @@ export default function Sidebar() {
       title: 'Bot & Economy Controls',
       items: [
         { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/diagnostics', label: 'Command Health & Ping', icon: Activity },
         { href: '/bot-config', label: 'Bot Status & Maint.', icon: Bot },
         { href: '/prices', label: 'Price Setter', icon: Coins },
         { href: '/luck', label: 'Drop Rates & Luck', icon: Percent },
