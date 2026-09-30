@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const res = await query('SELECT id, card_name, ovr, player_data, created_at FROM custom_cards_catalog ORDER BY id DESC LIMIT 100');
-    const cards = res.rows.map(r => {
+    // 1. Fetch all regular custom cards
+    const resDraft = await query('SELECT id, card_name, ovr, player_data, created_at FROM custom_cards_catalog ORDER BY id DESC LIMIT 100');
+    const draftCards = resDraft.rows.map(r => {
       let data = {};
       try {
         data = typeof r.player_data === 'string' ? JSON.parse(r.player_data) : r.player_data;
@@ -17,10 +18,38 @@ export async function GET() {
         db_id: r.id,
         custom_id: data.id || `custom_${r.id}`,
         card_name: r.card_name || data.cardName,
-        ovr: r.ovr || data.rating
+        ovr: r.ovr || data.rating,
+        type: 'draft_custom'
       };
     });
-    return NextResponse.json({ success: true, cards });
+
+    // 2. Fetch signature box card(s)
+    const resSig = await query('SELECT id, title, signature_card_data, is_active FROM signature_box_config ORDER BY id ASC');
+    const signatureCards = [];
+    resSig.rows.forEach(r => {
+      let card = {};
+      try {
+        card = typeof r.signature_card_data === 'string' ? JSON.parse(r.signature_card_data) : r.signature_card_data;
+      } catch (e) {}
+      if (card && (card.cardName || card.rating)) {
+        signatureCards.push({
+          ...card,
+          box_id: r.id,
+          box_title: r.title,
+          is_active: r.is_active,
+          card_name: card.cardName || card.player_name,
+          ovr: card.rating,
+          type: 'signature_box_custom'
+        });
+      }
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      cards: draftCards, // backwards compatibility
+      draftCards,
+      signatureCards 
+    });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -37,10 +66,11 @@ export async function POST(request) {
       targetUserId = null,
       nationName = 'World',
       clubName = 'Custom FC',
-      programName = 'Custom Release',
+      programName = 'Custom Master',
       quantity = null,
       nationId = 1,
-      clubId = 1
+      clubId = 1,
+      matchBoost = 1.15
     } = body;
 
     if (!name || !ovr || !position) {
@@ -62,6 +92,7 @@ export async function POST(request) {
       club: { id: clubId, name: clubName || 'Custom FC' },
       program: { name: programName || 'Admin Custom Release' },
       supply: quantity ? parseInt(quantity, 10) : null,
+      performance_boost: parseFloat(matchBoost) || 1.15,
       created_at: new Date().toISOString(),
       is_custom: true,
     };

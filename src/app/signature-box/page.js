@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock } from 'lucide-react';
+import ImageUpload from '@/components/ImageUpload';
+import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info } from 'lucide-react';
 
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -57,7 +58,7 @@ export default function SignatureBoxAdminPage() {
         setCardPosition(card.position || 'CAM');
         setCardClub(card.club?.name || 'Real Madrid');
         setCardNation(card.nation?.name || 'France');
-        setCardBackgroundUrl(card.custom_background_url || '');
+        setCardBackgroundUrl(card.custom_background_url || card.images?.playerImage || '');
         setCardBoost(card.performance_boost || 1.25);
 
         setRewards(b.rewards_json || []);
@@ -97,6 +98,7 @@ export default function SignatureBoxAdminPage() {
         signature_card_data: {
           id: `sig_${cardName.toLowerCase().replace(/\s+/g, '_')}_${cardRating}`,
           cardName,
+          player_name: cardName,
           rating: parseInt(cardRating, 10),
           position: cardPosition,
           club: { name: cardClub },
@@ -105,7 +107,11 @@ export default function SignatureBoxAdminPage() {
           is_signature_box: true,
           is_custom: true,
           performance_boost: parseFloat(cardBoost) || 1.25,
-          custom_background_url: cardBackgroundUrl
+          custom_background_url: cardBackgroundUrl,
+          images: {
+            playerImage: cardBackgroundUrl,
+            playerCardImage: cardBackgroundUrl
+          }
         },
         rewards_json: rewards,
         draw_costs_json: drawCosts
@@ -126,11 +132,12 @@ export default function SignatureBoxAdminPage() {
       setMessage({ type: 'error', text: 'Network connection error' });
     } finally {
       setSaving(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleResetUserDraws = async () => {
-    if (!confirm('Are you sure you want to reset all players\' Signature Box progress? They will start from Draw #1 again.')) return;
+    if (!confirm('Are you sure you want to reset all players Signature Box progress? They will start from Draw #1 again.')) return;
     try {
       const res = await fetch('/api/signature-box', { method: 'DELETE' });
       const data = await res.json();
@@ -187,13 +194,9 @@ export default function SignatureBoxAdminPage() {
               <RefreshCw className="w-3.5 h-3.5" />
               Reset Player Progress
             </button>
-            <LiquidButton
-              onClick={handleSave}
-              disabled={saving}
-              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
-            >
-              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save and Publish Live'}
+            <LiquidButton onClick={handleSave} disabled={saving} loading={saving}>
+              <Save className="w-4 h-4" />
+              Save and Publish Live
             </LiquidButton>
           </div>
         </div>
@@ -213,81 +216,85 @@ export default function SignatureBoxAdminPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Box Header Settings */}
-            <div className="lg:col-span-5 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+            <div className="lg:col-span-5 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl space-y-4">
+              <h2 className="text-lg font-bold flex items-center gap-2 text-white">
                 <Gift className="w-5 h-5 text-fuchsia-400" />
                 Box Configuration
               </h2>
 
-              <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                  placeholder="e.g. FC SIGNATURE BOX"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Subtitle / Tagline</label>
+                <input
+                  type="text"
+                  value={subtitle}
+                  onChange={(e) => setSubtitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                  placeholder="e.g. 10 Exclusive Limited Time Rewards"
+                />
+              </div>
+
+              {/* Banner Image Upload */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Event Banner Image</span>
+                  <span className="text-[11px] text-fuchsia-400 flex items-center gap-1">
+                    <Info className="w-3 h-3" /> Header image for Discord embed
+                  </span>
+                </div>
+                <ImageUpload
+                  value={bannerUrl}
+                  onChange={setBannerUrl}
+                  aspectRatio="banner"
+                  label=""
+                  helperText="Upload wide promo banner (.png or .webp)"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Title</label>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Expires At (UTC)</label>
                   <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
-                    placeholder="e.g. FC SIGNATURE BOX"
-                    required
+                    type="datetime-local"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none text-neutral-300"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Subtitle / Tagline</label>
-                  <input
-                    type="text"
-                    value={subtitle}
-                    onChange={(e) => setSubtitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
-                    placeholder="e.g. 10 Exclusive Limited Time Rewards"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Banner Image URL</label>
-                  <input
-                    type="url"
-                    value={bannerUrl}
-                    onChange={(e) => setBannerUrl(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Expires At (UTC)</label>
-                    <input
-                      type="datetime-local"
-                      value={expiresAt}
-                      onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none text-neutral-300"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Status</label>
-                    <button
-                      type="button"
-                      onClick={() => setIsActive(!isActive)}
-                      className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                        isActive
-                          ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
-                          : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
-                      {isActive ? 'ACTIVE & LIVE' : 'DISABLED / CLOSED'}
-                    </button>
-                  </div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Status</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsActive(!isActive)}
+                    className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                      isActive
+                        ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
+                        : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
+                    {isActive ? 'ACTIVE & LIVE' : 'DISABLED / CLOSED'}
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Signature Exclusive Card Customizer */}
-            <div className="lg:col-span-7 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden">
+            <div className="lg:col-span-7 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden space-y-4">
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-fuchsia-300">
+              <h2 className="text-lg font-bold flex items-center gap-2 text-fuchsia-300">
                 <Sparkles className="w-5 h-5 text-fuchsia-400" />
                 Featured Exclusive Signature Card (Good Reward #10)
               </h2>
@@ -331,6 +338,20 @@ export default function SignatureBoxAdminPage() {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">In-Game Match Buff Multiplier</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="1.0"
+                    max="2.0"
+                    value={cardBoost}
+                    onChange={(e) => setCardBoost(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
+                    placeholder="1.25 (+25% buff)"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Club Name</label>
                   <input
                     type="text"
@@ -352,33 +373,18 @@ export default function SignatureBoxAdminPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">In-Game Match Buff</label>
-                  <input
-                    type="number"
-                    step="0.05"
-                    min="1.0"
-                    max="2.0"
-                    value={cardBoost}
-                    onChange={(e) => setCardBoost(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
-                    placeholder="1.25 (+25% buff)"
-                  />
-                </div>
-
+                {/* Card Art / Player Render Upload */}
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Custom Background / Card Art URL (Optional)</label>
-                  <input
-                    type="url"
+                  <ImageUpload
                     value={cardBackgroundUrl}
-                    onChange={(e) => setCardBackgroundUrl(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none"
-                    placeholder="https://images.unsplash.com/..."
+                    onChange={setCardBackgroundUrl}
+                    label="Signature Card Image / Render (.png / .webp)"
+                    helperText="Upload transparent player cut-out or card graphic (.png or .webp)"
                   />
                 </div>
               </div>
 
-              <div className="mt-4 p-3 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center gap-3 text-xs text-fuchsia-300">
+              <div className="p-3 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center gap-3 text-xs text-fuchsia-300">
                 <Shield className="w-4 h-4 flex-shrink-0 text-fuchsia-400" />
                 <span>This card is exclusive to the Signature Box with 1% initial drop rate and custom in-game match aura. It will not appear in regular drafts or exchanges.</span>
               </div>
@@ -389,7 +395,7 @@ export default function SignatureBoxAdminPage() {
           <div className="bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-bold flex items-center gap-2">
+                <h2 className="text-lg font-bold flex items-center gap-2 text-white">
                   <Box className="w-5 h-5 text-fuchsia-400" />
                   10-Reward Pool Matrix (2 Bad, 5 Mid, 3 Good)
                 </h2>
@@ -519,17 +525,13 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* Bottom Save bar */}
-          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/90 border border-purple-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl">
+          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/95 border border-purple-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl">
             <div className="text-xs text-neutral-400">
               Changes saved here apply instantly in real-time to the Discord <code>/signature_box</code> command.
             </div>
-            <LiquidButton
-              onClick={handleSave}
-              disabled={saving}
-              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
-            >
-              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save and Publish Live'}
+            <LiquidButton onClick={handleSave} disabled={saving} loading={saving}>
+              <Save className="w-4 h-4" />
+              Save and Publish Live
             </LiquidButton>
           </div>
         </form>

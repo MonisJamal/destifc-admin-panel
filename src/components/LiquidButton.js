@@ -1,23 +1,52 @@
 'use client';
+import { Loader2 } from 'lucide-react';
 
-export default function LiquidButton({ text = "Submit", onClick, type = "button", disabled = false, width = "220px", height = "60px" }) {
+export default function LiquidButton({ 
+  text, 
+  children,
+  onClick, 
+  type = "button", 
+  disabled = false, 
+  loading = false,
+  className = "",
+  size = "md", // "sm" | "md" | "lg"
+  variant = "primary" // "primary" | "secondary" | "danger"
+}) {
+  const sizeClasses = {
+    sm: "px-4 py-2 text-xs rounded-xl",
+    md: "px-6 py-2.5 text-sm rounded-xl",
+    lg: "px-8 py-3.5 text-base rounded-2xl"
+  };
+
+  const variantClasses = {
+    primary: "bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-600 hover:from-pink-500 hover:via-fuchsia-500 hover:to-purple-500 text-white shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-500/40 border border-fuchsia-400/30",
+    secondary: "bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 border border-purple-900/40 hover:border-purple-700",
+    danger: "bg-red-600/80 hover:bg-red-600 text-white border border-red-500/30 shadow-lg shadow-red-600/20"
+  };
+
   return (
-    <div className="fx-layer inline-block">
-      <button
-        type={type}
-        onClick={onClick}
-        disabled={disabled}
-        className="box start-btn border-none bg-transparent outline-none cursor-pointer"
-        style={{ '--w': width, '--h': height, '--tr': '18%' }}
-      >
-        <span className="text">{text}</span>
-        <div className="btn-icon">
-          <svg viewBox="0 0 1024 1024" className="w-3.5 h-3.5 fill-white">
-            <path d="M779.18 473.23L322.35 16.41c-21.41-21.41-56.12-21.41-77.53 0s-21.41 56.12 0 77.53l418.06 418.06L244.82 930.06c-21.41 21.41-21.41 56.12 0 77.53 10.71 10.71 24.76 16.06 38.77 16.06s28.06-5.35 38.77-16.06l456.82-456.82c21.41-21.41 21.41-56.12 0-77.54z" />
-          </svg>
-        </div>
-        <div className="circle-overlay"></div>
-      </button>
-    </div>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={`
+        relative inline-flex items-center justify-center gap-2.5 font-bold tracking-wide transition-all duration-200
+        active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+        ${sizeClasses[size] || sizeClasses.md}
+        ${variantClasses[variant] || variantClasses.primary}
+        ${className}
+      `}
+    >
+      {loading ? (
+        <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>{typeof text === 'string' ? 'Processing...' : (children || 'Processing...')}</span>
+        </>
+      ) : (
+        <>
+          {children || text || "Submit"}
+        </>
+      )}
+    </button>
   );
 }
