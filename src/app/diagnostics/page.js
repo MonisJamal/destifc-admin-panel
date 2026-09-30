@@ -22,7 +22,10 @@ import {
   Cpu,
   Layers,
   Search,
-  Filter
+  Filter,
+  Wrench,
+  RotateCcw,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function BotDiagnosticsAdminPage() {
@@ -34,6 +37,10 @@ export default function BotDiagnosticsAdminPage() {
   const [filterCategory, setFilterCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [lastRunTime, setLastRunTime] = useState(null);
+
+  const [repairingAll, setRepairingAll] = useState(false);
+  const [repairingSingle, setRepairingSingle] = useState({});
+  const [repairNotification, setRepairNotification] = useState(null);
 
   useEffect(() => {
     runFullDiagnostics();
@@ -54,6 +61,65 @@ export default function BotDiagnosticsAdminPage() {
     } finally {
       setRunningAll(false);
       setLoading(false);
+    }
+  };
+
+  const repairAllSubsystems = async () => {
+    setRepairingAll(true);
+    try {
+      const res = await fetch('/api/diagnostics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'repair_all' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRepairNotification({
+          type: 'success',
+          message: data.message || 'All subsystems auto-repaired and caches refreshed!',
+          logs: data.logs || []
+        });
+        // Re-run diagnostics after repair
+        await runFullDiagnostics();
+      } else {
+        setRepairNotification({
+          type: 'error',
+          message: data.error || 'Failed to auto-repair subsystems.'
+        });
+      }
+    } catch (err) {
+      setRepairNotification({
+        type: 'error',
+        message: err.message
+      });
+    } finally {
+      setRepairingAll(false);
+      setTimeout(() => setRepairNotification(null), 8000);
+    }
+  };
+
+  const repairSingleSubsystem = async (testId) => {
+    setRepairingSingle(prev => ({ ...prev, [testId]: true }));
+    try {
+      const res = await fetch('/api/diagnostics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'repair_target', targetId: testId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRepairNotification({
+          type: 'success',
+          message: data.message || `Subsystem "${testId}" successfully repaired!`,
+          logs: data.logs || []
+        });
+        await testSingleCommand(testId);
+      }
+    } catch (err) {
+      console.error(`Error repairing ${testId}:`, err);
+    } finally {
+      setRepairingSingle(prev => ({ ...prev, [testId]: false }));
+      setTimeout(() => setRepairNotification(null), 8000);
     }
   };
 
@@ -114,9 +180,23 @@ export default function BotDiagnosticsAdminPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={repairAllSubsystems}
+              disabled={repairingAll || runningAll}
+              className="px-4 py-2.5 rounded-2xl bg-neutral-950 hover:bg-neutral-900 border border-fuchsia-500/40 text-fuchsia-300 hover:text-fuchsia-200 text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-fuchsia-950/40"
+            >
+              {repairingAll ? (
+                <RotateCcw className="w-4 h-4 animate-spin text-fuchsia-400" />
+              ) : (
+                <Wrench className="w-4 h-4 text-pink-400" />
+              )}
+              <span>{repairingAll ? 'Repairing & Flushing...' : 'Auto-Repair & Flush Caches'}</span>
+            </button>
+
             <LiquidButton
               onClick={runFullDiagnostics}
-              disabled={runningAll || loading}
+              disabled={runningAll || loading || repairingAll}
               loading={runningAll}
             >
               <Zap className="w-4 h-4" />
@@ -124,6 +204,43 @@ export default function BotDiagnosticsAdminPage() {
             </LiquidButton>
           </div>
         </div>
+
+        {/* Repair Notification Toast */}
+        {repairNotification && (
+          <div className={`p-4 rounded-2xl border mb-6 flex items-start justify-between gap-3 animate-fade-in ${
+            repairNotification.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : 'bg-red-500/10 border-red-500/30 text-red-300'
+          }`}>
+            <div className="flex items-start gap-2.5">
+              {repairNotification.type === 'success' ? (
+                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              )}
+              <div>
+                <p className="text-sm font-bold">{repairNotification.message}</p>
+                {repairNotification.logs && repairNotification.logs.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-neutral-400 font-mono">
+                    {repairNotification.logs.map((log, idx) => (
+                      <li key={idx} className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        {log}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRepairNotification(null)}
+              className="text-neutral-500 hover:text-white text-xs font-bold px-2 py-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Top Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -275,19 +392,36 @@ export default function BotDiagnosticsAdminPage() {
                       <Clock className="w-3 h-3" /> Tested at {test.tested_at ? new Date(test.tested_at).toLocaleTimeString() : 'N/A'}
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={() => testSingleCommand(test.id)}
-                      disabled={isRunning || runningAll}
-                      className="px-3 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-purple-900/40 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-                    >
-                      {isRunning ? (
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
-                      ) : (
-                        <Play className="w-3.5 h-3.5 text-pink-400" />
-                      )}
-                      <span>{isRunning ? 'Testing...' : 'Test Now'}</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => repairSingleSubsystem(test.id)}
+                        disabled={repairingSingle[test.id] || isRunning || runningAll || repairingAll}
+                        className="px-2.5 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-fuchsia-300 hover:text-fuchsia-100 border border-fuchsia-500/30 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
+                        title="Auto-repair locks & refresh cache for this subsystem"
+                      >
+                        {repairingSingle[test.id] ? (
+                          <RotateCcw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+                        ) : (
+                          <Wrench className="w-3.5 h-3.5 text-pink-400" />
+                        )}
+                        <span>{repairingSingle[test.id] ? 'Fixing...' : 'Auto-Fix'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => testSingleCommand(test.id)}
+                        disabled={isRunning || runningAll || repairingSingle[test.id]}
+                        className="px-3 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-purple-900/40 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                      >
+                        {isRunning ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+                        ) : (
+                          <Play className="w-3.5 h-3.5 text-pink-400" />
+                        )}
+                        <span>{isRunning ? 'Testing...' : 'Test Now'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
