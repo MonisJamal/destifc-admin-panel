@@ -53,8 +53,8 @@ export async function POST(request) {
       rating: parseInt(ovr, 10),
       position: position.toUpperCase(),
       images: {
-        playerImage: imageUrl || 'https://renderz.app/placeholder.webp',
-        playerCardImage: imageUrl || 'https://renderz.app/placeholder.webp',
+        playerImage: imageUrl || null,
+        playerCardImage: imageUrl || null,
       },
       nation: { id: nationId, name: nationName || 'World' },
       club: { id: clubId, name: clubName || 'Custom FC' },

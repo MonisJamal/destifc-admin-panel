@@ -7,7 +7,7 @@ import { Search, ChevronLeft, ChevronRight, Gift, Sparkles, Filter, X, CheckCirc
 export default function RenderZDatabasePage() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [minOvr, setMinOvr] = useState('115');
+  const [minOvr, setMinOvr] = useState('120');
   const [maxOvr, setMaxOvr] = useState('122');
   const [position, setPosition] = useState('ALL');
   const [program, setProgram] = useState('ALL');
