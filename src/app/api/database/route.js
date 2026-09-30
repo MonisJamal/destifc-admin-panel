@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { formatNation, formatClub, formatProgram } from '@/lib/maps';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,17 +52,28 @@ export async function GET(request) {
         try {
           p = typeof r.player_data === 'string' ? JSON.parse(r.player_data) : (r.player_data || {});
         } catch (e) {}
+
+        const clubName = formatClub(p.club?.name || p.club || '');
+        const nationName = formatNation(p.nation?.name || p.nation || '');
+
         return {
           id: r.id,
           user_id: r.user_id,
           player_name: r.player_name,
           ovr: r.ovr,
+          rating: r.ovr,
           locked: r.locked,
           position: p.position || 'ST',
+          source: p.source || '',
+          program: formatProgram(p.source || ''),
           image: p.images?.playerCardImage || p.images?.playerImage || p.imageUrl || null,
           bg_image: p.images?.playerCardBackground || null,
-          club: p.club?.name || '',
-          nation: p.nation?.name || ''
+          flag_image: p.images?.flagImage || null,
+          club_image: p.images?.clubImage || null,
+          club_name: clubName,
+          nation_name: nationName,
+          stats: p.stats || null,
+          player_data: p
         };
       });
       total = parseInt(countRes.rows[0].count, 10);
@@ -85,16 +97,29 @@ export async function GET(request) {
         try {
           p = typeof r.player_data === 'string' ? JSON.parse(r.player_data) : (r.player_data || {});
         } catch (e) {}
+
+        const clubName = formatClub(p.club?.name || p.club || '');
+        const nationName = formatNation(p.nation?.name || p.nation || '');
+
         return {
           id: r.id,
           seller_id: r.seller_id,
           player_name: r.player_name,
           ovr: r.ovr,
+          rating: r.ovr,
           price: r.price,
           listed_at: r.listed_at,
           position: p.position || 'ST',
+          source: p.source || '',
+          program: formatProgram(p.source || ''),
           image: p.images?.playerCardImage || p.images?.playerImage || p.imageUrl || null,
           bg_image: p.images?.playerCardBackground || null,
+          flag_image: p.images?.flagImage || null,
+          club_image: p.images?.clubImage || null,
+          club_name: clubName,
+          nation_name: nationName,
+          stats: p.stats || null,
+          player_data: p
         };
       });
       total = parseInt(countRes.rows[0].count, 10);
@@ -118,16 +143,26 @@ export async function GET(request) {
         try {
           p = typeof r.player_data === 'string' ? JSON.parse(r.player_data) : (r.player_data || {});
         } catch (e) {}
+
+        const clubName = r.club_name || formatClub(p.club?.name || p.club || '');
+        const nationName = r.nation_name || formatNation(p.nation?.name || p.nation || '');
+
         return {
           asset_id: r.asset_id,
           player_name: r.card_name || r.player_name,
           rating: r.rating,
+          ovr: r.rating,
           position: r.position,
           source: r.source,
-          club_name: r.club_name,
-          nation_name: r.nation_name,
+          program: formatProgram(r.source),
+          club_name: clubName,
+          nation_name: nationName,
           image: p.images?.playerCardImage || p.images?.playerImage || null,
           bg_image: p.images?.playerCardBackground || null,
+          flag_image: p.images?.flagImage || null,
+          club_image: p.images?.clubImage || null,
+          stats: p.stats || null,
+          player_data: p
         };
       });
       total = parseInt(countRes.rows[0].count, 10);
@@ -144,4 +179,3 @@ export async function GET(request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-
