@@ -317,14 +317,10 @@ export default function CustomCardsPage() {
                   </div>
                 </div>
 
-                <div className="my-auto flex items-center justify-center py-2">
+                <div className="my-auto flex items-center justify-center py-2 min-h-[130px]">
                   {imageUrl ? (
                     <img src={imageUrl} alt={name} className="w-32 h-32 object-contain drop-shadow-xl" />
-                  ) : (
-                    <div className="w-24 h-24 rounded-2xl bg-white/10 flex items-center justify-center text-neutral-400">
-                      <ImageIcon className="w-10 h-10" />
-                    </div>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="text-center z-10">
