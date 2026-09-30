@@ -5,15 +5,17 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const res = await query('SELECT * FROM custom_draft_cards ORDER BY id DESC LIMIT 100');
+    const res = await query('SELECT id, player_data FROM custom_draft_cards ORDER BY id DESC LIMIT 100');
     const cards = res.rows.map(r => {
       let data = {};
       try {
         data = typeof r.player_data === 'string' ? JSON.parse(r.player_data) : r.player_data;
       } catch (e) {}
       return {
+        ...data,
         id: r.id,
-        ...data
+        db_id: r.id,
+        custom_id: data.id || `custom_${r.id}`
       };
     });
     return NextResponse.json({ success: true, cards });
@@ -81,8 +83,15 @@ export async function DELETE(request) {
     if (!id) {
       return NextResponse.json({ success: false, error: 'Card ID required' }, { status: 400 });
     }
-    await query('DELETE FROM custom_draft_cards WHERE id = $1', [id]);
-    return NextResponse.json({ success: true, message: `Custom card #${id} deleted.` });
+    
+    const trimmedId = id.trim();
+    if (/^\d+$/.test(trimmedId)) {
+      await query('DELETE FROM custom_draft_cards WHERE id = $1', [parseInt(trimmedId, 10)]);
+    } else {
+      await query('DELETE FROM custom_draft_cards WHERE player_data::text LIKE $1', [`%${trimmedId}%`]);
+    }
+    
+    return NextResponse.json({ success: true, message: `Custom card deleted successfully.` });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
