@@ -78,12 +78,27 @@ export async function POST(request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+
+    if (action === 'clear_box') {
+      await query(`
+        UPDATE signature_box_config 
+        SET is_active = false, banner_url = '', starts_at = NULL, expires_at = NULL, 
+            title = 'NO ACTIVE SIGNATURE BOX', subtitle = 'Event Closed',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = 1
+      `);
+      await query('DELETE FROM user_signature_box');
+      return NextResponse.json({ success: true, message: 'Signature Box has been deleted and closed.' });
+    }
+
     await query('UPDATE user_signature_box SET claimed_reward_ids = $1, draws_completed = 0', [JSON.stringify([])]);
     return NextResponse.json({ success: true, message: 'User Signature Box progress reset for all players!' });
   } catch (error) {
-    console.error('Error resetting signature box progress:', error);
+    console.error('Error deleting or resetting signature box:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

@@ -137,6 +137,27 @@ export default function SignatureBoxAdminPage() {
     }
   };
 
+  const handleDeleteBox = async () => {
+    if (!confirm('Are you sure you want to delete and close the active Signature Box? The event will be closed in Discord.')) return;
+    try {
+      const res = await fetch('/api/signature-box?action=clear_box', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setIsActive(false);
+        setTitle('NO ACTIVE SIGNATURE BOX');
+        setSubtitle('Event Closed');
+        setBannerUrl('');
+        setStartsAt(null);
+        setExpiresAt(null);
+        setMessage({ type: 'success', text: 'Signature Box has been deleted and closed in Discord.' });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to delete box' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: `Network error: ${e.message}` });
+    }
+  };
+
   const handleResetUserDraws = async () => {
     if (!confirm('Are you sure you want to reset all players Signature Box progress? They will start from Draw #1 again.')) return;
     try {
@@ -189,8 +210,18 @@ export default function SignatureBoxAdminPage() {
 
           <div className="flex items-center gap-3">
             <button
+              type="button"
+              onClick={handleDeleteBox}
+              className="px-3.5 py-2.5 rounded-xl border border-red-500/40 text-red-400 hover:bg-red-500/15 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              title="Delete and close active box"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Active Box
+            </button>
+            <button
+              type="button"
               onClick={handleResetUserDraws}
-              className="px-4 py-2.5 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-semibold flex items-center gap-2 transition-colors"
+              className="px-3.5 py-2.5 rounded-xl border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reset Player Progress
