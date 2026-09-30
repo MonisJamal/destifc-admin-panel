@@ -401,6 +401,7 @@ export default function LeaksDraftsPage() {
                             alt=""
                             className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm"
                             loading="lazy"
+                            referrerPolicy="no-referrer"
                           />
                         )}
                         {card.images?.playerCardImage || card.images?.playerImage ? (
@@ -408,6 +409,7 @@ export default function LeaksDraftsPage() {
                             src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
                             alt=""
                             loading="lazy"
+                            referrerPolicy="no-referrer"
                             className="relative z-10 w-36 h-36 object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (

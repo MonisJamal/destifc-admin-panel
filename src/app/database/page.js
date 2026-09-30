@@ -175,10 +175,10 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
                                 {row.bg_image && (
-                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                  <img src={getProxyUrl(row.bg_image)} alt="" referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
                                 )}
                                 {row.image ? (
-                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                  <img src={getProxyUrl(row.image)} alt="" referrerPolicy="no-referrer" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
                                 ) : (
                                   <Sparkles className="w-5 h-5 text-neutral-400" />
                                 )}
@@ -200,10 +200,10 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
                                 {row.bg_image && (
-                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                  <img src={getProxyUrl(row.bg_image)} alt="" referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
                                 )}
                                 {row.image ? (
-                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                  <img src={getProxyUrl(row.image)} alt="" referrerPolicy="no-referrer" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
                                 ) : (
                                   <Sparkles className="w-5 h-5 text-neutral-400" />
                                 )}
@@ -226,10 +226,10 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
                                 {row.bg_image && (
-                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                  <img src={getProxyUrl(row.bg_image)} alt="" referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
                                 )}
                                 {row.image ? (
-                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                  <img src={getProxyUrl(row.image)} alt="" referrerPolicy="no-referrer" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
                                 ) : (
                                   <Sparkles className="w-5 h-5 text-neutral-400" />
                                 )}

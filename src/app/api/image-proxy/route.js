@@ -1,8 +1,6 @@
-import { NextResponse } from 'next/server';
-
 export const dynamic = 'force-dynamic';
 
-// In-memory LRU cache to prevent redundant upstream fetches
+// In-memory cache to prevent redundant upstream fetches
 const IMAGE_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
 
@@ -12,7 +10,7 @@ export async function GET(request) {
     let url = searchParams.get('url');
 
     if (!url) {
-      return new NextResponse('Missing URL parameter', { status: 400 });
+      return new Response('Missing URL parameter', { status: 400 });
     }
 
     // Handle base64 data URLs directly
@@ -20,7 +18,7 @@ export async function GET(request) {
       const parts = url.split(',', 2);
       const mime = parts[0].split(';')[0].replace('data:', '') || 'image/png';
       const buffer = Buffer.from(parts[1], 'base64');
-      return new NextResponse(buffer, {
+      return new Response(new Uint8Array(buffer), {
         status: 200,
         headers: {
           'Content-Type': mime,
@@ -38,11 +36,12 @@ export async function GET(request) {
     // Check memory cache
     if (IMAGE_CACHE.has(url)) {
       const cached = IMAGE_CACHE.get(url);
-      return new NextResponse(cached.buffer, {
+      return new Response(cached.bytes, {
         status: 200,
         headers: {
           'Content-Type': cached.contentType,
-          'Cache-Control': 'public, max-age=2592000, immutable',
+          'Content-Length': cached.bytes.byteLength.toString(),
+          'Cache-Control': 'public, max-age=31536000, immutable',
           'Access-Control-Allow-Origin': '*'
         }
       });
@@ -58,11 +57,11 @@ export async function GET(request) {
     });
 
     if (!resp.ok) {
-      return new NextResponse('Failed to fetch upstream image', { status: resp.status });
+      return new Response('Failed to fetch upstream image', { status: resp.status });
     }
 
     const arrayBuf = await resp.arrayBuffer();
-    const buffer = Buffer.from(arrayBuf);
+    const bytes = new Uint8Array(arrayBuf);
     
     let contentType = resp.headers.get('content-type') || 'image/png';
     if (contentType.includes('octet-stream') || contentType.includes('text/plain') || !contentType.startsWith('image/')) {
@@ -73,18 +72,18 @@ export async function GET(request) {
       const firstKey = IMAGE_CACHE.keys().next().value;
       IMAGE_CACHE.delete(firstKey);
     }
-    IMAGE_CACHE.set(url, { buffer, contentType });
+    IMAGE_CACHE.set(url, { bytes, contentType });
 
-    return new NextResponse(buffer, {
+    return new Response(bytes, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=2592000, immutable',
+        'Content-Length': bytes.byteLength.toString(),
+        'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*'
       }
     });
   } catch (err) {
-    return new NextResponse(err.message, { status: 500 });
+    return new Response(err.message, { status: 500 });
   }
 }
-
