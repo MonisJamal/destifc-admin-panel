@@ -18,8 +18,29 @@ import {
   Percent,
   Clock,
   Timer,
-  Award
+  Award,
+  Plus,
+  Trash2,
+  Layers,
+  Crown,
+  ChevronRight
 } from 'lucide-react';
+
+const DEFAULT_TIERS = [
+  { id: 1, name: 'Amateur III', min_fans: 0, badge: '🥉', win_reward_coins: 10000000, win_reward_vouchers: 1 },
+  { id: 2, name: 'Amateur II', min_fans: 10000, badge: '🥉', win_reward_coins: 12000000, win_reward_vouchers: 1 },
+  { id: 3, name: 'Amateur I', min_fans: 20000, badge: '🥉', win_reward_coins: 15000000, win_reward_vouchers: 1 },
+  { id: 4, name: 'Pro III', min_fans: 30000, badge: '🥈', win_reward_coins: 18000000, win_reward_vouchers: 2 },
+  { id: 5, name: 'Pro II', min_fans: 50000, badge: '🥈', win_reward_coins: 20000000, win_reward_vouchers: 2 },
+  { id: 6, name: 'Pro I', min_fans: 70000, badge: '🥈', win_reward_coins: 25000000, win_reward_vouchers: 2 },
+  { id: 7, name: 'World Class III', min_fans: 100000, badge: '🥇', win_reward_coins: 30000000, win_reward_vouchers: 3 },
+  { id: 8, name: 'World Class II', min_fans: 200000, badge: '🥇', win_reward_coins: 35000000, win_reward_vouchers: 3 },
+  { id: 9, name: 'World Class I', min_fans: 300000, badge: '🥇', win_reward_coins: 40000000, win_reward_vouchers: 3 },
+  { id: 10, name: 'Legendary III', min_fans: 400000, badge: '💎', win_reward_coins: 50000000, win_reward_vouchers: 4 },
+  { id: 11, name: 'Legendary II', min_fans: 600000, badge: '💎', win_reward_coins: 65000000, win_reward_vouchers: 4 },
+  { id: 12, name: 'Legendary I', min_fans: 800000, badge: '💎', win_reward_coins: 80000000, win_reward_vouchers: 5 },
+  { id: 13, name: 'FC Champion', min_fans: 1000000, badge: '🏆', win_reward_coins: 100000000, win_reward_vouchers: 6 }
+];
 
 function formatShortPrice(val) {
   const num = Number(val) || 0;
@@ -65,6 +86,9 @@ export default function GameplayConfigAdminPage() {
   // Custom & Signature Boost
   const [customCardMatchBoost, setCustomCardMatchBoost] = useState(1.15);
 
+  // Division Rivals Ladder Tiers
+  const [divisionTiers, setDivisionTiers] = useState(DEFAULT_TIERS);
+
   useEffect(() => {
     fetchConfig();
   }, []);
@@ -95,12 +119,47 @@ export default function GameplayConfigAdminPage() {
         setPenaltyShootoutEnabled(c.penalty_shootout_enabled !== undefined ? c.penalty_shootout_enabled : true);
 
         setCustomCardMatchBoost(c.custom_card_match_boost ?? 1.15);
+        setDivisionTiers(c.division_tiers && c.division_tiers.length > 0 ? c.division_tiers : DEFAULT_TIERS);
       }
     } catch (err) {
       console.error(err);
       setMessage({ type: 'error', text: 'Failed to load gameplay configuration.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTierChange = (index, field, value) => {
+    const updated = [...divisionTiers];
+    updated[index] = { ...updated[index], [field]: value };
+    setDivisionTiers(updated);
+  };
+
+  const handleAddTier = () => {
+    const sorted = [...divisionTiers].sort((a, b) => (Number(a.min_fans) || 0) - (Number(b.min_fans) || 0));
+    const lastFan = sorted.length > 0 ? Number(sorted[sorted.length - 1].min_fans) || 0 : 0;
+    const newTier = {
+      id: Date.now(),
+      name: `Tier ${divisionTiers.length + 1}`,
+      min_fans: lastFan + 200000,
+      badge: '👑',
+      win_reward_coins: 50000000,
+      win_reward_vouchers: 3
+    };
+    setDivisionTiers([...divisionTiers, newTier]);
+  };
+
+  const handleDeleteTier = (id) => {
+    if (divisionTiers.length <= 1) {
+      alert('You must have at least one active division tier.');
+      return;
+    }
+    setDivisionTiers(divisionTiers.filter(t => t.id !== id));
+  };
+
+  const handleResetTiers = () => {
+    if (confirm('Reset division tiers back to default 13 FC Mobile tiers?')) {
+      setDivisionTiers(DEFAULT_TIERS);
     }
   };
 
@@ -123,7 +182,15 @@ export default function GameplayConfigAdminPage() {
       draft_battle_winner_coins: parseInt(draftBattleWinnerCoins, 10) || 50000000,
       draft_battle_winner_vouchers: parseInt(draftBattleWinnerVouchers, 10) || 5,
       penalty_shootout_enabled: Boolean(penaltyShootoutEnabled),
-      custom_card_match_boost: parseFloat(customCardMatchBoost) || 1.15
+      custom_card_match_boost: parseFloat(customCardMatchBoost) || 1.15,
+      division_tiers: divisionTiers.map(t => ({
+        id: t.id || Date.now(),
+        name: t.name || 'Division',
+        min_fans: parseInt(t.min_fans, 10) || 0,
+        badge: t.badge || '🥉',
+        win_reward_coins: parseInt(t.win_reward_coins, 10) || 0,
+        win_reward_vouchers: parseInt(t.win_reward_vouchers, 10) || 0
+      }))
     };
 
     try {
@@ -470,6 +537,155 @@ export default function GameplayConfigAdminPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Division Rivals & Ladder Tiers Controller */}
+        <div className="mt-8 p-6 sm:p-8 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-purple-900/20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-pink-500/20 text-amber-300 flex items-center justify-center border border-amber-500/30 shadow-lg shadow-amber-500/10">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-white">Division Rivals & Ladder Tiers Controller</h2>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                    {divisionTiers.length} Active Divisions
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  Configure required fans for promotion, division badge icons, and milestone win rewards applied in <code className="text-fuchsia-300">/play</code> and <code className="text-fuchsia-300">/leaderboard</code>.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleResetTiers}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 border border-purple-900/40 transition-colors flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Reset 13 Tiers
+              </button>
+              <button
+                type="button"
+                onClick={handleAddTier}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white shadow-lg shadow-pink-500/20 transition-all flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" /> Add Division Tier
+              </button>
+            </div>
+          </div>
+
+          {/* Ladder Visual Preview */}
+          <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/20 overflow-x-auto">
+            <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block mb-2.5 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-fuchsia-400" /> Progression Ladder Preview
+            </span>
+            <div className="flex items-center gap-2 min-w-max">
+              {[...divisionTiers]
+                .sort((a, b) => (Number(a.min_fans) || 0) - (Number(b.min_fans) || 0))
+                .map((tier, idx, arr) => (
+                  <div key={tier.id || idx} className="flex items-center gap-2">
+                    <div className="px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-center flex flex-col items-center min-w-[110px]">
+                      <span className="text-lg">{tier.badge || '🥉'}</span>
+                      <span className="text-xs font-bold text-neutral-200 mt-0.5 truncate max-w-[100px]">{tier.name}</span>
+                      <span className="text-[10px] font-mono text-fuchsia-400 font-semibold">{Number(tier.min_fans || 0).toLocaleString()} Fans</span>
+                    </div>
+                    {idx < arr.length - 1 && (
+                      <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
+                    )}
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Editable Tiers List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {divisionTiers.map((tier, idx) => (
+              <div 
+                key={tier.id || idx}
+                className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 hover:border-purple-700/50 transition-all space-y-3 relative group"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-purple-900/20">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold flex items-center justify-center border border-purple-500/30">
+                      {idx + 1}
+                    </span>
+                    <span className="text-xs font-bold text-neutral-300">Tier #{idx + 1}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTier(tier.id)}
+                    className="p-1.5 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    title="Delete Tier"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Division Name</label>
+                    <input
+                      type="text"
+                      value={tier.name}
+                      onChange={(e) => handleTierChange(idx, 'name', e.target.value)}
+                      placeholder="e.g. Pro I"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Badge Emoji</label>
+                    <input
+                      type="text"
+                      value={tier.badge || ''}
+                      onChange={(e) => handleTierChange(idx, 'badge', e.target.value)}
+                      placeholder="🥉"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 text-xs text-center font-semibold focus:outline-none focus:border-fuchsia-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Required Min Fans</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={tier.min_fans}
+                    onChange={(e) => handleTierChange(idx, 'min_fans', e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
+                  />
+                  <span className="text-[10px] text-fuchsia-400 font-mono mt-0.5 block">{Number(tier.min_fans || 0).toLocaleString()} Fans required</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-neutral-400 mb-1">Win Bonus Coins</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={tier.win_reward_coins || 0}
+                      onChange={(e) => handleTierChange(idx, 'win_reward_coins', e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs focus:outline-none focus:border-pink-500"
+                    />
+                    <span className="text-[9px] text-pink-400 font-mono mt-0.5 block">{formatShortPrice(tier.win_reward_coins || 0)}</span>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-neutral-400 mb-1">Win Bonus Vouchers</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={tier.win_reward_vouchers || 0}
+                      onChange={(e) => handleTierChange(idx, 'win_reward_vouchers', e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs focus:outline-none focus:border-fuchsia-500"
+                    />
+                    <span className="text-[9px] text-neutral-400 mt-0.5 block">+{tier.win_reward_vouchers || 0}x Vouchers</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
