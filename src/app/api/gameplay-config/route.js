@@ -2,17 +2,30 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
 const DEFAULT_GAMEPLAY_CONFIG = {
+  // Match Currency Rewards
   match_win_coins: 25000000,
   match_draw_coins: 10000000,
   match_loss_coins: 5000000,
+
+  // Ranked Fans ELO
   match_win_fans: 25,
   match_draw_fans: 0,
   match_loss_fans: -15,
+
+  // Season Progression & Match Timings
+  match_win_xp: 75,
+  match_challenge_timeout_secs: 60,
+  match_cooldown_mins: 0,
+  match_sim_step_delay_secs: 0,
+
+  // 1v1 Draft Battle
   draft_battle_entry_fee: 0,
   draft_battle_winner_coins: 50000000,
   draft_battle_winner_vouchers: 5,
-  custom_card_match_boost: 1.15,
-  penalty_shootout_enabled: true
+  penalty_shootout_enabled: true,
+
+  // Custom & Signature Aura Boost
+  custom_card_match_boost: 1.15
 };
 
 export async function GET() {
@@ -47,7 +60,7 @@ export async function POST(request) {
         updated_at = CURRENT_TIMESTAMP
     `, [JSON.stringify(merged)]);
 
-    return NextResponse.json({ success: true, message: 'Gameplay & Match Settings saved successfully!', config: merged });
+    return NextResponse.json({ success: true, message: 'Gameplay and match timing settings saved successfully!', config: merged });
   } catch (error) {
     console.error('Error saving gameplay config:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

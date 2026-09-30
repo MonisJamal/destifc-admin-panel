@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
 import ImageUpload from '@/components/ImageUpload';
-import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info } from 'lucide-react';
+import DateTimePicker from '@/components/DateTimePicker';
+import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info, Calendar } from 'lucide-react';
 
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -15,7 +16,8 @@ export default function SignatureBoxAdminPage() {
   const [subtitle, setSubtitle] = useState('Exclusive 10-Reward Limited Box Draw');
   const [isActive, setIsActive] = useState(true);
   const [bannerUrl, setBannerUrl] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
+  const [startsAt, setStartsAt] = useState(null);
+  const [expiresAt, setExpiresAt] = useState(null);
 
   // Exclusive Signature Card
   const [cardName, setCardName] = useState('Zinedine Zidane');
@@ -47,10 +49,8 @@ export default function SignatureBoxAdminPage() {
         setSubtitle(b.subtitle || '10 Exclusive Limited Time Rewards');
         setIsActive(b.is_active !== undefined ? b.is_active : true);
         setBannerUrl(b.banner_url || '');
-        if (b.expires_at) {
-          const dt = new Date(b.expires_at);
-          setExpiresAt(dt.toISOString().slice(0, 16));
-        }
+        setStartsAt(b.starts_at || null);
+        setExpiresAt(b.expires_at || null);
 
         const card = b.signature_card_data || {};
         setCardName(card.cardName || 'Zinedine Zidane');
@@ -94,7 +94,8 @@ export default function SignatureBoxAdminPage() {
         subtitle,
         is_active: isActive,
         banner_url: bannerUrl,
-        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
+        starts_at: startsAt,
+        expires_at: expiresAt,
         signature_card_data: {
           id: `sig_${cardName.toLowerCase().replace(/\s+/g, '_')}_${cardRating}`,
           cardName,
@@ -182,7 +183,7 @@ export default function SignatureBoxAdminPage() {
               </h1>
             </div>
             <p className="text-sm text-neutral-400">
-              Create and manage limited-time 10-reward Signature Box draws with non-repeatable prizes and increasing costs.
+              Create and schedule limited-time 10-reward Signature Box draws with non-repeatable prizes and increasing costs.
             </p>
           </div>
 
@@ -219,7 +220,7 @@ export default function SignatureBoxAdminPage() {
             <div className="lg:col-span-5 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl space-y-4">
               <h2 className="text-lg font-bold flex items-center gap-2 text-white">
                 <Gift className="w-5 h-5 text-fuchsia-400" />
-                Box Configuration
+                Box Configuration and Scheduling
               </h2>
 
               <div>
@@ -245,8 +246,55 @@ export default function SignatureBoxAdminPage() {
                 />
               </div>
 
-              {/* Banner Image Upload */}
+              {/* Event Status Toggle */}
               <div>
+                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Visibility Status</label>
+                <button
+                  type="button"
+                  onClick={() => setIsActive(!isActive)}
+                  className={`w-full py-2.5 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                    isActive
+                      ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
+                      : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
+                  {isActive ? 'ACTIVE & VISIBLE IN DISCORD' : 'DISABLED / CLOSED'}
+                </button>
+              </div>
+
+              {/* Event Scheduling Dates with DateTimePicker */}
+              <div className="space-y-4 pt-2 border-t border-purple-900/20">
+                <DateTimePicker
+                  value={startsAt}
+                  onChange={setStartsAt}
+                  label="Event Start Date & Time"
+                  helperText="When box unlocks for players"
+                  presets={[
+                    { label: "Start Now", hours: 0 },
+                    { label: "+1 Hour", hours: 1 },
+                    { label: "+6 Hours", hours: 6 },
+                    { label: "+1 Day", hours: 24 }
+                  ]}
+                />
+
+                <DateTimePicker
+                  value={expiresAt}
+                  onChange={setExpiresAt}
+                  label="Event End Date & Time"
+                  helperText="When box expires and closes"
+                  presets={[
+                    { label: "+1 Day", hours: 24 },
+                    { label: "+3 Days", hours: 72 },
+                    { label: "+7 Days", hours: 168 },
+                    { label: "+14 Days", hours: 336 },
+                    { label: "+30 Days", hours: 720 }
+                  ]}
+                />
+              </div>
+
+              {/* Banner Image Upload */}
+              <div className="pt-2 border-t border-purple-900/20">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Event Banner Image</span>
                   <span className="text-[11px] text-fuchsia-400 flex items-center gap-1">
@@ -260,33 +308,6 @@ export default function SignatureBoxAdminPage() {
                   label=""
                   helperText="Upload wide promo banner (.png or .webp)"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Expires At (UTC)</label>
-                  <input
-                    type="datetime-local"
-                    value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-xs focus:outline-none text-neutral-300"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Status</label>
-                  <button
-                    type="button"
-                    onClick={() => setIsActive(!isActive)}
-                    className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                      isActive
-                        ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
-                        : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
-                    {isActive ? 'ACTIVE & LIVE' : 'DISABLED / CLOSED'}
-                  </button>
-                </div>
               </div>
             </div>
 

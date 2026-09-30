@@ -15,7 +15,10 @@ import {
   ShieldAlert, 
   Gamepad2,
   TrendingUp,
-  Percent
+  Percent,
+  Clock,
+  Timer,
+  Award
 } from 'lucide-react';
 
 function formatShortPrice(val) {
@@ -42,10 +45,16 @@ export default function GameplayConfigAdminPage() {
   const [matchDrawCoins, setMatchDrawCoins] = useState(10000000);
   const [matchLossCoins, setMatchLossCoins] = useState(5000000);
 
-  // H2H Fans Ranking
+  // H2H Fans Ranking & XP
   const [matchWinFans, setMatchWinFans] = useState(25);
   const [matchDrawFans, setMatchDrawFans] = useState(0);
   const [matchLossFans, setMatchLossFans] = useState(-15);
+  const [matchWinXp, setMatchWinXp] = useState(75);
+
+  // Match Timings Settings
+  const [matchChallengeTimeoutSecs, setMatchChallengeTimeoutSecs] = useState(60);
+  const [matchCooldownMins, setMatchCooldownMins] = useState(0);
+  const [matchSimStepDelaySecs, setMatchSimStepDelaySecs] = useState(0);
 
   // Draft Battle Arena
   const [draftBattleEntryFee, setDraftBattleEntryFee] = useState(0);
@@ -74,6 +83,11 @@ export default function GameplayConfigAdminPage() {
         setMatchWinFans(c.match_win_fans ?? 25);
         setMatchDrawFans(c.match_draw_fans ?? 0);
         setMatchLossFans(c.match_loss_fans ?? -15);
+        setMatchWinXp(c.match_win_xp ?? 75);
+
+        setMatchChallengeTimeoutSecs(c.match_challenge_timeout_secs ?? 60);
+        setMatchCooldownMins(c.match_cooldown_mins ?? 0);
+        setMatchSimStepDelaySecs(c.match_sim_step_delay_secs ?? 0);
 
         setDraftBattleEntryFee(c.draft_battle_entry_fee ?? 0);
         setDraftBattleWinnerCoins(c.draft_battle_winner_coins ?? 50000000);
@@ -101,6 +115,10 @@ export default function GameplayConfigAdminPage() {
       match_win_fans: parseInt(matchWinFans, 10) || 25,
       match_draw_fans: parseInt(matchDrawFans, 10) || 0,
       match_loss_fans: parseInt(matchLossFans, 10) || -15,
+      match_win_xp: parseInt(matchWinXp, 10) || 75,
+      match_challenge_timeout_secs: parseInt(matchChallengeTimeoutSecs, 10) || 60,
+      match_cooldown_mins: parseInt(matchCooldownMins, 10) || 0,
+      match_sim_step_delay_secs: parseInt(matchSimStepDelaySecs, 10) || 0,
       draft_battle_entry_fee: parseInt(draftBattleEntryFee, 10) || 0,
       draft_battle_winner_coins: parseInt(draftBattleWinnerCoins, 10) || 50000000,
       draft_battle_winner_vouchers: parseInt(draftBattleWinnerVouchers, 10) || 5,
@@ -116,7 +134,7 @@ export default function GameplayConfigAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: 'Gameplay and match parameters saved. Discord bot updated in real time.' });
+        setMessage({ type: 'success', text: 'Gameplay and match timing settings saved. Discord bot updated in real time.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save gameplay settings.' });
       }
@@ -159,10 +177,10 @@ export default function GameplayConfigAdminPage() {
               </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
-              Gameplay and Match Rewards
+              Match Rewards, Timings and Simulation
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
-              Configure Head-to-Head ranked rewards, fan rating ladders, Draft Battle jackpots, and custom card performance multipliers.
+              Configure Head-to-Head ranked rewards, match response timeouts, simulation play speed, Draft Battle jackpots, and custom card boosts.
             </p>
           </div>
 
@@ -176,10 +194,10 @@ export default function GameplayConfigAdminPage() {
             <LiquidButton
               onClick={handleSave}
               disabled={saving}
-              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
+              loading={saving}
             >
               <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Gameplay'}
+              Save Match Settings
             </LiquidButton>
           </div>
         </div>
@@ -202,7 +220,7 @@ export default function GameplayConfigAdminPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Match Coin Payouts */}
           <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
             <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
@@ -251,63 +269,138 @@ export default function GameplayConfigAdminPage() {
             </div>
           </div>
 
-          {/* Ranked Fans Rating Ladder */}
+          {/* Ranked Fans Rating Ladder & XP */}
           <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
             <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
               <div className="w-9 h-9 rounded-xl bg-fuchsia-500/15 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Ranked Fans Rating Ladder</h2>
-                <p className="text-xs text-neutral-400">Fans gained or lost for leaderboard ranking</p>
+                <h2 className="text-base font-bold text-white">Ranked Fans ELO & Season XP</h2>
+                <p className="text-xs text-neutral-400">Fans and Season Pass XP gained/lost for leaderboard rankings</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Win</label>
+                  <input
+                    type="number"
+                    value={matchWinFans}
+                    onChange={(e) => setMatchWinFans(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
+                  />
+                  <span className="text-[11px] text-pink-300 mt-1 block">+{matchWinFans} Fans</span>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Season Pass XP per Win</label>
+                  <input
+                    type="number"
+                    value={matchWinXp}
+                    onChange={(e) => setMatchWinXp(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
+                  />
+                  <span className="text-[11px] text-pink-300 mt-1 block">+{matchWinXp} Season XP</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Draw</label>
+                  <input
+                    type="number"
+                    value={matchDrawFans}
+                    onChange={(e) => setMatchDrawFans(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                  />
+                  <span className="text-[11px] text-fuchsia-300 mt-1 block">{matchDrawFans >= 0 ? `+${matchDrawFans}` : matchDrawFans} Fans</span>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Lost on Defeat</label>
+                  <input
+                    type="number"
+                    value={matchLossFans}
+                    onChange={(e) => setMatchLossFans(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
+                  />
+                  <span className="text-[11px] text-purple-400 mt-1 block">{matchLossFans} Fans</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Grid: Match Timings & Draft Battle */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Match Timings Settings */}
+          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+              <div className="w-9 h-9 rounded-xl bg-fuchsia-500/15 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
+                <Timer className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-white">Match Timing and Simulation Speed</h2>
+                <p className="text-xs text-neutral-400">Controls acceptance timers, play-by-play animation, and cooldowns</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Win</label>
-                <input
-                  type="number"
-                  value={matchWinFans}
-                  onChange={(e) => setMatchWinFans(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
-                />
-                <span className="text-[11px] text-pink-300 mt-1 block">+{matchWinFans} Fans</span>
+                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Match Challenge Response Timeout (Seconds)</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    value={matchChallengeTimeoutSecs}
+                    onChange={(e) => setMatchChallengeTimeoutSecs(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                  />
+                  <span className="text-xs font-bold text-neutral-400 shrink-0">Seconds</span>
+                </div>
+                <p className="text-[11px] text-neutral-500 mt-1">Opponent has {matchChallengeTimeoutSecs}s to click Accept or Decline before the match challenge expires.</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Draw</label>
-                <input
-                  type="number"
-                  value={matchDrawFans}
-                  onChange={(e) => setMatchDrawFans(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
-                />
-                <span className="text-[11px] text-fuchsia-300 mt-1 block">{matchDrawFans >= 0 ? `+${matchDrawFans}` : matchDrawFans} Fans</span>
+                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Match Cooldown Between Challenges (Minutes)</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    value={matchCooldownMins}
+                    onChange={(e) => setMatchCooldownMins(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                  />
+                  <span className="text-xs font-bold text-neutral-400 shrink-0">Minutes</span>
+                </div>
+                <p className="text-[11px] text-neutral-500 mt-1">Time users must wait between challenging each other (Set to 0 for unlimited instant rematches).</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Lost on Defeat</label>
-                <input
-                  type="number"
-                  value={matchLossFans}
-                  onChange={(e) => setMatchLossFans(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
-                />
-                <span className="text-[11px] text-purple-400 mt-1 block">{matchLossFans} Fans</span>
+                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Live Play-by-Play Event Delay (Seconds)</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={matchSimStepDelaySecs}
+                    onChange={(e) => setMatchSimStepDelaySecs(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                  />
+                  <span className="text-xs font-bold text-neutral-400 shrink-0">Secs / Event</span>
+                </div>
+                <p className="text-[11px] text-neutral-500 mt-1">0 = Instant match result. 1-5s = Dramatic live play-by-play commentary stream.</p>
               </div>
             </div>
           </div>
 
-          {/* Draft Battle Arena */}
+          {/* Draft Battle Arena & Aura Boost */}
           <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
             <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
               <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-300 flex items-center justify-center border border-pink-500/30">
                 <Swords className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Draft Battle Arena</h2>
-                <p className="text-xs text-neutral-400">Settings for 1v1 Draft Battle tournament mode</p>
+                <h2 className="text-base font-bold text-white">Draft Battle and Card Aura Multipliers</h2>
+                <p className="text-xs text-neutral-400">Settings for 1v1 Draft Battle tournament mode and custom card buffs</p>
               </div>
             </div>
 
@@ -334,40 +427,9 @@ export default function GameplayConfigAdminPage() {
                 <span className="text-[11px] text-neutral-400 mt-1 block">{draftBattleWinnerVouchers} Vouchers</span>
               </div>
 
-              <div className="pt-2 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-semibold text-neutral-200 block">Penalty Shootouts</span>
-                  <span className="text-[11px] text-neutral-400">Resolve draws with sudden death penalties</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPenaltyShootoutEnabled(!penaltyShootoutEnabled)}
-                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${
-                    penaltyShootoutEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-neutral-800 justify-start'
-                  }`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Custom Card Power Boost */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
-              <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-300 flex items-center justify-center border border-purple-500/30">
-                <Flame className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-white">Card Aura and Match Boost</h2>
-                <p className="text-xs text-neutral-400">In-game performance advantage for Custom and Box cards</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-xs font-medium mb-1.5">
-                  <span className="text-neutral-300 font-semibold">Custom and Signature Card Impact Boost</span>
+                  <span className="text-neutral-300 font-semibold">Custom & Signature Card Impact Boost</span>
                   <span className="text-fuchsia-300 font-mono font-bold">{((customCardMatchBoost - 1) * 100).toFixed(0)}% Boost ({customCardMatchBoost}x)</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -390,9 +452,22 @@ export default function GameplayConfigAdminPage() {
                     className="w-20 px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-right font-mono text-sm font-semibold text-fuchsia-300"
                   />
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-2">
-                  Multiplies attacking and defensive roll probabilities in match simulation for custom cards over regular cards of the same OVR.
-                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-neutral-200 block">Sudden Death Penalty Shootouts</span>
+                  <span className="text-[11px] text-neutral-400">Resolve drawn matches with penalties</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPenaltyShootoutEnabled(!penaltyShootoutEnabled)}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${
+                    penaltyShootoutEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-neutral-800 justify-start'
+                  }`}
+                >
+                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                </button>
               </div>
             </div>
           </div>
@@ -403,10 +478,11 @@ export default function GameplayConfigAdminPage() {
           <LiquidButton
             onClick={handleSave}
             disabled={saving}
-            className="!px-8 !py-3.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-fuchsia-600/30 flex items-center gap-3 text-base"
+            loading={saving}
+            className="!px-8 !py-3.5 text-base"
           >
             <Save className="w-5 h-5" />
-            {saving ? 'Saving System Rates...' : 'Save & Sync Gameplay Mechanics'}
+            Save Match Settings
           </LiquidButton>
         </div>
       </main>

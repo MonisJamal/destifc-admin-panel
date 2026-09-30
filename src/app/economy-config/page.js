@@ -17,7 +17,13 @@ import {
   Zap,
   TrendingUp,
   ShieldCheck,
-  PackageCheck
+  PackageCheck,
+  Gamepad2,
+  Clock,
+  Target,
+  HelpCircle,
+  Swords,
+  Timer
 } from 'lucide-react';
 
 function formatShortPrice(val) {
@@ -39,26 +45,56 @@ export default function EconomyConfigAdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // State
+  // Daily Rewards & Timing
   const [dailyCoinsMin, setDailyCoinsMin] = useState(5000000);
   const [dailyCoinsMax, setDailyCoinsMax] = useState(20000000);
   const [dailyVouchers, setDailyVouchers] = useState(2);
+  const [dailyCooldownHours, setDailyCooldownHours] = useState(24);
   const [dailyStreakMultiplier, setDailyStreakMultiplier] = useState(0.10);
   const [dailyWalkoutChance, setDailyWalkoutChance] = useState(0.15);
 
+  // Work Shifts
   const [workCoinsMin, setWorkCoinsMin] = useState(2000000);
   const [workCoinsMax, setWorkCoinsMax] = useState(10000000);
   const [workCooldownMins, setWorkCooldownMins] = useState(30);
 
+  // Vouchers & Market
   const [voucherCoinPrice, setVoucherCoinPrice] = useState(10000000);
   const [voucherDailyLimit, setVoucherDailyLimit] = useState(70);
-
   const [marketTaxPercent, setMarketTaxPercent] = useState(10.0);
   const [tradeTaxPercent, setTradeTaxPercent] = useState(5.0);
   const [maxMarketListings, setMaxMarketListings] = useState(10);
-
   const [starterCoins, setStarterCoins] = useState(50000000);
   const [starterVouchers, setStarterVouchers] = useState(10);
+
+  // Skill Games & Interactive Quests
+  const [dribbleVouchers, setDribbleVouchers] = useState(2);
+  const [dribbleCoins, setDribbleCoins] = useState(5000000);
+  const [dribbleCooldownMins, setDribbleCooldownMins] = useState(120);
+
+  const [triviaVouchers, setTriviaVouchers] = useState(1);
+  const [triviaCoins, setTriviaCoins] = useState(5000000);
+  const [triviaCooldownMins, setTriviaCooldownMins] = useState(60);
+
+  const [freekickVouchers, setFreekickVouchers] = useState(1);
+  const [freekickCoins, setFreekickCoins] = useState(4000000);
+  const [freekickCooldownMins, setFreekickCooldownMins] = useState(90);
+
+  const [gkVouchers, setGkVouchers] = useState(1);
+  const [gkCoins, setGkCoins] = useState(4000000);
+  const [gkCooldownMins, setGkCooldownMins] = useState(90);
+
+  const [volleyVouchers, setVolleyVouchers] = useState(1);
+  const [volleyCoins, setVolleyCoins] = useState(4000000);
+  const [volleyCooldownMins, setVolleyCooldownMins] = useState(90);
+
+  const [h2hAiVouchers, setH2hAiVouchers] = useState(2);
+  const [h2hAiCoins, setH2hAiCoins] = useState(10000000);
+  const [h2hAiCooldownMins, setH2hAiCooldownMins] = useState(120);
+
+  const [penaltyVouchers, setPenaltyVouchers] = useState(1);
+  const [penaltyCoins, setPenaltyCoins] = useState(3000000);
+  const [penaltyCooldownMins, setPenaltyCooldownMins] = useState(60);
 
   useEffect(() => {
     fetchConfig();
@@ -74,6 +110,7 @@ export default function EconomyConfigAdminPage() {
         setDailyCoinsMin(c.daily_coins_min ?? 5000000);
         setDailyCoinsMax(c.daily_coins_max ?? 20000000);
         setDailyVouchers(c.daily_vouchers ?? 2);
+        setDailyCooldownHours(c.daily_cooldown_hours ?? 24);
         setDailyStreakMultiplier(c.daily_streak_multiplier ?? 0.10);
         setDailyWalkoutChance(c.daily_walkout_chance ?? 0.15);
 
@@ -90,6 +127,35 @@ export default function EconomyConfigAdminPage() {
 
         setStarterCoins(c.starter_coins ?? 50000000);
         setStarterVouchers(c.starter_vouchers ?? 10);
+
+        // Skill Games
+        setDribbleVouchers(c.dribble_reward_vouchers ?? 2);
+        setDribbleCoins(c.dribble_reward_coins ?? 5000000);
+        setDribbleCooldownMins(c.dribble_cooldown_mins ?? 120);
+
+        setTriviaVouchers(c.trivia_reward_vouchers ?? 1);
+        setTriviaCoins(c.trivia_reward_coins ?? 5000000);
+        setTriviaCooldownMins(c.trivia_cooldown_mins ?? 60);
+
+        setFreekickVouchers(c.freekick_reward_vouchers ?? 1);
+        setFreekickCoins(c.freekick_reward_coins ?? 4000000);
+        setFreekickCooldownMins(c.freekick_cooldown_mins ?? 90);
+
+        setGkVouchers(c.gk_reward_vouchers ?? 1);
+        setGkCoins(c.gk_reward_coins ?? 4000000);
+        setGkCooldownMins(c.gk_cooldown_mins ?? 90);
+
+        setVolleyVouchers(c.volley_reward_vouchers ?? 1);
+        setVolleyCoins(c.volley_reward_coins ?? 4000000);
+        setVolleyCooldownMins(c.volley_cooldown_mins ?? 90);
+
+        setH2hAiVouchers(c.h2h_ai_reward_vouchers ?? 2);
+        setH2hAiCoins(c.h2h_ai_reward_coins ?? 10000000);
+        setH2hAiCooldownMins(c.h2h_ai_cooldown_mins ?? 120);
+
+        setPenaltyVouchers(c.penalty_reward_vouchers ?? 1);
+        setPenaltyCoins(c.penalty_reward_coins ?? 3000000);
+        setPenaltyCooldownMins(c.penalty_cooldown_mins ?? 60);
       }
     } catch (err) {
       console.error(err);
@@ -107,18 +173,51 @@ export default function EconomyConfigAdminPage() {
       daily_coins_min: parseInt(dailyCoinsMin, 10) || 5000000,
       daily_coins_max: parseInt(dailyCoinsMax, 10) || 20000000,
       daily_vouchers: parseInt(dailyVouchers, 10) || 2,
+      daily_cooldown_hours: parseInt(dailyCooldownHours, 10) || 24,
       daily_streak_multiplier: parseFloat(dailyStreakMultiplier) || 0.10,
       daily_walkout_chance: parseFloat(dailyWalkoutChance) || 0.15,
+
       work_coins_min: parseInt(workCoinsMin, 10) || 2000000,
       work_coins_max: parseInt(workCoinsMax, 10) || 10000000,
       work_cooldown_mins: parseInt(workCooldownMins, 10) || 30,
+
       voucher_coin_price: parseInt(voucherCoinPrice, 10) || 10000000,
       voucher_daily_limit: parseInt(voucherDailyLimit, 10) || 70,
+
       market_tax_percent: parseFloat(marketTaxPercent) || 10.0,
       trade_tax_percent: parseFloat(tradeTaxPercent) || 5.0,
       max_market_listings: parseInt(maxMarketListings, 10) || 10,
+
       starter_coins: parseInt(starterCoins, 10) || 50000000,
-      starter_vouchers: parseInt(starterVouchers, 10) || 10
+      starter_vouchers: parseInt(starterVouchers, 10) || 10,
+
+      dribble_reward_vouchers: parseInt(dribbleVouchers, 10) || 2,
+      dribble_reward_coins: parseInt(dribbleCoins, 10) || 5000000,
+      dribble_cooldown_mins: parseInt(dribbleCooldownMins, 10) || 120,
+
+      trivia_reward_vouchers: parseInt(triviaVouchers, 10) || 1,
+      trivia_reward_coins: parseInt(triviaCoins, 10) || 5000000,
+      trivia_cooldown_mins: parseInt(triviaCooldownMins, 10) || 60,
+
+      freekick_reward_vouchers: parseInt(freekickVouchers, 10) || 1,
+      freekick_reward_coins: parseInt(freekickCoins, 10) || 4000000,
+      freekick_cooldown_mins: parseInt(freekickCooldownMins, 10) || 90,
+
+      gk_reward_vouchers: parseInt(gkVouchers, 10) || 1,
+      gk_reward_coins: parseInt(gkCoins, 10) || 4000000,
+      gk_cooldown_mins: parseInt(gkCooldownMins, 10) || 90,
+
+      volley_reward_vouchers: parseInt(volleyVouchers, 10) || 1,
+      volley_reward_coins: parseInt(volleyCoins, 10) || 4000000,
+      volley_cooldown_mins: parseInt(volleyCooldownMins, 10) || 90,
+
+      h2h_ai_reward_vouchers: parseInt(h2hAiVouchers, 10) || 2,
+      h2h_ai_reward_coins: parseInt(h2hAiCoins, 10) || 10000000,
+      h2h_ai_cooldown_mins: parseInt(h2hAiCooldownMins, 10) || 120,
+
+      penalty_reward_vouchers: parseInt(penaltyVouchers, 10) || 1,
+      penalty_reward_coins: parseInt(penaltyCoins, 10) || 3000000,
+      penalty_cooldown_mins: parseInt(penaltyCooldownMins, 10) || 60,
     };
 
     try {
@@ -129,7 +228,7 @@ export default function EconomyConfigAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: 'success', text: 'Global Economy and Cooldowns saved. Live bot synchronized.' });
+        setMessage({ type: 'success', text: 'Global Economy and Skill Games settings saved. Live bot synchronized.' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save configuration.' });
       }
@@ -149,7 +248,7 @@ export default function EconomyConfigAdminPage() {
         <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
             <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
-            <p className="text-sm font-medium">Loading Economy Settings...</p>
+            <p className="text-sm font-medium">Loading Economy and Skill Games Settings...</p>
           </div>
         </main>
       </div>
@@ -165,17 +264,17 @@ export default function EconomyConfigAdminPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
-                <Coins className="w-3.5 h-3.5" /> Economy and Rewards Manager
+                <Coins className="w-3.5 h-3.5" /> Economy and Quests Engine
               </span>
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
                 Live Dynamic Sync
               </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
-              Economy, Cooldowns and Rewards
+              Economy, Skill Games and Refresh Timings
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
-              Customize daily rewards, work payouts, voucher market costs, daily limits, transaction taxes, and starter clubs.
+              Customize daily rewards, cooldown timers, voucher market prices, and individual skill game payouts.
             </p>
           </div>
 
@@ -189,10 +288,10 @@ export default function EconomyConfigAdminPage() {
             <LiquidButton
               onClick={handleSave}
               disabled={saving}
-              className="!px-6 !py-2.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-xl !shadow-lg !shadow-fuchsia-600/30 flex items-center gap-2"
+              loading={saving}
             >
               <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Economy'}
+              Save Economy and Quests
             </LiquidButton>
           </div>
         </div>
@@ -215,7 +314,8 @@ export default function EconomyConfigAdminPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Top Grid: Daily Claims & Work */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Daily Rewards Configuration */}
           <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
             <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
@@ -223,8 +323,8 @@ export default function EconomyConfigAdminPage() {
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">/daily Command Rewards</h2>
-                <p className="text-xs text-neutral-400">Configure daily claims, streaks, and lucky drop odds</p>
+                <h2 className="text-base font-bold text-white">/daily and /quest_daily Login Rewards</h2>
+                <p className="text-xs text-neutral-400">Configure daily claims, streaks, cooldown refresh, and jackpot odds</p>
               </div>
             </div>
 
@@ -264,6 +364,19 @@ export default function EconomyConfigAdminPage() {
                   <span className="text-[11px] text-neutral-400 mt-1 block">{dailyVouchers} Vouchers</span>
                 </div>
                 <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Refresh Cooldown (Hours)</label>
+                  <input
+                    type="number"
+                    value={dailyCooldownHours}
+                    onChange={(e) => setDailyCooldownHours(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                  />
+                  <span className="text-[11px] text-neutral-400 mt-1 block">Every {dailyCooldownHours} hours</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Streak Multiplier (per Day)</label>
                   <input
                     type="number"
@@ -274,23 +387,22 @@ export default function EconomyConfigAdminPage() {
                   />
                   <span className="text-[11px] text-neutral-400 mt-1 block">+{(dailyStreakMultiplier * 100).toFixed(0)}% per day</span>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Jackpot Walkout Drop Chance (%)</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={dailyWalkoutChance}
-                    onChange={(e) => setDailyWalkoutChance(e.target.value)}
-                    className="flex-1 accent-fuchsia-400"
-                  />
-                  <span className="font-mono text-sm font-bold text-fuchsia-300 w-16 text-right">
-                    {(dailyWalkoutChance * 100).toFixed(0)}%
-                  </span>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Walkout Drop Chance (%)</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={dailyWalkoutChance}
+                      onChange={(e) => setDailyWalkoutChance(e.target.value)}
+                      className="flex-1 accent-fuchsia-400"
+                    />
+                    <span className="font-mono text-xs font-bold text-fuchsia-300 w-12 text-right">
+                      {(dailyWalkoutChance * 100).toFixed(0)}%
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -345,107 +457,276 @@ export default function EconomyConfigAdminPage() {
                 </div>
                 <p className="text-[11px] text-neutral-500 mt-1">Users can run `/work` once every {workCooldownMins} minutes.</p>
               </div>
-            </div>
-          </div>
 
-          {/* Vouchers & Shop Economy */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
-              <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-300 flex items-center justify-center border border-purple-500/30">
-                <Ticket className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-white">Vouchers and Daily Limits</h2>
-                <p className="text-xs text-neutral-400">Controls coin purchase price and per-user daily purchase caps</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Voucher Price (Coins per Voucher)</label>
-                <input
-                  type="number"
-                  value={voucherCoinPrice}
-                  onChange={(e) => setVoucherCoinPrice(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500"
-                />
-                <span className="text-[11px] font-mono text-purple-300 mt-1 block">{formatShortPrice(voucherCoinPrice)} per 1 Voucher</span>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Daily Voucher Purchase Limit (Per User)</label>
-                <div className="flex items-center gap-3">
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Voucher Price (Coins)</label>
+                  <input
+                    type="number"
+                    value={voucherCoinPrice}
+                    onChange={(e) => setVoucherCoinPrice(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500"
+                  />
+                  <span className="text-[11px] font-mono text-purple-300 mt-1 block">{formatShortPrice(voucherCoinPrice)} per 1 Voucher</span>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Voucher Daily Limit</label>
                   <input
                     type="number"
                     value={voucherDailyLimit}
                     onChange={(e) => setVoucherDailyLimit(e.target.value)}
                     className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500"
                   />
-                  <span className="text-xs font-bold text-neutral-400 shrink-0">Vouchers / Day</span>
+                  <span className="text-[11px] text-neutral-400 mt-1 block">{voucherDailyLimit} per day</span>
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-1">Maximum vouchers a user can buy with coins in 24 hours (Current: {voucherDailyLimit} limit).</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Market Taxes & Starter Club */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
-              <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-300 flex items-center justify-center border border-pink-500/30">
-                <Percent className="w-5 h-5" />
+        {/* Skill Games & Interactive Quests Matrix */}
+        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-6 mb-8">
+          <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-300 flex items-center justify-center border border-purple-500/30">
+              <Gamepad2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Skill Games and Quests Configuration</h2>
+              <p className="text-xs text-neutral-400">Configure vouchers, bonus coins, and refresh cooldown timings for all mini-games</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* Dribble Gauntlet */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-fuchsia-400" /> Dribble Gauntlet
+                </span>
+                <span className="text-[10px] font-mono text-fuchsia-300 bg-fuchsia-500/10 px-2 py-0.5 rounded border border-fuchsia-500/20">/quest_dribble</span>
               </div>
-              <div>
-                <h2 className="text-base font-bold text-white">Taxes and Starter Clubs</h2>
-                <p className="text-xs text-neutral-400">Transaction fees and new user registration bonuses</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
+                  <input
+                    type="number"
+                    value={dribbleVouchers}
+                    onChange={(e) => setDribbleVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
+                  <input
+                    type="number"
+                    value={dribbleCoins}
+                    onChange={(e) => setDribbleCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={dribbleCooldownMins}
+                    onChange={(e) => setDribbleCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Football Trivia */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <HelpCircle className="w-4 h-4 text-pink-400" /> Football Trivia
+                </span>
+                <span className="text-[10px] font-mono text-pink-300 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">/quest_trivia</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Market Sales Tax (%)</label>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
                   <input
                     type="number"
-                    step="0.5"
-                    value={marketTaxPercent}
-                    onChange={(e) => setMarketTaxPercent(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                    value={triviaVouchers}
+                    onChange={(e) => setTriviaVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
                   />
-                  <span className="text-[11px] text-pink-300 mt-1 block">{marketTaxPercent}% sales fee</span>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Trade Tax (%)</label>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
                   <input
                     type="number"
-                    step="0.5"
-                    value={tradeTaxPercent}
-                    onChange={(e) => setTradeTaxPercent(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                    value={triviaCoins}
+                    onChange={(e) => setTriviaCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
                   />
-                  <span className="text-[11px] text-pink-300 mt-1 block">{tradeTaxPercent}% trade fee</span>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={triviaCooldownMins}
+                    onChange={(e) => setTriviaCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
                 </div>
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
+            {/* Free Kick Master */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-purple-400" /> Free Kick Master
+                </span>
+                <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">/quest_freekick</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Starter Bonus Coins</label>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
                   <input
                     type="number"
-                    value={starterCoins}
-                    onChange={(e) => setStarterCoins(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                    value={freekickVouchers}
+                    onChange={(e) => setFreekickVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
                   />
-                  <span className="text-[11px] font-mono text-pink-300 mt-1 block">{formatShortPrice(starterCoins)} coins</span>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Starter Vouchers</label>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
                   <input
                     type="number"
-                    value={starterVouchers}
-                    onChange={(e) => setStarterVouchers(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                    value={freekickCoins}
+                    onChange={(e) => setFreekickCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
                   />
-                  <span className="text-[11px] text-neutral-400 mt-1 block">{starterVouchers} Vouchers</span>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={freekickCooldownMins}
+                    onChange={(e) => setFreekickCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Goalkeeper Hero */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> Goalkeeper Hero
+                </span>
+                <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">/quest_gk</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
+                  <input
+                    type="number"
+                    value={gkVouchers}
+                    onChange={(e) => setGkVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
+                  <input
+                    type="number"
+                    value={gkCoins}
+                    onChange={(e) => setGkCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={gkCooldownMins}
+                    onChange={(e) => setGkCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cross & Volley */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-amber-400" /> Cross & Volley
+                </span>
+                <span className="text-[10px] font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">/quest_volley</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
+                  <input
+                    type="number"
+                    value={volleyVouchers}
+                    onChange={(e) => setVolleyVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
+                  <input
+                    type="number"
+                    value={volleyCoins}
+                    onChange={(e) => setVolleyCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={volleyCooldownMins}
+                    onChange={(e) => setVolleyCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* AI Head to Head */}
+            <div className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                  <Swords className="w-4 h-4 text-blue-400" /> AI Head to Head
+                </span>
+                <span className="text-[10px] font-mono text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">/quest_h2h</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Vouchers</label>
+                  <input
+                    type="number"
+                    value={h2hAiVouchers}
+                    onChange={(e) => setH2hAiVouchers(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Coins</label>
+                  <input
+                    type="number"
+                    value={h2hAiCoins}
+                    onChange={(e) => setH2hAiCoins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Cooldown (m)</label>
+                  <input
+                    type="number"
+                    value={h2hAiCooldownMins}
+                    onChange={(e) => setH2hAiCooldownMins(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-center"
+                  />
                 </div>
               </div>
             </div>
@@ -457,10 +738,11 @@ export default function EconomyConfigAdminPage() {
           <LiquidButton
             onClick={handleSave}
             disabled={saving}
-            className="!px-8 !py-3.5 !bg-gradient-to-r !from-pink-600 !via-fuchsia-600 !to-purple-600 hover:!from-pink-500 hover:!to-purple-500 !text-white !font-bold !rounded-2xl !shadow-xl !shadow-fuchsia-600/30 flex items-center gap-3 text-base"
+            loading={saving}
+            className="!px-8 !py-3.5 text-base"
           >
             <Save className="w-5 h-5" />
-            {saving ? 'Saving System Rates...' : 'Save & Sync Economy Engine'}
+            Save Economy & Quests Engine
           </LiquidButton>
         </div>
       </main>

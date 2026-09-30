@@ -12,6 +12,8 @@ export async function GET() {
       success: true,
       box: {
         ...row,
+        starts_at: row.starts_at || null,
+        expires_at: row.expires_at || null,
         signature_card_data: typeof row.signature_card_data === 'string' ? JSON.parse(row.signature_card_data) : row.signature_card_data,
         rewards_json: typeof row.rewards_json === 'string' ? JSON.parse(row.rewards_json) : row.rewards_json,
         draw_costs_json: typeof row.draw_costs_json === 'string' ? JSON.parse(row.draw_costs_json) : row.draw_costs_json,
@@ -26,21 +28,32 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { title, subtitle, is_active, banner_url, expires_at, signature_card_data, rewards_json, draw_costs_json } = body;
+    const { title, subtitle, is_active, banner_url, starts_at, expires_at, signature_card_data, rewards_json, draw_costs_json } = body;
+
+    let startDt = null;
+    if (starts_at) {
+      startDt = new Date(starts_at).toISOString();
+    }
 
     let expDt = null;
     if (expires_at) {
       expDt = new Date(expires_at).toISOString();
     }
 
+    // Ensure starts_at column exists in database
+    try {
+      await query('ALTER TABLE signature_box_config ADD COLUMN IF NOT EXISTS starts_at TIMESTAMP');
+    } catch (e) {}
+
     await query(`
-      INSERT INTO signature_box_config (id, title, subtitle, is_active, banner_url, expires_at, signature_card_data, rewards_json, draw_costs_json, updated_at)
-      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+      INSERT INTO signature_box_config (id, title, subtitle, is_active, banner_url, starts_at, expires_at, signature_card_data, rewards_json, draw_costs_json, updated_at)
+      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO UPDATE SET
         title = EXCLUDED.title,
         subtitle = EXCLUDED.subtitle,
         is_active = EXCLUDED.is_active,
         banner_url = EXCLUDED.banner_url,
+        starts_at = EXCLUDED.starts_at,
         expires_at = EXCLUDED.expires_at,
         signature_card_data = EXCLUDED.signature_card_data,
         rewards_json = EXCLUDED.rewards_json,
@@ -51,6 +64,7 @@ export async function POST(request) {
       subtitle || '10 Exclusive Limited Time Rewards',
       is_active !== undefined ? is_active : true,
       banner_url || '',
+      startDt,
       expDt,
       JSON.stringify(signature_card_data || {}),
       JSON.stringify(rewards_json || []),
