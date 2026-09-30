@@ -113,6 +113,12 @@ export default function RenderZDatabasePage() {
 
   const positions = ['ALL', 'ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'CB', 'LB', 'RB', 'GK'];
 
+  const getProxyUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -217,9 +223,9 @@ export default function RenderZDatabasePage() {
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="glass-card p-5 h-72 animate-pulse flex flex-col justify-between rounded-3xl">
+                  <div key={i} className="glass-card p-5 h-80 animate-pulse flex flex-col justify-between rounded-3xl">
                     <div className="w-12 h-6 bg-neutral-200/60 rounded-lg"></div>
-                    <div className="w-24 h-24 bg-neutral-200/60 rounded-full mx-auto"></div>
+                    <div className="w-28 h-28 bg-neutral-200/60 rounded-2xl mx-auto"></div>
                     <div className="w-3/4 h-4 bg-neutral-200/60 rounded mx-auto"></div>
                   </div>
                 ))}
@@ -244,7 +250,7 @@ export default function RenderZDatabasePage() {
                   return (
                     <div
                       key={card.id || card.assetId}
-                      className="glass-card p-5 flex flex-col justify-between rounded-3xl hover:shadow-xl transition-all duration-300 border border-white/80 group relative overflow-hidden bg-gradient-to-b from-white/90 to-white/50"
+                      className="glass-card p-5 flex flex-col justify-between rounded-3xl hover:shadow-xl transition-all duration-300 border border-white/80 group relative overflow-hidden bg-gradient-to-b from-white/95 to-white/60"
                     >
                       {/* Top Badges */}
                       <div className="flex items-start justify-between z-10">
@@ -269,24 +275,25 @@ export default function RenderZDatabasePage() {
                         </div>
                       </div>
 
-                      {/* Player Image */}
-                      <div className="my-3 flex items-center justify-center relative py-2">
+                      {/* Authentic Layered Card Canvas */}
+                      <div className="my-2 flex items-center justify-center relative w-full h-44 overflow-hidden rounded-2xl bg-neutral-950/5 border border-black/5">
+                        {card.images?.playerCardBackground && (
+                          <img
+                            src={getProxyUrl(card.images.playerCardBackground)}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm"
+                            loading="lazy"
+                          />
+                        )}
                         {card.images?.playerCardImage || card.images?.playerImage ? (
                           <img
-                            src={
-                              (card.images.playerCardImage || card.images.playerImage).includes('renderz.app')
-                                ? `/api/image-proxy?url=${encodeURIComponent(card.images.playerCardImage || card.images.playerImage)}`
-                                : (card.images.playerCardImage || card.images.playerImage)
-                            }
+                            src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
                             alt=""
                             loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                            className="w-32 h-32 object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                            className="relative z-10 w-36 h-36 object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="w-24 h-24 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-300">
+                          <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-300">
                             <Sparkles className="w-8 h-8" />
                           </div>
                         )}

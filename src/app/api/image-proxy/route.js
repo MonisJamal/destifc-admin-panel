@@ -2,20 +2,40 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// In-memory cache to prevent re-fetching the same image repeatedly
+// In-memory LRU cache to prevent redundant upstream fetches
 const IMAGE_CACHE = new Map();
-const MAX_CACHE_SIZE = 500;
+const MAX_CACHE_SIZE = 1000;
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const url = searchParams.get('url');
+    let url = searchParams.get('url');
 
     if (!url) {
       return new NextResponse('Missing URL parameter', { status: 400 });
     }
 
-    // Check memory cache first
+    // Handle base64 data URLs directly
+    if (url.startsWith('data:image')) {
+      const parts = url.split(',', 2);
+      const mime = parts[0].split(';')[0].replace('data:', '') || 'image/png';
+      const buffer = Buffer.from(parts[1], 'base64');
+      return new NextResponse(buffer, {
+        status: 200,
+        headers: {
+          'Content-Type': mime,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+    // Ensure relative URLs are absolute RenderZ URLs
+    if (url.startsWith('/')) {
+      url = `https://renderz.app${url}`;
+    }
+
+    // Check memory cache
     if (IMAGE_CACHE.has(url)) {
       const cached = IMAGE_CACHE.get(url);
       return new NextResponse(cached.buffer, {
@@ -30,16 +50,10 @@ export async function GET(request) {
 
     const resp = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Referer': 'https://renderz.app/',
         'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'sec-ch-ua': '"Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
-        'sec-fetch-dest': 'image',
-        'sec-fetch-mode': 'no-cors',
-        'sec-fetch-site': 'same-site'
+        'Accept-Language': 'en-US,en;q=0.9'
       }
     });
 
@@ -55,9 +69,11 @@ export async function GET(request) {
       contentType = 'image/png';
     }
 
-    if (IMAGE_CACHE.size < MAX_CACHE_SIZE) {
-      IMAGE_CACHE.set(url, { buffer, contentType });
+    if (IMAGE_CACHE.size >= MAX_CACHE_SIZE) {
+      const firstKey = IMAGE_CACHE.keys().next().value;
+      IMAGE_CACHE.delete(firstKey);
     }
+    IMAGE_CACHE.set(url, { buffer, contentType });
 
     return new NextResponse(buffer, {
       status: 200,
@@ -71,3 +87,4 @@ export async function GET(request) {
     return new NextResponse(err.message, { status: 500 });
   }
 }
+

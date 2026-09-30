@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
-import { Search, ChevronLeft, ChevronRight, User, CreditCard, ShoppingBag } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, User, CreditCard, ShoppingBag, Database, Sparkles, Shield, Globe } from 'lucide-react';
 
 export default function DatabasePage() {
   const [tab, setTab] = useState('users');
@@ -38,6 +38,12 @@ export default function DatabasePage() {
     setSearch('');
   };
 
+  const getProxyUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -46,7 +52,7 @@ export default function DatabasePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Cloud Database Explorer</h1>
-              <p className="text-sm text-neutral-500 mt-1">Direct query inspection of Supabase PostgreSQL tables.</p>
+              <p className="text-sm text-neutral-500 mt-1">Direct query inspection of Supabase PostgreSQL tables with live card visuals.</p>
             </div>
 
             <div className="relative w-full md:w-72">
@@ -61,10 +67,10 @@ export default function DatabasePage() {
             </div>
           </div>
 
-          <div className="flex gap-2 p-1.5 rounded-2xl glass-card w-fit border border-white/60">
+          <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl glass-card w-fit border border-white/60">
             <button
               onClick={() => handleTabChange('users')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all cursor-pointer ${
                 tab === 'users' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >
@@ -72,7 +78,7 @@ export default function DatabasePage() {
             </button>
             <button
               onClick={() => handleTabChange('inventory')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all cursor-pointer ${
                 tab === 'inventory' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >
@@ -80,11 +86,19 @@ export default function DatabasePage() {
             </button>
             <button
               onClick={() => handleTabChange('market')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all cursor-pointer ${
                 tab === 'market' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >
               <ShoppingBag className="w-4 h-4" /> Market Listings
+            </button>
+            <button
+              onClick={() => handleTabChange('official')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                tab === 'official' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-neutral-500 hover:text-neutral-900'
+              }`}
+            >
+              <Database className="w-4 h-4" /> Official Cards Pool
             </button>
           </div>
 
@@ -105,7 +119,7 @@ export default function DatabasePage() {
                     )}
                     {tab === 'inventory' && (
                       <>
-                        <th className="py-4 px-6">ID</th>
+                        <th className="py-4 px-6">Card Visual</th>
                         <th className="py-4 px-6">Owner User ID</th>
                         <th className="py-4 px-6">Player Name</th>
                         <th className="py-4 px-6">OVR Rating</th>
@@ -114,12 +128,22 @@ export default function DatabasePage() {
                     )}
                     {tab === 'market' && (
                       <>
-                        <th className="py-4 px-6">Listing ID</th>
+                        <th className="py-4 px-6">Card Visual</th>
                         <th className="py-4 px-6">Seller ID</th>
                         <th className="py-4 px-6">Player Name</th>
                         <th className="py-4 px-6">OVR</th>
                         <th className="py-4 px-6">Asking Price</th>
                         <th className="py-4 px-6">Listed Timestamp</th>
+                      </>
+                    )}
+                    {tab === 'official' && (
+                      <>
+                        <th className="py-4 px-6">Card Visual</th>
+                        <th className="py-4 px-6">Asset ID</th>
+                        <th className="py-4 px-6">Player Name</th>
+                        <th className="py-4 px-6">OVR & POS</th>
+                        <th className="py-4 px-6">Program / Event</th>
+                        <th className="py-4 px-6">Club & Nation</th>
                       </>
                     )}
                   </tr>
@@ -148,21 +172,79 @@ export default function DatabasePage() {
                         )}
                         {tab === 'inventory' && (
                           <>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-500">#{row.id}</td>
+                            <td className="py-3 px-6">
+                              <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
+                                {row.bg_image && (
+                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                )}
+                                {row.image ? (
+                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                ) : (
+                                  <Sparkles className="w-5 h-5 text-neutral-400" />
+                                )}
+                              </div>
+                            </td>
                             <td className="py-4 px-6 font-mono text-xs text-neutral-800">{row.user_id}</td>
-                            <td className="py-4 px-6 font-bold text-neutral-900">{row.player_name}</td>
+                            <td className="py-4 px-6 font-bold text-neutral-900">
+                              <div className="flex items-center gap-2">
+                                <span>{row.player_name}</span>
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600">{row.position || 'ST'}</span>
+                              </div>
+                            </td>
                             <td className="py-4 px-6 font-bold text-amber-500">{row.ovr} OVR</td>
                             <td className="py-4 px-6 text-xs">{row.locked ? '🔒 Locked' : '🟢 Unlocked'}</td>
                           </>
                         )}
                         {tab === 'market' && (
                           <>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-500">#{row.id}</td>
+                            <td className="py-3 px-6">
+                              <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
+                                {row.bg_image && (
+                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                )}
+                                {row.image ? (
+                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                ) : (
+                                  <Sparkles className="w-5 h-5 text-neutral-400" />
+                                )}
+                              </div>
+                            </td>
                             <td className="py-4 px-6 font-mono text-xs text-neutral-800">{row.seller_id}</td>
-                            <td className="py-4 px-6 font-bold text-neutral-900">{row.player_name}</td>
+                            <td className="py-4 px-6 font-bold text-neutral-900">
+                              <div className="flex items-center gap-2">
+                                <span>{row.player_name}</span>
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600">{row.position || 'ST'}</span>
+                              </div>
+                            </td>
                             <td className="py-4 px-6 font-bold text-amber-500">{row.ovr} OVR</td>
                             <td className="py-4 px-6 font-bold text-emerald-600">🪙 {parseInt(row.price || 0).toLocaleString()}</td>
                             <td className="py-4 px-6 text-xs text-neutral-400">{new Date(row.listed_at).toLocaleString()}</td>
+                          </>
+                        )}
+                        {tab === 'official' && (
+                          <>
+                            <td className="py-3 px-6">
+                              <div className="w-12 h-14 rounded-xl bg-neutral-900/10 relative overflow-hidden flex items-center justify-center border border-black/5 shadow-sm">
+                                {row.bg_image && (
+                                  <img src={getProxyUrl(row.bg_image)} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                                )}
+                                {row.image ? (
+                                  <img src={getProxyUrl(row.image)} alt="" className="relative z-10 w-10 h-10 object-contain drop-shadow" />
+                                ) : (
+                                  <Sparkles className="w-5 h-5 text-neutral-400" />
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 font-mono text-xs text-neutral-500">#{row.asset_id}</td>
+                            <td className="py-4 px-6 font-bold text-neutral-900">{row.player_name}</td>
+                            <td className="py-4 px-6">
+                              <span className="font-bold text-amber-500">{row.rating} OVR</span>{' '}
+                              <span className="text-xs font-semibold text-neutral-500">({row.position})</span>
+                            </td>
+                            <td className="py-4 px-6 text-xs font-semibold text-blue-600 uppercase">{row.source || 'Standard'}</td>
+                            <td className="py-4 px-6 text-xs text-neutral-500">
+                              {row.club_name || 'Club'} • {row.nation_name || 'Nation'}
+                            </td>
                           </>
                         )}
                       </tr>
@@ -178,7 +260,7 @@ export default function DatabasePage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage(p => p - 1)}
-                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white"
+                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -186,7 +268,7 @@ export default function DatabasePage() {
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage(p => p + 1)}
-                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white"
+                  className="p-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white cursor-pointer"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -198,3 +280,4 @@ export default function DatabasePage() {
     </div>
   );
 }
+
