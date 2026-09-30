@@ -119,7 +119,30 @@ export default function CustomCardsPage() {
     }
     const reader = new FileReader();
     reader.onload = (uploadEvent) => {
-      setImageUrl(uploadEvent.target.result);
+      const img = new window.Image();
+      img.onload = () => {
+        // Automatically optimize & scale image to 512px max to prevent large payload network errors
+        const maxDim = 512;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const optimizedDataUrl = canvas.toDataURL('image/webp', 0.92);
+        setImageUrl(optimizedDataUrl);
+      };
+      img.src = uploadEvent.target.result;
     };
     reader.readAsDataURL(file);
   };
