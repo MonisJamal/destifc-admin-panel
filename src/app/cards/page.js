@@ -278,8 +278,11 @@ export default function RenderZDatabasePage() {
                                 ? `/api/image-proxy?url=${encodeURIComponent(card.images.playerCardImage || card.images.playerImage)}`
                                 : (card.images.playerCardImage || card.images.playerImage)
                             }
-                            alt={card.cardName}
+                            alt=""
                             loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
                             className="w-32 h-32 object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
