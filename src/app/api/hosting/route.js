@@ -18,11 +18,11 @@ export async function GET() {
     // 2. Fetch hosting configuration
     const hostRes = await query("SELECT value FROM system_settings WHERE key = 'hosting_config'");
     let hostingConfig = {
-      node: "node.xsystemshosting.com (CA-Node-1)",
-      port: 2022,
+      node: "geu2.xsystemshosting.com (EU-Node-2)",
+      port: 2023,
       type: "Pterodactyl / Node Host",
       panel_url: "https://panel.xsystemshosting.com",
-      server_id: "b47d2ed4",
+      server_id: "58a88227",
       api_key_set: false
     };
     try {
@@ -72,7 +72,7 @@ export async function GET() {
       logs.push(`[${nowIso.slice(11, 19)}] [COGS] All 14 modular game cogs loaded and active (Match, Economy, SBC, Draft, Market)`);
     } else {
       logs.push(`[${nowIso.slice(11, 19)}] [GATEWAY] ⚠️ Bot process currently offline. No active Discord WebSocket session.`);
-      logs.push(`[${nowIso.slice(11, 19)}] [HOSTING] Node node.xsystemshosting.com:2022 ready for process start or reboot.`);
+      logs.push(`[${nowIso.slice(11, 19)}] [HOSTING] Node geu2.xsystemshosting.com:2023 ready for process start or reboot.`);
     }
 
     // Add recent signal executions to console log stream
@@ -119,8 +119,8 @@ export async function POST(request) {
 
       const updated = {
         ...cfg,
-        node: "node.xsystemshosting.com",
-        port: 2022,
+        node: "geu2.xsystemshosting.com",
+        port: 2023,
         panel_url: (panel_url || cfg.panel_url || '').trim(),
         server_id: (server_id || cfg.server_id || '').trim(),
         api_key: api_key ? api_key.trim() : (cfg.api_key || '')
