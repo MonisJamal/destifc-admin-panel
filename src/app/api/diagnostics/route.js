@@ -353,7 +353,7 @@ export async function GET(request) {
         const poolACards = await query("SELECT COUNT(*) FROM custom_draft_cards");
         const poolBCards = await query("SELECT COUNT(*) FROM official_cards WHERE rating >= 115 AND rating <= 118");
         const poolCCards = await query("SELECT COUNT(*) FROM official_cards WHERE rating >= 110 AND rating <= 114");
-        const draftSettings = await query("SELECT value FROM system_settings WHERE key = 'current_drafts'");
+        const draftSettings = await query("SELECT value FROM global_drafts");
         const duration = Math.round(performance.now() - start);
         
         let poolSummary = 'Active';
@@ -383,7 +383,7 @@ export async function GET(request) {
       description: 'Displays current 2-hour draft rotation pools, players, and odds.',
       run: async () => {
         const start = performance.now();
-        const res = await query("SELECT value FROM system_settings WHERE key = 'current_drafts'");
+        const res = await query("SELECT value FROM global_drafts");
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
@@ -455,9 +455,9 @@ export async function GET(request) {
         const start = performance.now();
         const res = await query(`
           SELECT user_id, 
-                 COALESCE(draft_elo, 1000) as elo, 
-                 COALESCE(draft_wins, 0) as wins, 
-                 COALESCE(draft_losses, 0) as losses 
+                 COALESCE(draft_battle_elo, 1000) as elo, 
+                 COALESCE(draft_battle_wins, 0) as wins, 
+                 COALESCE(draft_battle_losses, 0) as losses 
           FROM users 
           ORDER BY elo DESC 
           LIMIT 10
@@ -479,7 +479,7 @@ export async function GET(request) {
       description: 'Displays user win/loss record, win rate, ELO tier, and highest match OVR.',
       run: async () => {
         const start = performance.now();
-        const res = await query('SELECT user_id, draft_elo, draft_wins, draft_losses FROM users LIMIT 1');
+        const res = await query('SELECT user_id, draft_battle_elo, draft_battle_wins, draft_battle_losses FROM users LIMIT 1');
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
@@ -781,7 +781,7 @@ export async function GET(request) {
       description: 'Validates price floor/ceiling rules and transfers card from inventory to market.',
       run: async () => {
         const start = performance.now();
-        const priceRanges = await query("SELECT value FROM system_settings WHERE key = 'price_ranges'");
+        const priceRanges = await query("SELECT value FROM system_settings WHERE key = 'ovr_prices'");
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
@@ -905,7 +905,7 @@ export async function GET(request) {
       description: 'Exchanges coins for draft vouchers (30M each, 10 for 250M, max 70/day cap).',
       run: async () => {
         const start = performance.now();
-        const res = await query('SELECT user_id, vouchers, coins, vouchers_bought_today, last_voucher_buy FROM users LIMIT 5');
+        const res = await query('SELECT user_id, vouchers, coins, daily_vouchers_bought, last_voucher_buy_date FROM users LIMIT 5');
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
@@ -923,7 +923,7 @@ export async function GET(request) {
       description: 'Displays 3 exclusive featured Pool A players available for coins (refreshes every 4 hours).',
       run: async () => {
         const start = performance.now();
-        const res = await query("SELECT value FROM system_settings WHERE key = 'store_featured_players'");
+        const res = await query("SELECT value FROM store_player_shop");
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
@@ -1030,7 +1030,7 @@ export async function GET(request) {
       description: 'Trades lower-tier cards for guaranteed high-OVR walkout card from the 2-hour exchange pool.',
       run: async () => {
         const start = performance.now();
-        const exchangeSettings = await query("SELECT value FROM system_settings WHERE key = 'current_exchange_pool'");
+        const exchangeSettings = await query("SELECT value FROM global_exchange_pool");
         const duration = Math.round(performance.now() - start);
         return {
           status: 'ok',
