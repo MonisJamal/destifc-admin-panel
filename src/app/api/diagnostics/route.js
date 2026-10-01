@@ -1719,35 +1719,52 @@ export async function POST(request) {
       repairLogs.push(`Lock cleanup: ${e.message}`);
     }
 
-    // 4. Auto-repair Draft & Exchange 2-hour rotation timer anchors
+    // 4. Auto-repair Draft rotation timer — update the actual global_drafts table
     try {
-      const draftRes = await query("SELECT value FROM system_settings WHERE key = 'current_drafts'").catch(() => ({ rows: [] }));
-      const raw = draftRes.rows?.[0]?.value;
-      let draftJson = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const draftRes = await query("SELECT draft_number, expires_at FROM global_drafts ORDER BY draft_number").catch(() => ({ rows: [] }));
       const now = new Date();
-      if (!draftJson || !draftJson.expires_at || new Date(draftJson.expires_at) < now) {
-        const newExpiry = new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString();
-        draftJson = { ...(draftJson || {}), expires_at: newExpiry, last_rotated: now.toISOString() };
-        await query(`
-          INSERT INTO system_settings (key, value)
-          VALUES ('current_drafts', $1::jsonb)
-          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
-        `, [JSON.stringify(draftJson)]).catch(() => {});
-        repairLogs.push(`Draft pool timer re-anchored to UTC +2h (${newExpiry.substring(11, 16)} UTC).`);
+      let draftsExpired = false;
+
+      if (!draftRes.rows || draftRes.rows.length === 0) {
+        draftsExpired = true;
+        repairLogs.push('No active drafts found in global_drafts table — bot draft_rotator will regenerate on next tick.');
       } else {
-        repairLogs.push(`Draft pool rotation valid (expires at ${draftJson.expires_at.substring(11, 16)} UTC).`);
+        for (const row of draftRes.rows) {
+          const exp = row.expires_at ? new Date(row.expires_at) : null;
+          if (!exp || exp < now) {
+            draftsExpired = true;
+            break;
+          }
+        }
+        if (draftsExpired) {
+          // Reset all draft expiry timestamps to NOW so the bot's draft_rotator detects them as expired
+          // and regenerates fresh pools on its next 1-minute tick
+          const newExpiry = new Date(now.getTime() - 60000); // Set to 1 minute ago to force refresh
+          await query(`UPDATE global_drafts SET expires_at = $1`, [newExpiry]).catch(() => {});
+          repairLogs.push(`Draft pools expired — reset timestamps to force bot regeneration on next tick.`);
+        } else {
+          const soonest = draftRes.rows.reduce((min, r) => {
+            const d = new Date(r.expires_at);
+            return d < min ? d : min;
+          }, new Date(9999, 0));
+          repairLogs.push(`Draft pool rotation valid (expires at ${soonest.toISOString().substring(11, 16)} UTC).`);
+        }
       }
     } catch (e) {
       repairLogs.push(`Draft rotation check: ${e.message}`);
     }
 
-    // 5. Send Live Cog Reload & Cache Flush Signal to Discord Bot
+    // 5. Send Cache Flush + Cog Reload Signal to Discord Bot
     try {
+      await query(`
+        INSERT INTO portal_jobs (job_type, status, payload)
+        VALUES ('SIGNAL_FLUSH_CACHES', 'pending', '{}')
+      `).catch(() => {});
       await query(`
         INSERT INTO portal_jobs (job_type, status, payload)
         VALUES ('SIGNAL_RELOAD_COGS', 'pending', '{}')
       `).catch(() => {});
-      repairLogs.push('Dispatched SIGNAL_RELOAD_COGS to live Discord bot process.');
+      repairLogs.push('Dispatched SIGNAL_FLUSH_CACHES + SIGNAL_RELOAD_COGS to live Discord bot process.');
     } catch (e) {
       repairLogs.push(`Bot reload signal: ${e.message}`);
     }
