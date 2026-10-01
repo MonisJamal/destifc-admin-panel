@@ -175,9 +175,9 @@ export default function SignatureBoxAdminPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-[#0d0914] text-white">
+      <div className="flex min-h-screen bg-[#0d0914] text-white font-sans">
         <Sidebar />
-        <main className="flex-1 ml-64 p-8 flex items-center justify-center">
+        <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
           <div className="flex items-center gap-3 text-neutral-400 font-medium">
             <RefreshCw className="w-6 h-6 animate-spin text-fuchsia-400" />
             Loading Signature Box Editor...
@@ -191,7 +191,7 @@ export default function SignatureBoxAdminPage() {
     <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans selection:bg-fuchsia-500/30">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 max-w-7xl">
+      <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>

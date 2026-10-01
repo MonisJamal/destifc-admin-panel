@@ -26,26 +26,41 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100">
+    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
       <Sidebar />
-      <main className="ml-64 flex-1 p-10">
-        <div className="max-w-6xl mx-auto space-y-10">
+      <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-10 pt-16 lg:pt-10">
+        <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
                   DestiFC Control Center
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30">
-                  Online
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border flex items-center gap-1.5 ${
+                  stats.bot_online
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                    : 'bg-red-500/15 text-red-300 border-red-500/30'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${stats.bot_online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+                  {stats.bot_online ? `Bot Online (${stats.bot_latency}ms)` : 'Bot Offline'}
                 </span>
               </div>
-              <p className="text-sm text-neutral-400 mt-1">Live cloud telemetry connected to Supabase PostgreSQL and Discord Bot engine.</p>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-1">Live cloud telemetry connected to Supabase PostgreSQL and Discord Bot engine.</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link
+                href="/hosting"
+                className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-purple-900/40 text-xs font-bold text-fuchsia-300 hover:text-fuchsia-100 transition-all flex items-center gap-1.5"
+              >
+                <span>Process Controls</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
 
           {/* Quick Stat Tiles */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="glass-card p-6 flex flex-col justify-between">
               <div className="flex items-center justify-between text-neutral-400 mb-4">
                 <span className="text-xs font-semibold uppercase tracking-wider">Registered Players</span>

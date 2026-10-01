@@ -149,13 +149,15 @@ export default function AdminCommandsPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
       <Sidebar />
-      <main className="ml-64 flex-1 p-10">
+      <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-6xl mx-auto space-y-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Admin Command Center</h1>
-            <p className="text-sm text-neutral-500 mt-1">Execute live Discord admin commands directly from the web in real-time.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              Admin Command Center
+            </h1>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1">Execute live Discord admin commands directly from the web in real-time.</p>
           </div>
 
           {message.text && (

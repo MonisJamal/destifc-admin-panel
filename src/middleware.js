@@ -16,7 +16,22 @@ export function middleware(request) {
   }
 
   const authCookie = request.cookies.get('destifc_admin_auth');
-  const isAuthenticated = authCookie && authCookie.value.includes('authenticated');
+  let isAuthenticated = false;
+
+  if (authCookie && authCookie.value) {
+    if (authCookie.value.includes('authenticated')) {
+      isAuthenticated = true;
+    } else {
+      try {
+        const decoded = JSON.parse(Buffer.from(authCookie.value, 'base64').toString('utf-8'));
+        if (decoded && decoded.username) {
+          isAuthenticated = true;
+        }
+      } catch (e) {
+        isAuthenticated = false;
+      }
+    }
+  }
 
   // If unauthenticated and visiting any portal page, redirect to /login
   if (!isAuthenticated) {

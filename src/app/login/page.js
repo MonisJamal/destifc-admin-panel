@@ -1,9 +1,10 @@
 'use client';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Shield, ArrowRight, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Eye, EyeOff, Sparkles, User, Lock } from 'lucide-react';
 
 function LoginForm() {
+  const [username, setUsername] = useState('desti');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -14,7 +15,7 @@ function LoginForm() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!password.trim()) return;
+    if (!username.trim() || !password.trim()) return;
 
     setError('');
     setLoading(true);
@@ -23,14 +24,17 @@ function LoginForm() {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password.trim() }),
+        body: JSON.stringify({ 
+          username: username.trim(),
+          password: password.trim() 
+        }),
       });
       const data = await res.json();
       if (data.success) {
         router.push(redirectPath);
         router.refresh();
       } else {
-        setError(data.error || 'Incorrect passcode. Please try again.');
+        setError(data.error || 'Invalid credentials. Please check your username and passcode.');
       }
     } catch (err) {
       setError('Connection failed. Please check network.');
@@ -40,42 +44,60 @@ function LoginForm() {
   };
 
   return (
-    <div className="p-8 sm:p-10 rounded-3xl bg-neutral-900/80 border border-white/10 backdrop-blur-2xl shadow-2xl space-y-8">
+    <div className="p-8 sm:p-10 rounded-3xl bg-neutral-900/90 border border-purple-900/40 backdrop-blur-2xl shadow-2xl shadow-purple-950/50 space-y-7">
       {/* Logo & Header */}
       <div className="text-center space-y-3">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-neutral-950 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/20">
-          <Shield className="w-8 h-8" />
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 text-white mx-auto flex items-center justify-center shadow-lg shadow-fuchsia-600/30">
+          <ShieldCheck className="w-8 h-8" />
         </div>
         <div>
           <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
-            DestiFC <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">ADMIN</span>
+            DestiFC <span className="text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">PORTAL</span>
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
-            Enter team passcode to access cloud databases, cards & telemetry.
+            Enter your team username and passcode to access DestiFC Command Suite.
           </p>
         </div>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold text-center animate-shake">
+        <div className="p-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold text-center animate-shake">
           {error}
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleLogin} className="space-y-5">
+      <form onSubmit={handleLogin} className="space-y-4">
+        {/* Username Field */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold uppercase tracking-wider text-neutral-400">Username</label>
+          <div className="relative">
+            <User className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. desti or admin"
+              className="w-full py-3 pl-10 pr-4 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
+              required
+              autoFocus
+            />
+          </div>
+        </div>
+
+        {/* Password Field */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-neutral-400">Team Passcode</label>
           <div className="relative">
+            <Lock className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter destisquad"
-              className="w-full py-3.5 pl-4 pr-12 rounded-2xl bg-neutral-800/80 border border-white/10 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-mono"
+              placeholder="Enter passcode (e.g. destisquad)"
+              className="w-full py-3 pl-10 pr-12 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
               required
-              autoFocus
             />
             <button
               type="button"
@@ -89,17 +111,17 @@ function LoginForm() {
 
         <button
           type="submit"
-          disabled={loading || !password.trim()}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-black text-sm shadow-lg shadow-amber-500/20 hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          disabled={loading || !username.trim() || !password.trim()}
+          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-black text-sm shadow-lg shadow-pink-500/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
           {loading ? (
             <>
               <Sparkles className="w-4 h-4 animate-spin" />
-              <span>Verifying Passcode...</span>
+              <span>Authenticating...</span>
             </>
           ) : (
             <>
-              <span>Unlock Admin Portal</span>
+              <span>Sign In to Admin Portal</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -107,8 +129,8 @@ function LoginForm() {
       </form>
 
       {/* Footer Note */}
-      <div className="pt-2 text-center text-[11px] text-neutral-500">
-        Protected with 256-bit encrypted session authentication.
+      <div className="pt-1 text-center text-[11px] text-neutral-500">
+        Superadmin Default: <span className="text-fuchsia-300 font-mono">desti</span> / <span className="text-pink-300 font-mono">destisquad</span>
       </div>
     </div>
   );

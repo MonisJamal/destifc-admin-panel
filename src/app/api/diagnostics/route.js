@@ -7,7 +7,45 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const target = searchParams.get('target');
 
+  // Check bot heartbeat status first
+  const hbRes = await query("SELECT value FROM system_settings WHERE key = 'bot_heartbeat'").catch(() => ({ rows: [] }));
+  let heartbeat = null;
+  try {
+    heartbeat = hbRes.rows[0]?.value ? JSON.parse(hbRes.rows[0].value) : null;
+  } catch (e) {}
+
+  let isBotOnline = false;
+  let secondsSincePing = null;
+  if (heartbeat && heartbeat.last_ping) {
+    const diff = Math.round((Date.now() - new Date(heartbeat.last_ping).getTime()) / 1000);
+    secondsSincePing = diff;
+    if (diff <= 35 && diff >= 0) {
+      isBotOnline = true;
+    }
+  }
+
   const tests = [
+    {
+      id: 'bot_gateway',
+      name: 'Discord Gateway & Bot Process Pulse',
+      category: 'Core Infrastructure',
+      command: 'Bot Gateway',
+      run: async () => {
+        if (isBotOnline) {
+          return {
+            status: 'ok',
+            latency: heartbeat?.latency_ms || 15,
+            details: `Bot is ONLINE (PID: ${heartbeat?.pid || 'active'}). Discord WebSocket ping: ${heartbeat?.latency_ms || 0}ms across ${heartbeat?.guilds_count || 0} servers. Last pulse: ${secondsSincePing}s ago.`
+          };
+        } else {
+          return {
+            status: 'error',
+            latency: 0,
+            details: `Bot process is currently OFFLINE / STOPPED on hosting node (last pulse: ${secondsSincePing ? `${secondsSincePing}s ago` : 'no pulse'}). Please start or restart bot in Hosting panel.`
+          };
+        }
+      }
+    },
     {
       id: 'db_ping',
       name: 'Supabase PostgreSQL Connection',
@@ -38,10 +76,17 @@ export async function GET(request) {
           LIMIT 24
         `);
         const duration = Math.round(performance.now() - start);
+        if (!isBotOnline) {
+          return {
+            status: 'degraded',
+            latency: duration,
+            details: `Database table ready (${duration}ms, ${res.rows.length} cards), but Discord bot process is OFFLINE. Slash command cannot respond until bot is started.`
+          };
+        }
         return {
           status: 'ok',
           latency: duration,
-          details: `Fetched top 24 inventory items in ${duration}ms (${res.rows.length} cards retrieved). Query indexing is optimal.`
+          details: `Fetched top 24 inventory items in ${duration}ms (${res.rows.length} cards retrieved). Bot process active.`
         };
       }
     },
