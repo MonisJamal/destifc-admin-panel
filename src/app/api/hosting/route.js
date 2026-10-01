@@ -125,7 +125,7 @@ export async function POST(request) {
 
       await query(`
         INSERT INTO system_settings (key, value)
-        VALUES ('hosting_config', $1)
+        VALUES ('hosting_config', $1::jsonb)
         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
       `, [JSON.stringify(updated)]);
 
@@ -205,8 +205,8 @@ export async function POST(request) {
     // Insert into portal_jobs queue for the bot
     await query(`
       INSERT INTO portal_jobs (job_name, job_type, payload, status)
-      VALUES ($1, $1, $2, 'pending')
-    `, [signalJobType, JSON.stringify({ action, triggered_at: new Date().toISOString() })]);
+      VALUES ($1, $2, $3, 'pending')
+    `, [signalJobType, signalJobType, JSON.stringify({ action, triggered_at: new Date().toISOString() })]);
 
     return NextResponse.json({
       success: true,
