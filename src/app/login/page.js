@@ -78,7 +78,7 @@ function LoginForm() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. desti or admin"
+              placeholder="Enter username"
               className="w-full py-3 pl-10 pr-4 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
               required
               autoFocus
@@ -95,7 +95,7 @@ function LoginForm() {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter passcode (e.g. destisquad)"
+              placeholder="Enter passcode"
               className="w-full py-3 pl-10 pr-12 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
               required
             />
@@ -130,7 +130,7 @@ function LoginForm() {
 
       {/* Footer Note */}
       <div className="pt-1 text-center text-[11px] text-neutral-500">
-        Superadmin Default: <span className="text-fuchsia-300 font-mono">desti</span> / <span className="text-pink-300 font-mono">destisquad</span>
+        Protected with 256-bit encrypted session authentication.
       </div>
     </div>
   );

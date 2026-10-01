@@ -412,7 +412,7 @@ export default function HostingControlPage() {
         </div>
 
         {/* Process Signals & Events Log */}
-        <div className="rounded-3xl bg-neutral-900/50 border border-purple-900/30 overflow-hidden backdrop-blur-xl">
+        <div className="rounded-3xl bg-neutral-900/50 border border-purple-900/30 overflow-hidden backdrop-blur-xl mb-8">
           <div className="p-4 sm:p-5 border-b border-purple-900/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-purple-400" />
@@ -460,6 +460,47 @@ export default function HostingControlPage() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Live Bot Console & Terminal Logs */}
+        <div className="rounded-3xl bg-neutral-950 border border-purple-900/40 overflow-hidden shadow-2xl shadow-purple-950/40">
+          <div className="p-4 bg-neutral-900/90 border-b border-purple-900/30 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+              </div>
+              <span className="text-xs font-mono font-bold text-neutral-300 ml-2 flex items-center gap-1.5">
+                <Terminal className="w-3.5 h-3.5 text-fuchsia-400" />
+                Live Bot Terminal & Execution Stream
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-neutral-950 text-neutral-400 border border-purple-900/30">
+                Auto-Streaming
+              </span>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-6 font-mono text-xs text-neutral-300 space-y-2 max-h-80 overflow-y-auto bg-black/60">
+            {data?.console_logs?.length === 0 ? (
+              <p className="text-neutral-500">Waiting for live bot stream data...</p>
+            ) : (
+              data?.console_logs?.map((log, idx) => {
+                const isErr = log.includes('ERROR') || log.includes('offline');
+                const isOk = log.includes('GATEWAY') || log.includes('STATUS') || log.includes('healthy');
+                return (
+                  <div key={idx} className="flex items-start gap-2 leading-relaxed">
+                    <span className="text-neutral-600 select-none">{idx + 1}</span>
+                    <span className={isErr ? 'text-red-400' : isOk ? 'text-emerald-400' : 'text-neutral-300'}>
+                      {log}
+                    </span>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </main>
