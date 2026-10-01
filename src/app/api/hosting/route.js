@@ -9,7 +9,8 @@ export async function GET() {
     const hbRes = await query("SELECT value FROM system_settings WHERE key = 'bot_heartbeat'");
     let heartbeat = null;
     try {
-      heartbeat = hbRes.rows[0]?.value ? JSON.parse(hbRes.rows[0].value) : null;
+      const raw = hbRes.rows[0]?.value;
+      heartbeat = typeof raw === 'string' ? JSON.parse(raw) : (raw || null);
     } catch (e) {
       heartbeat = null;
     }
@@ -25,8 +26,9 @@ export async function GET() {
       api_key_set: false
     };
     try {
-      if (hostRes.rows[0]?.value) {
-        const parsed = JSON.parse(hostRes.rows[0].value);
+      const rawHost = hostRes.rows[0]?.value;
+      const parsed = typeof rawHost === 'string' ? JSON.parse(rawHost) : (rawHost || null);
+      if (parsed) {
         hostingConfig = {
           ...hostingConfig,
           ...parsed,
@@ -70,7 +72,7 @@ export async function GET() {
       logs.push(`[${nowIso.slice(11, 19)}] [COGS] All 14 modular game cogs loaded and active (Match, Economy, SBC, Draft, Market)`);
     } else {
       logs.push(`[${nowIso.slice(11, 19)}] [GATEWAY] ⚠️ Bot process currently offline. No active Discord WebSocket session.`);
-      logs.push(`[${nowIso.slice(11, 19)}] [HOSTING] Node eu4-node.xsystemshosting.com:2025 ready for process start or reboot.`);
+      logs.push(`[${nowIso.slice(11, 19)}] [HOSTING] Node node.xsystemshosting.com:2022 ready for process start or reboot.`);
     }
 
     // Add recent signal executions to console log stream
@@ -111,13 +113,14 @@ export async function POST(request) {
       const existing = await query("SELECT value FROM system_settings WHERE key = 'hosting_config'");
       let cfg = {};
       try {
-        if (existing.rows[0]?.value) cfg = JSON.parse(existing.rows[0].value);
+        const rawCfg = existing.rows[0]?.value;
+        cfg = typeof rawCfg === 'string' ? JSON.parse(rawCfg) : (rawCfg || {});
       } catch (e) {}
 
       const updated = {
         ...cfg,
-        node: "eu4-node.xsystemshosting.com",
-        port: 2025,
+        node: "node.xsystemshosting.com",
+        port: 2022,
         panel_url: (panel_url || cfg.panel_url || '').trim(),
         server_id: (server_id || cfg.server_id || '').trim(),
         api_key: api_key ? api_key.trim() : (cfg.api_key || '')
@@ -142,7 +145,8 @@ export async function POST(request) {
     const hostRes = await query("SELECT value FROM system_settings WHERE key = 'hosting_config'");
     let cfg = {};
     try {
-      if (hostRes.rows[0]?.value) cfg = JSON.parse(hostRes.rows[0].value);
+      const rawCfg = hostRes.rows[0]?.value;
+      cfg = typeof rawCfg === 'string' ? JSON.parse(rawCfg) : (rawCfg || {});
     } catch (e) {}
 
     if (cfg.panel_url && cfg.server_id && cfg.api_key) {
