@@ -204,8 +204,8 @@ export async function POST(request) {
 
     // Insert into portal_jobs queue for the bot
     await query(`
-      INSERT INTO portal_jobs (job_type, payload, status)
-      VALUES ($1, $2, 'pending')
+      INSERT INTO portal_jobs (job_name, job_type, payload, status)
+      VALUES ($1, $1, $2, 'pending')
     `, [signalJobType, JSON.stringify({ action, triggered_at: new Date().toISOString() })]);
 
     return NextResponse.json({
