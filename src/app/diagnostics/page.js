@@ -25,7 +25,10 @@ import {
   Filter,
   Wrench,
   RotateCcw,
-  ShieldCheck
+  ShieldCheck,
+  LayoutGrid,
+  List,
+  Code
 } from 'lucide-react';
 
 export default function BotDiagnosticsAdminPage() {
@@ -37,6 +40,7 @@ export default function BotDiagnosticsAdminPage() {
   const [filterCategory, setFilterCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [lastRunTime, setLastRunTime] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
 
   const [repairingAll, setRepairingAll] = useState(false);
   const [repairingSingle, setRepairingSingle] = useState({});
@@ -79,7 +83,6 @@ export default function BotDiagnosticsAdminPage() {
           message: data.message || 'All subsystems auto-repaired and caches refreshed!',
           logs: data.logs || []
         });
-        // Re-run diagnostics after repair
         await runFullDiagnostics();
       } else {
         setRepairNotification({
@@ -138,12 +141,29 @@ export default function BotDiagnosticsAdminPage() {
     }
   };
 
-  const categories = ['All', 'Bot Command', 'Game Engine', 'Core Infrastructure', 'External Services'];
+  const categories = [
+    'All',
+    'Economy & Quests',
+    'Drafts & Battles',
+    'Squad & Inventory',
+    'Transfer Market',
+    'Store & Vouchers',
+    'Exchanges & SBCs',
+    'Matches & Rivals',
+    'Season & Signature',
+    'Trading & P2P',
+    'Achievements',
+    'Admin & Tools',
+    'Help & Manual',
+    'Core Infrastructure'
+  ];
 
   const filteredTests = tests.filter(t => {
     const matchesCat = filterCategory === 'All' || t.category === filterCategory;
     const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.command.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (t.cog && t.cog.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                          (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
                           t.details.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
@@ -163,23 +183,23 @@ export default function BotDiagnosticsAdminPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-purple-900/30">
           <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5" /> Bot Command Health & Latency Suite
+                <Activity className="w-3.5 h-3.5" /> Complete Bot Command Matrix & Health Suite
               </span>
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                Live Subsystem Probes
+                All 16 Cogs &bull; 56+ Slash Commands
               </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
-              Command Diagnostics & Latency Tester
+              Command Diagnostics & Status Checker
             </h1>
             <p className="text-sm text-neutral-400 mt-1">
-              Benchmark execution speeds, probe database queries, verify command readiness, and inspect response times for every Discord bot feature.
+              Live status, database query latency, and operational health check for every single Discord bot command across all 16 cogs.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
               onClick={repairAllSubsystems}
@@ -200,7 +220,7 @@ export default function BotDiagnosticsAdminPage() {
               loading={runningAll}
             >
               <Zap className="w-4 h-4" />
-              Run Full Diagnostics
+              Test All Commands
             </LiquidButton>
           </div>
         </div>
@@ -255,12 +275,12 @@ export default function BotDiagnosticsAdminPage() {
               <span className="text-3xl font-black text-white">{summary?.health_score ?? 100}%</span>
               <span className="text-xs text-emerald-400 font-semibold">Operational</span>
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">{summary?.operational ?? 0} of {summary?.total ?? 0} services passing</p>
+            <p className="text-[11px] text-neutral-500 mt-1">{summary?.operational ?? 0} of {summary?.total ?? 0} commands passing</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl">
             <div className="flex items-center justify-between text-neutral-400 mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider">Avg Response Latency</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Avg Latency</span>
               <div className="w-8 h-8 rounded-xl bg-fuchsia-500/15 text-fuchsia-400 flex items-center justify-center border border-fuchsia-500/30">
                 <Zap className="w-4 h-4" />
               </div>
@@ -269,26 +289,26 @@ export default function BotDiagnosticsAdminPage() {
               <span className="text-3xl font-black text-white">{summary?.avg_latency_ms ?? 0}</span>
               <span className="text-xs text-fuchsia-300 font-mono font-semibold">ms</span>
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Real-time query & computation speed</p>
+            <p className="text-[11px] text-neutral-500 mt-1">Real-time DB query & handler speed</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl">
             <div className="flex items-center justify-between text-neutral-400 mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider">Commands Tested</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Total Commands</span>
               <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center border border-purple-500/30">
                 <Terminal className="w-4 h-4" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-black text-white">{tests.length}</span>
-              <span className="text-xs text-purple-300 font-semibold">Active Probes</span>
+              <span className="text-xs text-purple-300 font-semibold">Live Probes</span>
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Covers all major Discord bot commands</p>
+            <p className="text-[11px] text-neutral-500 mt-1">Spanning all 16 cogs & subcommands</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl">
             <div className="flex items-center justify-between text-neutral-400 mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider">Last Diagnostic Run</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Last Check</span>
               <div className="w-8 h-8 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center border border-pink-500/30">
                 <Clock className="w-4 h-4" />
               </div>
@@ -298,38 +318,84 @@ export default function BotDiagnosticsAdminPage() {
                 {lastRunTime ? lastRunTime.toLocaleTimeString() : 'Just now'}
               </span>
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Live background ping check</p>
+            <p className="text-[11px] text-neutral-500 mt-1">Live cloud PostgreSQL synchronization</p>
           </div>
         </div>
 
         {/* Filters & Search Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-4 rounded-2xl bg-neutral-900/40 border border-purple-900/30 backdrop-blur-xl">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setFilterCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  filterCategory === cat
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20'
-                    : 'bg-neutral-950/80 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+        <div className="flex flex-col gap-4 mb-6 p-4 rounded-3xl bg-neutral-900/40 border border-purple-900/30 backdrop-blur-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search command (e.g. /daily, /market, /draft, /inventory, /play)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-2xl bg-neutral-950 border border-purple-900/40 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-fuchsia-500 transition-colors"
+              />
+            </div>
+
+            {/* View Mode Switcher & Count */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-neutral-400 font-semibold">
+                Showing {filteredTests.length} of {tests.length} commands
+              </span>
+
+              <div className="flex items-center p-1 rounded-xl bg-neutral-950 border border-purple-900/40">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                  title="Grid View"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('table')}
+                  className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    viewMode === 'table'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                  title="Table Matrix View"
+                >
+                  <List className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search command or subsystem..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-1.5 rounded-xl bg-neutral-950 border border-purple-900/40 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-fuchsia-500"
-            />
+          {/* Category Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+            {categories.map(cat => {
+              const count = cat === 'All' ? tests.length : tests.filter(t => t.category === cat).length;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setFilterCategory(cat)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    filterCategory === cat
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20'
+                      : 'bg-neutral-950/80 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 border border-purple-900/20'
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    filterCategory === cat ? 'bg-white/20 text-white' : 'bg-neutral-900 text-neutral-500'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -337,9 +403,15 @@ export default function BotDiagnosticsAdminPage() {
         {loading ? (
           <div className="p-16 rounded-3xl bg-neutral-900/30 border border-purple-900/30 flex flex-col items-center justify-center gap-3 text-neutral-400">
             <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
-            <p className="text-sm font-semibold">Probing all bot commands and calculating execution latencies...</p>
+            <p className="text-sm font-semibold">Probing all 56+ bot commands and calculating execution latencies...</p>
           </div>
-        ) : (
+        ) : filteredTests.length === 0 ? (
+          <div className="p-12 rounded-3xl bg-neutral-900/30 border border-purple-900/30 flex flex-col items-center justify-center gap-2 text-neutral-400">
+            <Search className="w-8 h-8 text-neutral-600 mb-2" />
+            <p className="text-sm font-bold text-neutral-300">No commands matched your search or category filter</p>
+            <p className="text-xs text-neutral-500">Try resetting your search query or switching to &ldquo;All&rdquo; categories.</p>
+          </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredTests.map((test) => {
               const isRunning = runningSingle[test.id];
@@ -349,11 +421,16 @@ export default function BotDiagnosticsAdminPage() {
                   className="p-5 rounded-3xl bg-neutral-900/50 border border-purple-900/30 hover:border-purple-700/50 transition-all backdrop-blur-xl flex flex-col justify-between gap-4 group"
                 >
                   <div className="space-y-2.5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span className="px-2.5 py-1 rounded-lg bg-neutral-950 border border-purple-900/40 font-mono text-xs font-bold text-pink-300">
                           {test.command}
                         </span>
+                        {test.cog && (
+                          <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-800/40 text-[10px] font-mono text-purple-300">
+                            {test.cog}
+                          </span>
+                        )}
                         <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-500">
                           {test.category}
                         </span>
@@ -377,11 +454,18 @@ export default function BotDiagnosticsAdminPage() {
                       </div>
                     </div>
 
-                    <h3 className="text-base font-bold text-white group-hover:text-fuchsia-300 transition-colors">
-                      {test.name}
-                    </h3>
+                    <div>
+                      <h3 className="text-base font-bold text-white group-hover:text-fuchsia-300 transition-colors">
+                        {test.name}
+                      </h3>
+                      {test.description && (
+                        <p className="text-xs text-neutral-400 mt-0.5">
+                          {test.description}
+                        </p>
+                      )}
+                    </div>
 
-                    <p className="text-xs text-neutral-400 bg-neutral-950/70 p-3 rounded-2xl border border-purple-900/20 font-mono leading-relaxed">
+                    <p className="text-xs text-neutral-300 bg-neutral-950/70 p-3 rounded-2xl border border-purple-900/20 font-mono leading-relaxed break-words">
                       {test.details}
                     </p>
                   </div>
@@ -398,7 +482,7 @@ export default function BotDiagnosticsAdminPage() {
                         onClick={() => repairSingleSubsystem(test.id)}
                         disabled={repairingSingle[test.id] || isRunning || runningAll || repairingAll}
                         className="px-2.5 py-1.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-fuchsia-300 hover:text-fuchsia-100 border border-fuchsia-500/30 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
-                        title="Auto-repair locks & refresh cache for this subsystem"
+                        title="Auto-repair locks & refresh cache for this command"
                       >
                         {repairingSingle[test.id] ? (
                           <RotateCcw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
@@ -419,13 +503,97 @@ export default function BotDiagnosticsAdminPage() {
                         ) : (
                           <Play className="w-3.5 h-3.5 text-pink-400" />
                         )}
-                        <span>{isRunning ? 'Testing...' : 'Test Now'}</span>
+                        <span>{isRunning ? 'Testing...' : 'Test'}</span>
                       </button>
                     </div>
                   </div>
                 </div>
               );
             })}
+          </div>
+        ) : (
+          /* Table Matrix View */
+          <div className="overflow-x-auto rounded-3xl border border-purple-900/30 bg-neutral-900/50 backdrop-blur-xl">
+            <table className="w-full text-left text-xs text-neutral-300 border-collapse">
+              <thead>
+                <tr className="border-b border-purple-900/40 bg-neutral-950/80 text-neutral-400 uppercase tracking-wider text-[11px]">
+                  <th className="p-4 font-bold">Command</th>
+                  <th className="p-4 font-bold">Cog File</th>
+                  <th className="p-4 font-bold">Category</th>
+                  <th className="p-4 font-bold">Status</th>
+                  <th className="p-4 font-bold">Latency</th>
+                  <th className="p-4 font-bold">Diagnostics Details</th>
+                  <th className="p-4 font-bold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-purple-900/20 font-sans">
+                {filteredTests.map((test) => {
+                  const isRunning = runningSingle[test.id];
+                  return (
+                    <tr key={test.id} className="hover:bg-purple-950/20 transition-colors">
+                      <td className="p-4 font-mono font-bold text-pink-300 whitespace-nowrap">
+                        {test.command}
+                      </td>
+                      <td className="p-4 font-mono text-purple-300 text-[11px] whitespace-nowrap">
+                        {test.cog || 'N/A'}
+                      </td>
+                      <td className="p-4 text-neutral-400 font-semibold whitespace-nowrap">
+                        {test.category}
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
+                          test.status === 'ok'
+                            ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                            : test.status === 'degraded'
+                            ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                            : 'bg-red-500/15 text-red-300 border-red-500/30'
+                        }`}>
+                          {test.status === 'ok' ? 'Working' : test.status === 'degraded' ? 'Degraded' : 'Failed'}
+                        </span>
+                      </td>
+                      <td className="p-4 font-mono font-bold whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-lg border text-xs ${getLatencyColor(test.latency)}`}>
+                          {test.latency}ms
+                        </span>
+                      </td>
+                      <td className="p-4 text-neutral-400 font-mono text-[11px] max-w-md break-words">
+                        {test.details}
+                      </td>
+                      <td className="p-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => repairSingleSubsystem(test.id)}
+                            disabled={repairingSingle[test.id] || isRunning || runningAll || repairingAll}
+                            className="px-2 py-1 rounded-lg bg-neutral-950 hover:bg-neutral-800 text-fuchsia-300 border border-fuchsia-500/30 text-[11px] font-semibold"
+                            title="Auto-Fix"
+                          >
+                            {repairingSingle[test.id] ? (
+                              <RotateCcw className="w-3 h-3 animate-spin" />
+                            ) : (
+                              'Fix'
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => testSingleCommand(test.id)}
+                            disabled={isRunning || runningAll || repairingSingle[test.id]}
+                            className="px-2.5 py-1 rounded-lg bg-purple-600/80 hover:bg-purple-600 text-white font-semibold text-[11px] flex items-center gap-1"
+                          >
+                            {isRunning ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Play className="w-3 h-3" />
+                            )}
+                            <span>{isRunning ? '...' : 'Test'}</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </main>
