@@ -88,6 +88,9 @@ export default function GameplayConfigAdminPage() {
 
   // Division Rivals Ladder Tiers
   const [divisionTiers, setDivisionTiers] = useState(DEFAULT_TIERS);
+  const [draftRotationHours, setDraftRotationHours] = useState(2);
+  const [storeRotationHours, setStoreRotationHours] = useState(3);
+  const [exchangeRotationHours, setExchangeRotationHours] = useState(2);
 
   useEffect(() => {
     fetchConfig();
@@ -120,6 +123,9 @@ export default function GameplayConfigAdminPage() {
 
         setCustomCardMatchBoost(c.custom_card_match_boost ?? 1.15);
         setDivisionTiers(c.division_tiers && c.division_tiers.length > 0 ? c.division_tiers : DEFAULT_TIERS);
+        setDraftRotationHours(c.draft_rotation_hours ?? 2);
+        setStoreRotationHours(c.store_rotation_hours ?? 3);
+        setExchangeRotationHours(c.exchange_rotation_hours ?? 2);
       }
     } catch (err) {
       console.error(err);
@@ -183,6 +189,9 @@ export default function GameplayConfigAdminPage() {
       draft_battle_winner_vouchers: parseInt(draftBattleWinnerVouchers, 10) || 5,
       penalty_shootout_enabled: Boolean(penaltyShootoutEnabled),
       custom_card_match_boost: parseFloat(customCardMatchBoost) || 1.15,
+      draft_rotation_hours: parseFloat(draftRotationHours) || 2,
+      store_rotation_hours: parseFloat(storeRotationHours) || 3,
+      exchange_rotation_hours: parseFloat(exchangeRotationHours) || 2,
       division_tiers: divisionTiers.map(t => ({
         id: t.id || Date.now(),
         name: t.name || 'Division',
@@ -218,7 +227,7 @@ export default function GameplayConfigAdminPage() {
     return (
       <div className="min-h-screen bg-[#0d0914] text-white flex font-sans">
         <Sidebar />
-        <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
+        <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
             <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
             <p className="text-sm font-medium">Loading Gameplay and Match Engine...</p>
@@ -231,7 +240,7 @@ export default function GameplayConfigAdminPage() {
   return (
     <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-purple-500/30 font-sans">
       <Sidebar />
-      <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
+      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
@@ -287,6 +296,75 @@ export default function GameplayConfigAdminPage() {
           </div>
         )}
 
+        
+        {/* Global Timers & Rotations Adjuster */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl mb-8 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-purple-900/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">🔄 Global Pool & Refresh Timers Adjuster</h2>
+              <p className="text-xs text-neutral-400">
+                Adjust how often draft pools rotate, player market shops restock, and dynamic exchanges refresh in Discord.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
+              <label className="block text-xs font-bold text-neutral-200">📦 /draft Pool Refresh Cycle</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  max="48"
+                  value={draftRotationHours}
+                  onChange={(e) => setDraftRotationHours(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                />
+                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+              </div>
+              <p className="text-[11px] text-neutral-500">Every {draftRotationHours}h, 3 brand new Featured Walkout draft packs are automatically selected.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
+              <label className="block text-xs font-bold text-neutral-200">🏪 /store Player Shop Rotation</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  max="48"
+                  value={storeRotationHours}
+                  onChange={(e) => setStoreRotationHours(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                />
+                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+              </div>
+              <p className="text-[11px] text-neutral-500">Every {storeRotationHours}h, the featured coin & voucher store inventory is restocked.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
+              <label className="block text-xs font-bold text-neutral-200">⚡ /exchange Requirements Cycle</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  max="48"
+                  value={exchangeRotationHours}
+                  onChange={(e) => setExchangeRotationHours(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                />
+                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+              </div>
+              <p className="text-[11px] text-neutral-500">Every {exchangeRotationHours}h, the OVR sacrifice card exchange requirements rotate.</p>
+            </div>
+          </div>
+        </div>
+    
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Match Coin Payouts */}
           <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">

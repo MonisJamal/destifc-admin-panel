@@ -26,6 +26,9 @@ const DEFAULT_GAMEPLAY_CONFIG = {
 
   // Custom & Signature Aura Boost
   custom_card_match_boost: 1.15,
+  draft_rotation_hours: 2,
+  store_rotation_hours: 3,
+  exchange_rotation_hours: 2,
 
   // Division Rivals & Ranked Tiers
   division_tiers: [

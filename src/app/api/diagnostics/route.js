@@ -11,7 +11,8 @@ export async function GET(request) {
   const hbRes = await query("SELECT value FROM system_settings WHERE key = 'bot_heartbeat'").catch(() => ({ rows: [] }));
   let heartbeat = null;
   try {
-    heartbeat = hbRes.rows[0]?.value ? JSON.parse(hbRes.rows[0].value) : null;
+    const raw = hbRes.rows[0]?.value;
+    heartbeat = typeof raw === 'string' ? JSON.parse(raw) : (raw || null);
   } catch (e) {}
 
   let isBotOnline = false;

@@ -124,7 +124,7 @@ export default function Sidebar() {
       )}
 
       {/* Main Sidebar */}
-      <aside className={`w-64 fixed top-0 left-0 h-screen p-5 flex flex-col justify-between glass-card rounded-none border-r border-purple-900/20 z-50 bg-[#0e0a17]/95 lg:bg-[#0e0a17]/80 backdrop-blur-2xl overflow-hidden transition-transform duration-300 ${
+      <aside className={`w-72 fixed top-0 left-0 h-screen p-5 flex flex-col justify-between glass-card rounded-none border-r border-purple-900/20 z-50 bg-[#0e0a17]/95 lg:bg-[#0e0a17]/80 backdrop-blur-2xl overflow-hidden transition-transform duration-300 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         <div className="flex flex-col h-full overflow-hidden">

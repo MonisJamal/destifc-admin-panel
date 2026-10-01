@@ -140,7 +140,7 @@ export default function BotConfigAdminPage() {
     return (
       <div className="min-h-screen bg-[#0d0914] text-white flex font-sans">
         <Sidebar />
-        <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
+        <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-neutral-400">
             <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
             <p className="text-sm font-medium">Loading Bot System Configuration...</p>
@@ -153,7 +153,7 @@ export default function BotConfigAdminPage() {
   return (
     <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-fuchsia-500/30 font-sans">
       <Sidebar />
-      <main className="flex-1 lg:ml-64 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
+      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
           <div>
