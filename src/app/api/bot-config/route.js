@@ -5,6 +5,9 @@ const DEFAULT_BOT_CONFIG = {
   presence_activity_type: 'Playing',
   presence_status_text: 'FC Mobile 27',
   presence_status_state: 'online',
+  draft_rotation_hours: 2,
+  store_rotation_hours: 3,
+  exchange_rotation_hours: 2,
   maintenance_mode: false,
   maintenance_message: "🛠️ DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused!",
   commands_enabled: {

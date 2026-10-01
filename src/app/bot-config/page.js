@@ -42,6 +42,9 @@ export default function BotConfigAdminPage() {
   const [activityType, setActivityType] = useState('Playing');
   const [statusText, setStatusText] = useState('FC Mobile 27');
   const [statusState, setStatusState] = useState('online');
+  const [draftRotationHours, setDraftRotationHours] = useState(2);
+  const [storeRotationHours, setStoreRotationHours] = useState(3);
+  const [exchangeRotationHours, setExchangeRotationHours] = useState(2);
 
   // Maintenance State
   const [maintenanceMode, setMaintenanceMode] = useState(false);
@@ -104,6 +107,9 @@ export default function BotConfigAdminPage() {
       presence_activity_type: activityType,
       presence_status_text: statusText,
       presence_status_state: statusState,
+      draft_rotation_hours: parseFloat(draftRotationHours) || 2,
+      store_rotation_hours: parseFloat(storeRotationHours) || 3,
+      exchange_rotation_hours: parseFloat(exchangeRotationHours) || 2,
       maintenance_mode: Boolean(maintenanceMode),
       maintenance_message: maintenanceMessage,
       commands_enabled: commandsEnabled
