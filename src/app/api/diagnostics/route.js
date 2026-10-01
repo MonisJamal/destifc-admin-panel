@@ -1739,7 +1739,9 @@ export async function POST(request) {
         if (draftsExpired) {
           // Reset all draft expiry timestamps to NOW so the bot's draft_rotator detects them as expired
           // and regenerates fresh pools on its next 1-minute tick
-          const newExpiry = new Date(now.getTime() - 60000); // Set to 1 minute ago to force refresh
+          const newExpiry = new Date(now.getTime() - 60000);
+          // Send RESTART signal to ensure bot picks up the new global_drafts timer
+          await query(`INSERT INTO portal_jobs (job_type, status, payload) VALUES ('SIGNAL_RESTART', 'pending', '{}') ON CONFLICT DO NOTHING`).catch(() => {}); // Set to 1 minute ago to force refresh
           await query(`UPDATE global_drafts SET expires_at = $1`, [newExpiry]).catch(() => {});
           repairLogs.push(`Draft pools expired — reset timestamps to force bot regeneration on next tick.`);
         } else {
