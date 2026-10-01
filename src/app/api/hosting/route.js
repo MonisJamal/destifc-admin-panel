@@ -17,11 +17,11 @@ export async function GET() {
     // 2. Fetch hosting configuration
     const hostRes = await query("SELECT value FROM system_settings WHERE key = 'hosting_config'");
     let hostingConfig = {
-      node: "eu4-node.xsystemshosting.com",
-      port: 2025,
+      node: "node.xsystemshosting.com (CA-Node-1)",
+      port: 2022,
       type: "Pterodactyl / Node Host",
-      panel_url: "",
-      server_id: "",
+      panel_url: "https://panel.xsystemshosting.com",
+      server_id: "b47d2ed4",
       api_key_set: false
     };
     try {

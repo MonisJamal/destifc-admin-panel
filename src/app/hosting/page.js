@@ -38,15 +38,18 @@ export default function HostingControlPage() {
   const [apiKey, setApiKey] = useState('');
   const [savingConfig, setSavingConfig] = useState(false);
 
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => {
     fetchHostingStatus();
-    const interval = setInterval(fetchHostingStatus, 8000);
+    const interval = setInterval(() => fetchHostingStatus(false), 8000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchHostingStatus = async () => {
+  const fetchHostingStatus = async (manual = false) => {
+    if (manual) setRefreshing(true);
     try {
-      const res = await fetch('/api/hosting');
+      const res = await fetch('/api/hosting', { cache: 'no-store' });
       const json = await res.json();
       if (json.success) {
         setData(json);
@@ -59,6 +62,7 @@ export default function HostingControlPage() {
       console.error('Failed to fetch hosting status:', err);
     } finally {
       setLoading(false);
+      if (manual) setTimeout(() => setRefreshing(false), 500);
     }
   };
 
@@ -149,9 +153,9 @@ export default function HostingControlPage() {
               <Settings className="w-4 h-4 text-fuchsia-400" />
               <span>Hosting API Keys</span>
             </button>
-            <LiquidButton onClick={fetchHostingStatus} disabled={loading}>
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh Status</span>
+            <LiquidButton onClick={() => fetchHostingStatus(true)} disabled={refreshing}>
+              <RefreshCw className={`w-4 h-4 ${refreshing || loading ? 'animate-spin' : ''}`} />
+              <span>{refreshing ? 'Refreshing...' : 'Refresh Status'}</span>
             </LiquidButton>
           </div>
         </div>
