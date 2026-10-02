@@ -24,7 +24,10 @@ import {
   Users,
   Menu,
   X,
-  UserCheck
+  UserCheck,
+  Search,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -32,6 +35,22 @@ export default function Sidebar() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useState('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme === 'pink-light' ? 'pink-light' : 'dark');
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'pink-light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
 
   useEffect(() => {
     // Fetch logged-in user permissions
@@ -92,6 +111,13 @@ export default function Sidebar() {
     return userPerms.includes(permKey);
   };
 
+  const filteredSections = navSections.map(section => ({
+    ...section,
+    items: section.items.filter(item => 
+      item.label.toLowerCase().includes(searchQuery.toLowerCase()) && hasPerm(item.perm)
+    )
+  })).filter(section => section.items.length > 0);
+
   return (
     <>
       {/* Mobile Header Bar */}
@@ -144,26 +170,46 @@ export default function Sidebar() {
             </button>
           </div>
 
-          {/* User Profile Pill */}
+          <div className="px-2 mb-4 shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--accent-purple)] opacity-50" />
+              <input 
+                type="text" 
+                placeholder="Search settings..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl text-sm focus:outline-none focus:border-[var(--accent-fuchsia)] text-[var(--text-main)] transition-all placeholder:text-[var(--text-main)] placeholder:opacity-50"
+              />
+            </div>
+          </div>
+
+          {/* User Profile & Theme Pill */}
           {user && (
-            <div className="mb-4 px-3 py-2 rounded-2xl bg-neutral-950/70 border border-purple-900/30 flex items-center justify-between shrink-0">
+            <div className="mb-4 px-3 py-2 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-glass)] flex items-center justify-between shrink-0 shadow-sm">
               <div className="flex items-center gap-2 overflow-hidden">
-                <div className="w-6 h-6 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 flex items-center justify-center text-[10px] font-black shrink-0">
+                <div className="w-6 h-6 rounded-lg bg-[var(--accent-pink)] text-white flex items-center justify-center text-[10px] font-black shrink-0">
                   {user.username.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="truncate">
-                  <p className="text-xs font-bold text-white leading-none truncate">@{user.username}</p>
-                  <span className="text-[9px] text-neutral-400 uppercase font-semibold">{user.role}</span>
+                  <p className="text-xs font-bold text-[var(--text-main)] leading-none truncate">@{user.username}</p>
+                  <span className="text-[9px] text-[var(--accent-fuchsia)] uppercase font-semibold">{user.role}</span>
                 </div>
               </div>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 shrink-0" />
+              
+              <button
+                onClick={toggleTheme}
+                title="Toggle Theme"
+                className="p-1.5 rounded-lg bg-[var(--input-bg)] border border-[var(--border-glass)] text-[var(--text-main)] hover:bg-[var(--sidebar-hover)] transition-colors"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              </button>
             </div>
           )}
 
           {/* Navigation Items */}
           <nav className="flex-1 space-y-6 overflow-y-auto pr-1 pb-4 scrollbar-thin">
-            {navSections.map((section) => {
-              const visibleItems = section.items.filter(item => hasPerm(item.perm));
+            {filteredSections.map((section) => {
+              const visibleItems = section.items;
               if (visibleItems.length === 0) return null;
 
               return (
