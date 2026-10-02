@@ -118,23 +118,51 @@ export default function Sidebar() {
     )
   })).filter(section => section.items.length > 0);
 
+
+  const searchIndex = [
+    { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
+    { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
+    { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
+    { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Drop Rates', route: '/luck', section: 'Luck' },
+    { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
+    { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+  ];
+
+  const searchResults = searchQuery.length > 1 
+    ? searchIndex.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
   return (
     <>
       {/* Mobile Header Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[#0e0a17]/95 border-b border-purple-900/30 backdrop-blur-xl z-50 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[var(--bg-surface)] border-b border-[var(--border-glass)] backdrop-blur-xl z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-fuchsia-600/30">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-[var(--text-main)] shadow-md shadow-fuchsia-600/30">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
-            <h1 className="font-bold text-sm leading-none text-white">DestiFC</h1>
+            <h1 className="font-bold text-sm leading-none text-[var(--text-main)]">DestiFC</h1>
             <span className="text-[9px] text-pink-400 font-semibold uppercase">Admin Suite</span>
           </div>
         </div>
 
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-300 hover:text-white"
+          className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-[var(--text-main)] opacity-90 hover:text-[var(--text-main)]"
           aria-label="Toggle Navigation Menu"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5 text-pink-400" />}
@@ -150,22 +178,22 @@ export default function Sidebar() {
       )}
 
       {/* Main Sidebar */}
-      <aside className={`w-72 fixed top-0 left-0 h-screen p-5 flex flex-col justify-between glass-card rounded-none border-r border-purple-900/20 z-50 bg-[#0e0a17]/95 lg:bg-[#0e0a17]/80 backdrop-blur-2xl overflow-hidden transition-transform duration-300 ${
+      <aside className={`w-72 fixed top-0 left-0 h-screen p-5 flex flex-col justify-between glass-card rounded-none border-r border-[var(--border-glass)] z-50 bg-[var(--bg-surface)] lg:bg-[var(--bg-surface)] backdrop-blur-2xl overflow-hidden transition-transform duration-300 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         <div className="flex flex-col h-full overflow-hidden">
           {/* Logo */}
           <div className="flex items-center justify-between mb-6 px-2 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-fuchsia-600/30 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-[var(--text-main)] shadow-lg shadow-fuchsia-600/30 shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-bold text-base leading-none tracking-tight text-neutral-100">DestiFC</h1>
+                <h1 className="font-bold text-base leading-none tracking-tight text-[var(--text-main)]">DestiFC</h1>
                 <span className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase">Admin Control Suite</span>
               </div>
             </div>
-            <button onClick={() => setMobileOpen(false)} className="lg:hidden text-neutral-400 hover:text-white">
+            <button onClick={() => setMobileOpen(false)} className="lg:hidden text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)]">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -180,6 +208,22 @@ export default function Sidebar() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl text-sm focus:outline-none focus:border-[var(--accent-fuchsia)] text-[var(--text-main)] transition-all placeholder:text-[var(--text-main)] placeholder:opacity-50"
               />
+              
+              {searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--card-bg)] border border-[var(--border-glass)] rounded-xl shadow-xl overflow-hidden z-[100] backdrop-blur-xl">
+                  {searchResults.map((res, i) => (
+                    <Link 
+                      key={i} 
+                      href={res.route}
+                      onClick={() => { setSearchQuery(''); setMobileOpen(false); }}
+                      className="block px-4 py-2.5 hover:bg-[var(--sidebar-hover)] border-b border-[var(--border-glass)] last:border-0"
+                    >
+                      <div className="text-xs font-bold text-[var(--text-main)]">{res.label}</div>
+                      <div className="text-[9px] uppercase tracking-wider text-[var(--accent-fuchsia)]">{res.section}</div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -187,7 +231,7 @@ export default function Sidebar() {
           {user && (
             <div className="mb-4 px-3 py-2 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-glass)] flex items-center justify-between shrink-0 shadow-sm">
               <div className="flex items-center gap-2 overflow-hidden">
-                <div className="w-6 h-6 rounded-lg bg-[var(--accent-pink)] text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                <div className="w-6 h-6 rounded-lg bg-[var(--accent-pink)] text-[var(--text-main)] flex items-center justify-center text-[10px] font-black shrink-0">
                   {user.username.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="truncate">
@@ -212,7 +256,35 @@ export default function Sidebar() {
               const visibleItems = section.items;
               if (visibleItems.length === 0) return null;
 
-              return (
+            
+  const searchIndex = [
+    { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
+    { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
+    { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
+    { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Drop Rates', route: '/luck', section: 'Luck' },
+    { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
+    { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+  ];
+
+  const searchResults = searchQuery.length > 1 
+    ? searchIndex.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  return (
                 <div key={section.title}>
                   <h2 className="px-3 text-[10px] font-bold tracking-wider text-purple-300/60 uppercase mb-2">
                     {section.title}
@@ -221,7 +293,35 @@ export default function Sidebar() {
                     {visibleItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href;
-                      return (
+                    
+  const searchIndex = [
+    { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
+    { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
+    { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
+    { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Drop Rates', route: '/luck', section: 'Luck' },
+    { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
+    { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+  ];
+
+  const searchResults = searchQuery.length > 1 
+    ? searchIndex.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  return (
                         <Link
                           key={item.href}
                           href={item.href}
@@ -229,10 +329,10 @@ export default function Sidebar() {
                           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all duration-200 ${
                             isActive
                               ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-200 border border-pink-500/30 shadow-sm shadow-pink-500/10 font-bold'
-                              : 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200'
+                              : 'text-[var(--text-main)] opacity-70 hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-main)] hover:opacity-100'
                           }`}
                         >
-                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-pink-400' : 'text-neutral-500'}`} />
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-pink-400' : 'text-[var(--text-main)] opacity-50'}`} />
                           <span className="truncate">{item.label}</span>
                         </Link>
                       );
@@ -245,7 +345,7 @@ export default function Sidebar() {
         </div>
 
         {/* Footer Logout */}
-        <div className="pt-4 border-t border-purple-900/20 shrink-0">
+        <div className="pt-4 border-t border-[var(--border-glass)] shrink-0">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3.5 py-2.5 text-xs font-semibold text-pink-400 hover:bg-pink-500/10 rounded-xl transition-colors"
