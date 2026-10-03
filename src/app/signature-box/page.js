@@ -130,7 +130,7 @@ export default function SignatureBoxAdminPage() {
         setMessage({ type: 'error', text: data.error || 'Failed to save Signature Box' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Network connection error' });
+      setMessage({ type: 'error', text: 'Network connection error: ' + (err.message || 'Unknown Payload Error') });
     } finally {
       setSaving(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });

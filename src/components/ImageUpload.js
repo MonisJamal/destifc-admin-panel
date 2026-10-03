@@ -8,7 +8,7 @@ export default function ImageUpload({
   label = "Upload Image", 
   helperText = "Supports high quality .png, .webp, or .jpg (transparency supported)",
   aspectRatio = "square", // "square" | "banner"
-  maxDimension = 1024
+  maxDimension = 800
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -46,7 +46,7 @@ export default function ImageUpload({
         ctx.drawImage(img, 0, 0, w, h);
 
         // Export as high-quality webp with transparency preserved
-        const dataUrl = canvas.toDataURL('image/webp', 0.95);
+        const dataUrl = canvas.toDataURL('image/webp', 0.75);
         onChange(dataUrl);
         setProcessing(false);
       };
@@ -89,14 +89,14 @@ export default function ImageUpload({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider">
+        <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 uppercase tracking-wider">
           {label}
         </label>
       )}
 
       {value ? (
-        <div className="relative rounded-2xl border border-purple-900/40 bg-neutral-950/80 p-3 flex items-center gap-4 group">
-          <div className={`relative overflow-hidden rounded-xl border border-purple-900/30 bg-[#140e1f] flex items-center justify-center shrink-0 ${
+        <div className="relative rounded-2xl border border-purple-900/40 bg-[var(--input-bg)]/80 p-3 flex items-center gap-4 group">
+          <div className={`relative overflow-hidden rounded-xl border border-[var(--border-glass)] bg-[var(--bg-surface)] flex items-center justify-center shrink-0 ${
             isBanner ? 'w-48 h-20' : 'w-20 h-20'
           }`}>
             <img 
@@ -111,7 +111,7 @@ export default function ImageUpload({
               <Check className="w-3.5 h-3.5 text-fuchsia-400" />
               <span>Image Uploaded (.png / .webp)</span>
             </div>
-            <p className="text-[11px] text-neutral-400 truncate font-mono">
+            <p className="text-[11px] text-[var(--text-main)] opacity-70 truncate font-mono">
               {value.startsWith('data:') ? 'High-Definition Data URI (Ready)' : value}
             </p>
             <div className="flex items-center gap-3 mt-2">
@@ -142,7 +142,7 @@ export default function ImageUpload({
           className={`relative rounded-2xl border-2 border-dashed transition-all cursor-pointer p-5 flex flex-col items-center justify-center text-center group ${
             dragActive
               ? 'border-fuchsia-500 bg-fuchsia-500/10'
-              : 'border-purple-900/40 hover:border-fuchsia-500/60 bg-neutral-950/60 hover:bg-neutral-950/90'
+              : 'border-purple-900/40 hover:border-fuchsia-500/60 bg-[var(--input-bg)]/60 hover:bg-[var(--input-bg)]/90'
           }`}
         >
           <input
@@ -161,10 +161,10 @@ export default function ImageUpload({
             )}
           </div>
 
-          <p className="text-xs font-bold text-neutral-200 group-hover:text-fuchsia-300 transition-colors">
+          <p className="text-xs font-bold text-[var(--text-main)] opacity-90 group-hover:text-fuchsia-300 transition-colors">
             {processing ? 'Processing Image...' : 'Click to Upload or Drag & Drop'}
           </p>
-          <p className="text-[11px] text-neutral-400 mt-0.5">
+          <p className="text-[11px] text-[var(--text-main)] opacity-70 mt-0.5">
             {helperText}
           </p>
         </div>

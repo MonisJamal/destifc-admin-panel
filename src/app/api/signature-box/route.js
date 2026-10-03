@@ -43,6 +43,7 @@ export async function POST(request) {
     // Ensure starts_at column exists in database
     try {
       await query('ALTER TABLE signature_box_config ADD COLUMN IF NOT EXISTS starts_at TIMESTAMP');
+      await query('ALTER TABLE signature_box_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP');
     } catch (e) {}
 
     await query(`
