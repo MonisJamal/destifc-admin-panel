@@ -513,14 +513,35 @@ export default function SignatureBoxAdminPage() {
                     </div>
 
                     <div className="md:col-span-2">
-                      <input
-                        type="number"
-                        value={r.amount || 0}
-                        onChange={(e) => handleRewardChange(idx, 'amount', parseInt(e.target.value, 10))}
-                        disabled={r.type === 'signature_card'}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-bold text-[var(--text-main)] opacity-90 focus:outline-none"
-                        placeholder="Amount"
-                      />
+                      {r.type === 'pack' ? (
+                        <div className="flex gap-1">
+                          <input
+                            type="number"
+                            value={r.pack_rating_min || 115}
+                            onChange={(e) => handleRewardChange(idx, 'pack_rating_min', parseInt(e.target.value, 10))}
+                            className="w-1/2 px-2 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-bold text-[var(--text-main)] opacity-90 focus:outline-none"
+                            placeholder="Min OVR"
+                            title="Min OVR"
+                          />
+                          <input
+                            type="number"
+                            value={r.pack_rating_max || 118}
+                            onChange={(e) => handleRewardChange(idx, 'pack_rating_max', parseInt(e.target.value, 10))}
+                            className="w-1/2 px-2 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-bold text-[var(--text-main)] opacity-90 focus:outline-none"
+                            placeholder="Max OVR"
+                            title="Max OVR"
+                          />
+                        </div>
+                      ) : (
+                        <input
+                          type="number"
+                          value={r.amount || 0}
+                          onChange={(e) => handleRewardChange(idx, 'amount', parseInt(e.target.value, 10))}
+                          disabled={r.type === 'signature_card'}
+                          className="w-full px-3 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-bold text-[var(--text-main)] opacity-90 focus:outline-none"
+                          placeholder="Amount"
+                        />
+                      )}
                     </div>
 
                     <div className="md:col-span-1 text-right text-xs font-mono font-bold text-[var(--text-main)] opacity-70">

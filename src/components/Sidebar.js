@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import {
+  Megaphone, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -99,6 +100,7 @@ export default function Sidebar() {
         { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle, perm: 'custom-cards' },
         { href: '/formations', label: 'Formations 3D', icon: Network, perm: 'formations' },
         { href: '/admin-commands', label: 'Admin Commands', icon: Sliders, perm: 'admin-commands' },
+        { href: '/announcements', label: 'Announcements (DM)', icon: Megaphone, perm: 'announcements' },
         { href: '/database', label: 'Cloud Tables', icon: Database, perm: 'database' },
         { href: '/users', label: 'Team & Access Control', icon: Users, perm: 'users' },
       ]
