@@ -175,10 +175,10 @@ export default function SignatureBoxAdminPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-[#0d0914] text-white font-sans">
+      <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
         <Sidebar />
         <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-neutral-400 font-medium">
+          <div className="flex items-center gap-3 text-[var(--text-main)] opacity-70 font-medium">
             <RefreshCw className="w-6 h-6 animate-spin text-fuchsia-400" />
             Loading Signature Box Editor...
           </div>
@@ -188,22 +188,22 @@ export default function SignatureBoxAdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans selection:bg-fuchsia-500/30">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans selection:bg-fuchsia-500/30">
       <Sidebar />
 
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-[var(--border-glass)]">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-fuchsia-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-[var(--text-main)] shadow-lg shadow-fuchsia-500/20">
                 <Gift className="w-6 h-6" />
               </div>
               <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
                 Signature Box Manager
               </h1>
             </div>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-[var(--text-main)] opacity-70">
               Create and schedule limited-time 10-reward Signature Box draws with non-repeatable prizes and increasing costs.
             </p>
           </div>
@@ -221,7 +221,7 @@ export default function SignatureBoxAdminPage() {
             <button
               type="button"
               onClick={handleResetUserDraws}
-              className="px-3.5 py-2.5 rounded-xl border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2.5 rounded-xl border border-[var(--border-glass)] text-purple-300 hover:bg-purple-500/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reset Player Progress
@@ -248,45 +248,45 @@ export default function SignatureBoxAdminPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Box Header Settings */}
-            <div className="lg:col-span-5 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl space-y-4">
-              <h2 className="text-lg font-bold flex items-center gap-2 text-white">
+            <div className="lg:col-span-5 bg-[var(--card-bg)]/50 border border-[var(--border-glass)] rounded-3xl p-6 backdrop-blur-xl space-y-4">
+              <h2 className="text-lg font-bold flex items-center gap-2 text-[var(--text-main)]">
                 <Gift className="w-5 h-5 text-fuchsia-400" />
                 Box Configuration and Scheduling
               </h2>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Title</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Box Title</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                   placeholder="e.g. FC SIGNATURE BOX"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Subtitle / Tagline</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Subtitle / Tagline</label>
                 <input
                   type="text"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                   placeholder="e.g. 10 Exclusive Limited Time Rewards"
                 />
               </div>
 
               {/* Event Status Toggle */}
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Box Visibility Status</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Box Visibility Status</label>
                 <button
                   type="button"
                   onClick={() => setIsActive(!isActive)}
                   className={`w-full py-2.5 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                     isActive
                       ? 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300 shadow-sm shadow-fuchsia-500/10'
-                      : 'bg-neutral-950 border-purple-900/40 text-neutral-500'
+                      : 'bg-[var(--input-bg)] border-purple-900/40 text-[var(--text-main)] opacity-50'
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-fuchsia-400 animate-pulse' : 'bg-neutral-600'}`} />
@@ -295,7 +295,7 @@ export default function SignatureBoxAdminPage() {
               </div>
 
               {/* Event Scheduling Dates with DateTimePicker */}
-              <div className="space-y-4 pt-2 border-t border-purple-900/20">
+              <div className="space-y-4 pt-2 border-t border-[var(--border-glass)]">
                 <DateTimePicker
                   value={startsAt}
                   onChange={setStartsAt}
@@ -325,9 +325,9 @@ export default function SignatureBoxAdminPage() {
               </div>
 
               {/* Banner Image Upload */}
-              <div className="pt-2 border-t border-purple-900/20">
+              <div className="pt-2 border-t border-[var(--border-glass)]">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Event Banner Image</span>
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-90 uppercase tracking-wider">Event Banner Image</span>
                   <span className="text-[11px] text-fuchsia-400 flex items-center gap-1">
                     <Info className="w-3 h-3" /> Header image for Discord embed
                   </span>
@@ -343,7 +343,7 @@ export default function SignatureBoxAdminPage() {
             </div>
 
             {/* Signature Exclusive Card Customizer */}
-            <div className="lg:col-span-7 bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden space-y-4">
+            <div className="lg:col-span-7 bg-[var(--card-bg)]/50 border border-[var(--border-glass)] rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden space-y-4">
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
 
               <h2 className="text-lg font-bold flex items-center gap-2 text-fuchsia-300">
@@ -353,44 +353,44 @@ export default function SignatureBoxAdminPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Player Name</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Player Name</label>
                   <input
                     type="text"
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-semibold text-white"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-semibold text-[var(--text-main)]"
                     placeholder="e.g. Zinedine Zidane"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">OVR Rating (120 - 125)</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">OVR Rating (120 - 125)</label>
                   <input
                     type="number"
                     min="115"
                     max="125"
                     value={cardRating}
                     onChange={(e) => setCardRating(parseInt(e.target.value, 10))}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-bold text-fuchsia-300"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-bold text-fuchsia-300"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Position</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Position</label>
                   <input
                     type="text"
                     value={cardPosition}
                     onChange={(e) => setCardPosition(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="CAM, ST, RW, CB..."
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">In-Game Match Buff Multiplier</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">In-Game Match Buff Multiplier</label>
                   <input
                     type="number"
                     step="0.05"
@@ -398,29 +398,29 @@ export default function SignatureBoxAdminPage() {
                     max="2.0"
                     value={cardBoost}
                     onChange={(e) => setCardBoost(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
                     placeholder="1.25 (+25% buff)"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Club Name</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Club Name</label>
                   <input
                     type="text"
                     value={cardClub}
                     onChange={(e) => setCardClub(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="Real Madrid, Barcelona..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Nation Name</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Nation Name</label>
                   <input
                     type="text"
                     value={cardNation}
                     onChange={(e) => setCardNation(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="France, Argentina..."
                   />
                 </div>
@@ -444,14 +444,14 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* 10 Rewards Matrix */}
-          <div className="bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
+          <div className="bg-[var(--card-bg)]/50 border border-[var(--border-glass)] rounded-3xl p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-bold flex items-center gap-2 text-white">
+                <h2 className="text-lg font-bold flex items-center gap-2 text-[var(--text-main)]">
                   <Box className="w-5 h-5 text-fuchsia-400" />
                   10-Reward Pool Matrix (2 Bad, 5 Mid, 3 Good)
                 </h2>
-                <p className="text-xs text-neutral-400 mt-1">
+                <p className="text-xs text-[var(--text-main)] opacity-70 mt-1">
                   Configure the 10 rewards. Each reward can only be won once per player cycle.
                 </p>
               </div>
@@ -459,19 +459,19 @@ export default function SignatureBoxAdminPage() {
 
             <div className="space-y-3">
               {rewards.map((r, idx) => {
-                const tierColor = r.tier === 'good' ? 'border-fuchsia-500/40 bg-fuchsia-500/5' : (r.tier === 'mid' ? 'border-purple-500/30 bg-purple-500/5' : 'border-purple-900/20 bg-neutral-950/60');
-                const tierBadge = r.tier === 'good' ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30' : (r.tier === 'mid' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-neutral-800 text-neutral-400 border-neutral-700');
+                const tierColor = r.tier === 'good' ? 'border-fuchsia-500/40 bg-fuchsia-500/5' : (r.tier === 'mid' ? 'border-[var(--border-glass)] bg-purple-500/5' : 'border-[var(--border-glass)] bg-[var(--input-bg)]/60');
+                const tierBadge = r.tier === 'good' ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30' : (r.tier === 'mid' ? 'bg-purple-500/20 text-purple-300 border-[var(--border-glass)]' : 'bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 border-[var(--border-glass)]');
 
                 return (
                   <div key={r.id || idx} className={`p-4 rounded-2xl border ${tierColor} grid grid-cols-1 md:grid-cols-12 gap-4 items-center transition-all`}>
-                    <div className="md:col-span-1 flex items-center gap-2 font-mono font-bold text-neutral-500 text-sm">
+                    <div className="md:col-span-1 flex items-center gap-2 font-mono font-bold text-[var(--text-main)] opacity-50 text-sm">
                       <span>#{r.id}</span>
                       <input
                         type="text"
                         value={r.icon || ''}
                         onChange={(e) => handleRewardChange(idx, 'icon', e.target.value)}
                         placeholder="Tag"
-                        className="w-10 text-center bg-transparent border-b border-purple-900/40 text-xs focus:outline-none text-neutral-300"
+                        className="w-10 text-center bg-transparent border-b border-purple-900/40 text-xs focus:outline-none text-[var(--text-main)] opacity-90"
                       />
                     </div>
 
@@ -480,7 +480,7 @@ export default function SignatureBoxAdminPage() {
                         type="text"
                         value={r.name}
                         onChange={(e) => handleRewardChange(idx, 'name', e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-sm font-semibold text-white focus:outline-none focus:border-pink-500"
+                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-sm font-semibold text-[var(--text-main)] focus:outline-none focus:border-pink-500"
                         placeholder="Reward display title"
                       />
                     </div>
@@ -501,7 +501,7 @@ export default function SignatureBoxAdminPage() {
                       <select
                         value={r.type}
                         onChange={(e) => handleRewardChange(idx, 'type', e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-xs font-medium focus:outline-none text-neutral-300"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-medium focus:outline-none text-[var(--text-main)] opacity-90"
                       >
                         <option value="coins">Coins</option>
                         <option value="vouchers">Draft Vouchers</option>
@@ -518,12 +518,12 @@ export default function SignatureBoxAdminPage() {
                         value={r.amount || 0}
                         onChange={(e) => handleRewardChange(idx, 'amount', parseInt(e.target.value, 10))}
                         disabled={r.type === 'signature_card'}
-                        className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-xs font-bold text-neutral-200 focus:outline-none"
+                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-xs font-bold text-[var(--text-main)] opacity-90 focus:outline-none"
                         placeholder="Amount"
                       />
                     </div>
 
-                    <div className="md:col-span-1 text-right text-xs font-mono font-bold text-neutral-400">
+                    <div className="md:col-span-1 text-right text-xs font-mono font-bold text-[var(--text-main)] opacity-70">
                       {r.base_weight}% wt
                     </div>
                   </div>
@@ -533,24 +533,24 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* 10-Step Draw Cost Manager */}
-          <div className="bg-neutral-900/50 border border-purple-900/30 rounded-3xl p-6 backdrop-blur-xl">
+          <div className="bg-[var(--card-bg)]/50 border border-[var(--border-glass)] rounded-3xl p-6 backdrop-blur-xl">
             <h2 className="text-lg font-bold mb-2 flex items-center gap-2 text-fuchsia-300">
               <Coins className="w-5 h-5 text-fuchsia-400" />
               10-Draw Step Cost Progression
             </h2>
-            <p className="text-xs text-neutral-400 mb-6">
+            <p className="text-xs text-[var(--text-main)] opacity-70 mb-6">
               Customize the currency and price required for each consecutive draw from Draw #1 to Draw #10.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {drawCosts.map((cost, idx) => (
-                <div key={cost.draw || idx} className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 flex flex-col justify-between space-y-3">
+                <div key={cost.draw || idx} className="p-4 rounded-2xl bg-[var(--input-bg)]/80 border border-[var(--border-glass)] flex flex-col justify-between space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-fuchsia-300 font-mono">DRAW #{cost.draw || idx + 1}</span>
                     <select
                       value={cost.currency}
                       onChange={(e) => handleCostChange(idx, 'currency', e.target.value)}
-                      className="bg-neutral-900 border border-purple-900/40 text-neutral-300 rounded-md px-1.5 py-0.5 text-xs focus:outline-none"
+                      className="bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] opacity-90 rounded-md px-1.5 py-0.5 text-xs focus:outline-none"
                     >
                       <option value="coins">Coins</option>
                       <option value="vouchers">Vouchers</option>
@@ -559,15 +559,15 @@ export default function SignatureBoxAdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-1">Cost</label>
+                    <label className="block text-[10px] uppercase tracking-wider text-[var(--text-main)] opacity-50 font-semibold mb-1">Cost</label>
                     <input
                       type="number"
                       step="1000000"
                       value={cost.amount}
                       onChange={(e) => handleCostChange(idx, 'amount', e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-xs font-mono font-bold text-white focus:outline-none focus:border-pink-500"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-xs font-mono font-bold text-[var(--text-main)] focus:outline-none focus:border-pink-500"
                     />
-                    <div className="text-[10px] text-neutral-500 mt-1 font-mono text-right">
+                    <div className="text-[10px] text-[var(--text-main)] opacity-50 mt-1 font-mono text-right">
                       {parseInt(cost.amount, 10).toLocaleString()} {cost.currency}
                     </div>
                   </div>
@@ -577,8 +577,8 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           {/* Bottom Save bar */}
-          <div className="sticky bottom-6 p-4 rounded-2xl bg-neutral-950/95 border border-purple-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl">
-            <div className="text-xs text-neutral-400">
+          <div className="sticky bottom-6 p-4 rounded-2xl bg-[var(--input-bg)]/95 border border-purple-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl">
+            <div className="text-xs text-[var(--text-main)] opacity-70">
               Changes saved here apply instantly in real-time to the Discord <code>/signature_box</code> command.
             </div>
             <LiquidButton onClick={handleSave} disabled={saving} loading={saving}>

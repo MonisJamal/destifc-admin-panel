@@ -44,17 +44,17 @@ function LoginForm() {
   };
 
   return (
-    <div className="p-8 sm:p-10 rounded-3xl bg-neutral-900/90 border border-purple-900/40 backdrop-blur-2xl shadow-2xl shadow-purple-950/50 space-y-7">
+    <div className="p-8 sm:p-10 rounded-3xl bg-[var(--card-bg)]/90 border border-purple-900/40 backdrop-blur-2xl shadow-2xl shadow-purple-950/50 space-y-7">
       {/* Logo & Header */}
       <div className="text-center space-y-3">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 text-white mx-auto flex items-center justify-center shadow-lg shadow-fuchsia-600/30">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 text-[var(--text-main)] mx-auto flex items-center justify-center shadow-lg shadow-fuchsia-600/30">
           <ShieldCheck className="w-8 h-8" />
         </div>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-black tracking-tight text-[var(--text-main)] flex items-center justify-center gap-2">
             DestiFC <span className="text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">PORTAL</span>
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-xs text-[var(--text-main)] opacity-70 mt-1">
             Enter your team username and passcode to access DestiFC Command Suite.
           </p>
         </div>
@@ -71,15 +71,15 @@ function LoginForm() {
       <form onSubmit={handleLogin} className="space-y-4">
         {/* Username Field */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-neutral-400">Username</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-70">Username</label>
           <div className="relative">
-            <User className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <User className="w-4 h-4 text-[var(--text-main)] opacity-50 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
-              className="w-full py-3 pl-10 pr-4 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
+              className="w-full py-3 pl-10 pr-4 rounded-2xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
               required
               autoFocus
             />
@@ -88,21 +88,21 @@ function LoginForm() {
 
         {/* Password Field */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-neutral-400">Team Passcode</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-70">Team Passcode</label>
           <div className="relative">
-            <Lock className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Lock className="w-4 h-4 text-[var(--text-main)] opacity-50 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter passcode"
-              className="w-full py-3 pl-10 pr-12 rounded-2xl bg-neutral-950 border border-purple-900/40 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
+              className="w-full py-3 pl-10 pr-12 rounded-2xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] placeholder-neutral-500 text-sm focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition-all font-mono"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] transition-colors"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -112,7 +112,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading || !username.trim() || !password.trim()}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-black text-sm shadow-lg shadow-pink-500/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-[var(--text-main)] font-black text-sm shadow-lg shadow-pink-500/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
           {loading ? (
             <>
@@ -129,7 +129,7 @@ function LoginForm() {
       </form>
 
       {/* Footer Note */}
-      <div className="pt-1 text-center text-[11px] text-neutral-500">
+      <div className="pt-1 text-center text-[11px] text-[var(--text-main)] opacity-50">
         Protected with 256-bit encrypted session authentication.
       </div>
     </div>
@@ -138,13 +138,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-950 to-black text-white">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-950 to-black text-[var(--text-main)]">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="relative z-10 max-w-md w-full">
         <Suspense fallback={
-          <div className="p-10 rounded-3xl bg-neutral-900/80 border border-white/10 text-center">
+          <div className="p-10 rounded-3xl bg-[var(--card-bg)]/80 border border-[var(--border-glass)] text-center">
             <Sparkles className="w-6 h-6 animate-spin mx-auto text-amber-400" />
           </div>
         }>

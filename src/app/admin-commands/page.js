@@ -149,7 +149,7 @@ export default function AdminCommandsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-6xl mx-auto space-y-8">
@@ -157,7 +157,7 @@ export default function AdminCommandsPage() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
               Admin Command Center
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-400 mt-1">Execute live Discord admin commands directly from the web in real-time.</p>
+            <p className="text-xs sm:text-sm text-[var(--text-main)] opacity-70 mt-1">Execute live Discord admin commands directly from the web in real-time.</p>
           </div>
 
           {message.text && (
@@ -177,14 +177,14 @@ export default function AdminCommandsPage() {
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Economy Control</h3>
-                  <p className="text-xs text-neutral-500">Give or set coins, vouchers & gems for any Discord user.</p>
+                  <h3 className="text-lg font-bold text-[var(--text-main)]">Economy Control</h3>
+                  <p className="text-xs text-[var(--text-main)] opacity-50">Give or set coins, vouchers & gems for any Discord user.</p>
                 </div>
               </div>
 
               <form onSubmit={handleCurrencySubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Target Discord User ID</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Target Discord User ID</label>
                   <input
                     type="text"
                     value={userId}
@@ -197,7 +197,7 @@ export default function AdminCommandsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Action</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Action</label>
                     <select
                       value={actionType}
                       onChange={(e) => setActionType(e.target.value)}
@@ -208,7 +208,7 @@ export default function AdminCommandsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Currency Type</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Currency Type</label>
                     <select
                       value={currencyType}
                       onChange={(e) => setCurrencyType(e.target.value)}
@@ -222,7 +222,7 @@ export default function AdminCommandsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Amount</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Amount</label>
                   <input
                     type="number"
                     value={amount}
@@ -251,14 +251,14 @@ export default function AdminCommandsPage() {
                   <Gift className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Direct Card Grant</h3>
-                  <p className="text-xs text-neutral-500">Instantly place any player card into a user's inventory.</p>
+                  <h3 className="text-lg font-bold text-[var(--text-main)]">Direct Card Grant</h3>
+                  <p className="text-xs text-[var(--text-main)] opacity-50">Instantly place any player card into a user's inventory.</p>
                 </div>
               </div>
 
               <form onSubmit={handleCardSubmit} className="space-y-4">
                 {/* RenderZ Search Auto-fill */}
-                <div className="p-4 rounded-2xl bg-white/50 border border-purple-200/60 space-y-2">
+                <div className="p-4 rounded-2xl bg-[var(--card-bg)]/50 border border-purple-200/60 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-1.5 text-xs font-bold text-purple-900 uppercase tracking-wider">
                       <Sparkles className="w-3.5 h-3.5 text-purple-600" />
@@ -289,7 +289,7 @@ export default function AdminCommandsPage() {
 
                   {/* Dropdown Results */}
                   {rzResults.length > 0 && (
-                    <div className="mt-2 p-1.5 rounded-xl bg-white shadow-xl border border-purple-100 divide-y divide-neutral-100 max-h-56 overflow-y-auto">
+                    <div className="mt-2 p-1.5 rounded-xl bg-[var(--card-bg)] shadow-xl border border-purple-100 divide-y divide-neutral-100 max-h-56 overflow-y-auto">
                       {rzResults.map((card) => (
                         <button
                           key={card.id || card.assetId}
@@ -298,13 +298,13 @@ export default function AdminCommandsPage() {
                           className="w-full p-2 rounded-lg hover:bg-purple-50 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer"
                         >
                           <div className="flex items-center gap-2.5 truncate">
-                            <div className="w-9 h-9 rounded-lg bg-neutral-900 text-amber-400 font-bold flex flex-col items-center justify-center text-[10px] shrink-0">
+                            <div className="w-9 h-9 rounded-lg bg-[var(--card-bg)] text-amber-400 font-bold flex flex-col items-center justify-center text-[10px] shrink-0">
                               <span>{card.rating || card.ovr}</span>
-                              <span className="text-[8px] text-white/80">{card.position}</span>
+                              <span className="text-[8px] text-[var(--text-main)]/80">{card.position}</span>
                             </div>
                             <div className="truncate">
-                              <div className="font-bold text-xs text-neutral-900 truncate">{card.cardName || card.lastName}</div>
-                              <div className="text-[10px] text-neutral-500 truncate">
+                              <div className="font-bold text-xs text-[var(--text-main)] truncate">{card.cardName || card.lastName}</div>
+                              <div className="text-[10px] text-[var(--text-main)] opacity-50 truncate">
                                 {card.club?.name || 'Club'} • {card.nation?.name || 'Nation'}
                               </div>
                             </div>
@@ -319,7 +319,7 @@ export default function AdminCommandsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Target Discord User ID</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Target Discord User ID</label>
                   <input
                     type="text"
                     value={cardUserId}
@@ -332,7 +332,7 @@ export default function AdminCommandsPage() {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Player Name</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Player Name</label>
                     <input
                       type="text"
                       value={cardName}
@@ -343,7 +343,7 @@ export default function AdminCommandsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">OVR</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">OVR</label>
                     <input
                       type="number"
                       value={cardOvr}
@@ -356,7 +356,7 @@ export default function AdminCommandsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Position</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Position</label>
                     <select
                       value={cardPos}
                       onChange={(e) => setCardPos(e.target.value)}
@@ -368,9 +368,9 @@ export default function AdminCommandsPage() {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">Upload .webp / .png</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">Upload .webp / .png</label>
                     <div className="flex items-center gap-2">
-                      <label className="flex-1 flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-white/70 hover:bg-white border-2 border-dashed border-purple-400/60 hover:border-purple-500 text-purple-600 font-semibold text-xs transition-all cursor-pointer shadow-sm">
+                      <label className="flex-1 flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-[var(--card-bg)]/70 hover:bg-[var(--card-bg)] border-2 border-dashed border-purple-400/60 hover:border-purple-500 text-purple-600 font-semibold text-xs transition-all cursor-pointer shadow-sm">
                         <ImageIcon className="w-3.5 h-3.5" />
                         <span>{cardImage ? "File Loaded ✓" : "📁 Choose .webp / .png"}</span>
                         <input
@@ -427,21 +427,21 @@ export default function AdminCommandsPage() {
                   <RefreshCw className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Live Bot System Triggers</h3>
-                  <p className="text-xs text-neutral-500">Trigger live store rotations and refresh draft pools instantly.</p>
+                  <h3 className="text-lg font-bold text-[var(--text-main)]">Live Bot System Triggers</h3>
+                  <p className="text-xs text-[var(--text-main)] opacity-50">Trigger live store rotations and refresh draft pools instantly.</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-4">
+              <div className="p-4 rounded-2xl bg-[var(--card-bg)]/40 border border-white/60 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-bold text-sm text-neutral-900">Refresh Store & Draft Rotations</div>
-                    <div className="text-xs text-neutral-500">Forces the Discord bot to re-roll active draft pools and player offers.</div>
+                    <div className="font-bold text-sm text-[var(--text-main)]">Refresh Store & Draft Rotations</div>
+                    <div className="text-xs text-[var(--text-main)] opacity-50">Forces the Discord bot to re-roll active draft pools and player offers.</div>
                   </div>
                   <button
                     onClick={handleRefreshStore}
                     disabled={loading}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors"
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-[var(--text-main)] font-semibold text-xs transition-colors"
                   >
                     Trigger Refresh ⚡
                   </button>
@@ -456,8 +456,8 @@ export default function AdminCommandsPage() {
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Danger Zone</h3>
-                  <p className="text-xs text-neutral-500">Wipe user profiles and reset broken accounts.</p>
+                  <h3 className="text-lg font-bold text-[var(--text-main)]">Danger Zone</h3>
+                  <p className="text-xs text-[var(--text-main)] opacity-50">Wipe user profiles and reset broken accounts.</p>
                 </div>
               </div>
 
@@ -477,7 +477,7 @@ export default function AdminCommandsPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-[var(--text-main)] font-bold text-sm transition-colors flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" /> Wipe User Completely
                 </button>

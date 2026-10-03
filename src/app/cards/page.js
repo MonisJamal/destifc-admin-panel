@@ -120,7 +120,7 @@ export default function RenderZDatabasePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -128,19 +128,19 @@ export default function RenderZDatabasePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-neutral-900">RenderZ Official Database</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">RenderZ Official Database</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20">
                   FC Mobile 25/26
                 </span>
               </div>
-              <p className="text-sm text-neutral-500 mt-1">
+              <p className="text-sm text-[var(--text-main)] opacity-50 mt-1">
                 Live search and browse thousands of official FC Mobile cards. Grant any player card directly to any Discord member.
               </p>
             </div>
 
             {/* Search Bar */}
             <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--text-main)] opacity-70 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={query}
@@ -151,7 +151,7 @@ export default function RenderZDatabasePage() {
               {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -163,7 +163,7 @@ export default function RenderZDatabasePage() {
           <div className="glass-card p-6 space-y-4">
             {/* OVR Presets */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 mr-2 flex items-center gap-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-70 mr-2 flex items-center gap-1">
                 <Filter className="w-3.5 h-3.5" /> OVR Tier:
               </span>
               {ovrPresets.map((preset, idx) => {
@@ -178,8 +178,8 @@ export default function RenderZDatabasePage() {
                     }}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-neutral-900 text-amber-400 shadow-sm'
-                        : 'bg-white/60 hover:bg-white text-neutral-600 border border-black/5'
+                        ? 'bg-[var(--card-bg)] text-amber-400 shadow-sm'
+                        : 'bg-[var(--card-bg)]/60 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 border border-[var(--border-glass)]'
                     }`}
                   >
                     {preset.label}
@@ -189,8 +189,8 @@ export default function RenderZDatabasePage() {
             </div>
 
             {/* Position Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-black/5">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 mr-2">Position:</span>
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[var(--border-glass)]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-70 mr-2">Position:</span>
               {positions.map((pos) => {
                 const isActive = position === pos;
                 return (
@@ -202,8 +202,8 @@ export default function RenderZDatabasePage() {
                     }}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-white/40 hover:bg-white text-neutral-600 border border-black/5'
+                        ? 'bg-blue-600 text-[var(--text-main)] shadow-sm'
+                        : 'bg-[var(--card-bg)]/40 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 border border-[var(--border-glass)]'
                     }`}
                   >
                     {pos}
@@ -215,7 +215,7 @@ export default function RenderZDatabasePage() {
 
           {/* Card Grid */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between text-xs font-semibold text-neutral-500 px-1">
+            <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-main)] opacity-50 px-1">
               <span>{loading ? 'Searching RenderZ live database...' : `Showing ${cards.length} cards`}</span>
               <span>Page {page}</span>
             </div>
@@ -232,11 +232,11 @@ export default function RenderZDatabasePage() {
               </div>
             ) : cards.length === 0 ? (
               <div className="glass-card p-16 text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto text-neutral-400">
+                <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto text-[var(--text-main)] opacity-70">
                   <Search className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold text-neutral-900">No Players Found</h3>
-                <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+                <h3 className="text-base font-bold text-[var(--text-main)]">No Players Found</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-50 max-w-sm mx-auto">
                   Try adjusting your search query, OVR rating tier, or position filters to find the players you're looking for.
                 </p>
               </div>
@@ -254,29 +254,29 @@ export default function RenderZDatabasePage() {
                     >
                       {/* Top Badges */}
                       <div className="flex items-start justify-between z-10">
-                        <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-neutral-900 text-white shadow-md">
+                        <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-[var(--card-bg)] text-[var(--text-main)] shadow-md">
                           <span className={`text-lg font-black leading-none ${isMaster ? 'text-amber-400' : (isElite ? 'text-purple-400' : 'text-blue-400')}`}>
                             {ovr}
                           </span>
-                          <span className="text-[10px] font-bold text-neutral-300 tracking-wider">
+                          <span className="text-[10px] font-bold text-[var(--text-main)] opacity-90 tracking-wider">
                             {card.position}
                           </span>
                         </div>
 
                         <div className="text-right space-y-0.5">
                           <div className="text-[11px] font-bold text-neutral-800 flex items-center justify-end gap-1">
-                            <Globe className="w-3 h-3 text-neutral-400" />
+                            <Globe className="w-3 h-3 text-[var(--text-main)] opacity-70" />
                             <span className="truncate max-w-[100px]">{card.nation?.name || 'World'}</span>
                           </div>
-                          <div className="text-[10px] text-neutral-500 font-medium flex items-center justify-end gap-1">
-                            <Shield className="w-3 h-3 text-neutral-400" />
+                          <div className="text-[10px] text-[var(--text-main)] opacity-50 font-medium flex items-center justify-end gap-1">
+                            <Shield className="w-3 h-3 text-[var(--text-main)] opacity-70" />
                             <span className="truncate max-w-[100px]">{card.club?.name || 'Club'}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Authentic Layered Card Canvas */}
-                      <div className="my-2 flex items-center justify-center relative w-full h-44 overflow-hidden rounded-2xl bg-neutral-950/5 border border-black/5">
+                      <div className="my-2 flex items-center justify-center relative w-full h-44 overflow-hidden rounded-2xl bg-[var(--input-bg)]/5 border border-[var(--border-glass)]">
                         {card.images?.playerCardBackground && (
                           <img
                             src={getProxyUrl(card.images.playerCardBackground)}
@@ -306,7 +306,7 @@ export default function RenderZDatabasePage() {
                             }}
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-300">
+                          <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-[var(--text-main)] opacity-90">
                             <Sparkles className="w-8 h-8" />
                           </div>
                         )}
@@ -315,7 +315,7 @@ export default function RenderZDatabasePage() {
                       {/* Bottom Info & Action */}
                       <div className="space-y-3 z-10 text-center">
                         <div>
-                          <div className="font-black text-sm text-neutral-900 uppercase tracking-wide truncate">
+                          <div className="font-black text-sm text-[var(--text-main)] uppercase tracking-wide truncate">
                             {card.cardName || card.lastName}
                           </div>
                           <div className="text-[10px] font-bold tracking-wider text-blue-600 uppercase mt-0.5 truncate">
@@ -325,7 +325,7 @@ export default function RenderZDatabasePage() {
 
                         <button
                           onClick={() => openGiveModal(card)}
-                          className="w-full py-2.5 px-3 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md shadow-neutral-900/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full py-2.5 px-3 rounded-2xl bg-[var(--card-bg)] hover:bg-[var(--card-bg)] text-[var(--text-main)] font-bold text-xs shadow-md shadow-neutral-900/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Gift className="w-3.5 h-3.5 text-amber-400" />
                           <span>Give to User</span>
@@ -338,11 +338,11 @@ export default function RenderZDatabasePage() {
             )}
 
             {/* Pagination */}
-            <div className="p-4 rounded-2xl glass-card flex items-center justify-between text-xs font-medium text-neutral-500">
+            <div className="p-4 rounded-2xl glass-card flex items-center justify-between text-xs font-medium text-[var(--text-main)] opacity-50">
               <button
                 disabled={page <= 1 || loading}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white transition-all cursor-pointer font-semibold"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-[var(--card-bg)]/80 border border-white disabled:opacity-30 hover:bg-[var(--card-bg)] transition-all cursor-pointer font-semibold"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
@@ -350,7 +350,7 @@ export default function RenderZDatabasePage() {
               <button
                 disabled={!hasMore || loading}
                 onClick={() => setPage((p) => p + 1)}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white/80 border border-white disabled:opacity-30 hover:bg-white transition-all cursor-pointer font-semibold"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-[var(--card-bg)]/80 border border-white disabled:opacity-30 hover:bg-[var(--card-bg)] transition-all cursor-pointer font-semibold"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -361,34 +361,34 @@ export default function RenderZDatabasePage() {
         {/* Give Card Modal */}
         {selectedCard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-md bg-white/90 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border border-white/60 space-y-6">
+            <div className="w-full max-w-md bg-[var(--card-bg)]/90 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border border-white/60 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
                     <Gift className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-neutral-900">Grant Player Card</h3>
-                    <p className="text-xs text-neutral-500">Instantly place this card into a user's inventory.</p>
+                    <h3 className="text-lg font-bold text-[var(--text-main)]">Grant Player Card</h3>
+                    <p className="text-xs text-[var(--text-main)] opacity-50">Instantly place this card into a user's inventory.</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedCard(null)}
-                  className="p-1.5 rounded-xl hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
+                  className="p-1.5 rounded-xl hover:bg-neutral-100 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Selected Card Preview */}
-              <div className="p-4 rounded-2xl bg-neutral-900 text-white flex items-center gap-4 shadow-inner">
-                <div className="w-14 h-14 rounded-xl bg-neutral-800 flex flex-col items-center justify-center shrink-0 border border-white/10">
+              <div className="p-4 rounded-2xl bg-[var(--card-bg)] text-[var(--text-main)] flex items-center gap-4 shadow-inner">
+                <div className="w-14 h-14 rounded-xl bg-[var(--card-bg)] flex flex-col items-center justify-center shrink-0 border border-[var(--border-glass)]">
                   <span className="text-xl font-black text-amber-400 leading-none">{selectedCard.rating || selectedCard.ovr}</span>
-                  <span className="text-[10px] font-bold text-neutral-300">{selectedCard.position}</span>
+                  <span className="text-[10px] font-bold text-[var(--text-main)] opacity-90">{selectedCard.position}</span>
                 </div>
                 <div className="truncate flex-1">
                   <div className="font-bold text-base truncate">{selectedCard.cardName || selectedCard.lastName}</div>
-                  <div className="text-xs text-neutral-400 font-medium truncate">
+                  <div className="text-xs text-[var(--text-main)] opacity-70 font-medium truncate">
                     {selectedCard.club?.name || 'Club'} • {selectedCard.nation?.name || 'Nation'}
                   </div>
                   <div className="text-[10px] text-amber-400 font-bold uppercase mt-0.5">
@@ -416,7 +416,7 @@ export default function RenderZDatabasePage() {
 
               <form onSubmit={handleGiveCard} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-1.5">
                     Recipient Discord User ID
                   </label>
                   <input
@@ -428,7 +428,7 @@ export default function RenderZDatabasePage() {
                     required
                     autoFocus
                   />
-                  <p className="text-[11px] text-neutral-400 mt-1">
+                  <p className="text-[11px] text-[var(--text-main)] opacity-70 mt-1">
                     Right-click the Discord member and click "Copy User ID".
                   </p>
                 </div>
@@ -437,7 +437,7 @@ export default function RenderZDatabasePage() {
                   <button
                     type="button"
                     onClick={() => setSelectedCard(null)}
-                    className="flex-1 py-3 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-sm transition-colors"
+                    className="flex-1 py-3 rounded-2xl bg-neutral-100 hover:bg-neutral-200 text-[var(--text-main)] opacity-90 font-bold text-sm transition-colors"
                   >
                     Cancel
                   </button>

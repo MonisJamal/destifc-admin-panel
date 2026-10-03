@@ -127,7 +127,7 @@ export default function DatabasePage() {
     return (
       <div 
         onClick={() => setInspectCard(row)}
-        className="w-20 h-28 rounded-2xl bg-neutral-950 relative overflow-hidden flex flex-col justify-between p-1.5 border border-white/20 shadow-md group cursor-pointer hover:scale-105 hover:shadow-xl transition-all duration-300 select-none"
+        className="w-20 h-28 rounded-2xl bg-[var(--input-bg)] relative overflow-hidden flex flex-col justify-between p-1.5 border border-white/20 shadow-md group cursor-pointer hover:scale-105 hover:shadow-xl transition-all duration-300 select-none"
         title="Click to inspect card in HD"
       >
         {/* Background Card Art */}
@@ -153,7 +153,7 @@ export default function DatabasePage() {
             onError={(e) => { e.currentTarget.src = row.image; }}
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-neutral-500 z-10">
+          <div className="absolute inset-0 flex items-center justify-center text-[var(--text-main)] opacity-50 z-10">
             <Sparkles className="w-5 h-5 text-amber-400" />
           </div>
         )}
@@ -165,7 +165,7 @@ export default function DatabasePage() {
             <span className={`text-xs font-black ${isMaster ? 'text-amber-400' : (isElite ? 'text-purple-300' : 'text-blue-300')}`}>
               {ovr}
             </span>
-            <span className="text-[8px] font-black text-white uppercase tracking-tighter">
+            <span className="text-[8px] font-black text-[var(--text-main)] uppercase tracking-tighter">
               {pos}
             </span>
           </div>
@@ -195,21 +195,21 @@ export default function DatabasePage() {
 
         {/* Bottom Banner: Player Name */}
         <div className="relative z-20 w-full text-center bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-1 pb-0.5 rounded-b-xl">
-          <span className="block text-[8px] font-black text-white uppercase tracking-tight truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+          <span className="block text-[8px] font-black text-[var(--text-main)] uppercase tracking-tight truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
             {row.player_name || 'PLAYER'}
           </span>
         </div>
 
         {/* Quick Inspect Hover Icon */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-30 pointer-events-none rounded-2xl">
-          <Maximize2 className="w-4 h-4 text-white drop-shadow" />
+          <Maximize2 className="w-4 h-4 text-[var(--text-main)] drop-shadow" />
         </div>
       </div>
     );
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -217,7 +217,7 @@ export default function DatabasePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Cloud Database Explorer</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">Cloud Database Explorer</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                   Max OVR: {maxDbOvr}+
                 </span>
@@ -225,13 +225,13 @@ export default function DatabasePage() {
                   {total.toLocaleString()} Total Records
                 </span>
               </div>
-              <p className="text-sm text-neutral-500 mt-1">
+              <p className="text-sm text-[var(--text-main)] opacity-50 mt-1">
                 Direct query inspection of Supabase PostgreSQL tables with exact OVR tiers, positions, events, logos & stats.
               </p>
             </div>
 
             <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--text-main)] opacity-70 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
@@ -242,7 +242,7 @@ export default function DatabasePage() {
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -255,7 +255,7 @@ export default function DatabasePage() {
             <button
               onClick={() => handleTabChange('official')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'official' ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-500 hover:text-neutral-900'
+                tab === 'official' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
               }`}
             >
               <Database className="w-4 h-4" /> Official Cards Pool ({total.toLocaleString()})
@@ -263,7 +263,7 @@ export default function DatabasePage() {
             <button
               onClick={() => handleTabChange('inventory')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'inventory' ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-500 hover:text-neutral-900'
+                tab === 'inventory' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
               }`}
             >
               <CreditCard className="w-4 h-4" /> Card Inventory
@@ -271,7 +271,7 @@ export default function DatabasePage() {
             <button
               onClick={() => handleTabChange('market')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'market' ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-500 hover:text-neutral-900'
+                tab === 'market' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
               }`}
             >
               <ShoppingBag className="w-4 h-4" /> Market Listings
@@ -279,7 +279,7 @@ export default function DatabasePage() {
             <button
               onClick={() => handleTabChange('users')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'users' ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-500 hover:text-neutral-900'
+                tab === 'users' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
               }`}
             >
               <User className="w-4 h-4" /> Users & Balances
@@ -291,7 +291,7 @@ export default function DatabasePage() {
             <div className="glass-card p-6 space-y-4">
               {/* OVR Presets */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 mr-2 flex items-center gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-70 mr-2 flex items-center gap-1">
                   <Filter className="w-3.5 h-3.5" /> OVR Tier:
                 </span>
                 {ovrPresets.map((preset, idx) => {
@@ -306,8 +306,8 @@ export default function DatabasePage() {
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                         isActive
-                          ? 'bg-neutral-900 text-amber-400 shadow-sm'
-                          : 'bg-white/60 text-neutral-600 hover:bg-white hover:text-neutral-900 border border-white/80'
+                          ? 'bg-[var(--card-bg)] text-amber-400 shadow-sm'
+                          : 'bg-[var(--card-bg)]/60 text-[var(--text-main)] opacity-70 hover:bg-[var(--card-bg)] hover:text-[var(--text-main)] border border-white/80'
                       }`}
                     >
                       {preset.label}
@@ -317,10 +317,10 @@ export default function DatabasePage() {
               </div>
 
               {/* Exact Controls Row */}
-              <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-black/5">
+              <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-[var(--border-glass)]">
                 {/* Custom Min / Max OVR */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-neutral-500">Min OVR:</span>
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-50">Min OVR:</span>
                   <input
                     type="number"
                     min="45"
@@ -328,9 +328,9 @@ export default function DatabasePage() {
                     value={minOvr}
                     onChange={(e) => { setMinOvr(e.target.value); setPage(1); }}
                     placeholder="45"
-                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none focus:border-neutral-900"
                   />
-                  <span className="text-xs font-semibold text-neutral-500">Max OVR:</span>
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-50">Max OVR:</span>
                   <input
                     type="number"
                     min="45"
@@ -338,17 +338,17 @@ export default function DatabasePage() {
                     value={maxOvr}
                     onChange={(e) => { setMaxOvr(e.target.value); setPage(1); }}
                     placeholder={maxDbOvr.toString()}
-                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    className="w-16 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none focus:border-neutral-900"
                   />
                 </div>
 
                 {/* Position Filter */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-neutral-500">Position:</span>
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-50">Position:</span>
                   <select
                     value={position}
                     onChange={(e) => { setPosition(e.target.value); setPage(1); }}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none focus:border-neutral-900 cursor-pointer"
                   >
                     {positions.map((pos) => (
                       <option key={pos} value={pos}>{pos}</option>
@@ -359,11 +359,11 @@ export default function DatabasePage() {
                 {/* Program Filter */}
                 {tab === 'official' && (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-neutral-500">Event / Program:</span>
+                    <span className="text-xs font-semibold text-[var(--text-main)] opacity-50">Event / Program:</span>
                     <select
                       value={program}
                       onChange={(e) => { setProgram(e.target.value); setPage(1); }}
-                      className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none focus:border-neutral-900 cursor-pointer"
                     >
                       {programs.map((prog) => (
                         <option key={prog} value={prog}>{prog}</option>
@@ -374,13 +374,13 @@ export default function DatabasePage() {
 
                 {/* Sort Order */}
                 <div className="flex items-center gap-2 ml-auto">
-                  <span className="text-xs font-semibold text-neutral-500 flex items-center gap-1">
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-50 flex items-center gap-1">
                     <ArrowUpDown className="w-3.5 h-3.5" /> Sort:
                   </span>
                   <select
                     value={sort}
                     onChange={(e) => { setSort(e.target.value); setPage(1); }}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-neutral-200 bg-[var(--card-bg)] text-[var(--text-main)] focus:outline-none focus:border-neutral-900 cursor-pointer"
                   >
                     <option value="ovr_desc">OVR: High to Low</option>
                     <option value="ovr_asc">OVR: Low to High</option>
@@ -396,7 +396,7 @@ export default function DatabasePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-black/5 text-[11px] font-black text-neutral-400 uppercase tracking-wider bg-white/40">
+                  <tr className="border-b border-[var(--border-glass)] text-[11px] font-black text-[var(--text-main)] opacity-70 uppercase tracking-wider bg-[var(--card-bg)]/40">
                     {tab === 'users' && (
                       <>
                         <th className="py-4 px-6">User Discord ID</th>
@@ -442,28 +442,28 @@ export default function DatabasePage() {
                 <tbody className="divide-y divide-black/5 text-sm font-medium">
                   {loading ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-16 text-neutral-400">
+                      <td colSpan="6" className="text-center py-16 text-[var(--text-main)] opacity-70">
                         <Sparkles className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
                         <span>Loading live table records...</span>
                       </td>
                     </tr>
                   ) : data.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-16 text-neutral-400">
+                      <td colSpan="6" className="text-center py-16 text-[var(--text-main)] opacity-70">
                         No records found matching criteria.
                       </td>
                     </tr>
                   ) : (
                     data.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-white/50 transition-colors">
+                      <tr key={idx} className="hover:bg-[var(--card-bg)]/50 transition-colors">
                         {tab === 'users' && (
                           <>
                             <td className="py-4 px-6 font-mono text-xs text-neutral-800">{row.user_id}</td>
                             <td className="py-4 px-6 font-bold text-emerald-600">🪙 {parseInt(row.coins || 0).toLocaleString()}</td>
                             <td className="py-4 px-6 text-indigo-600 font-semibold">{row.vouchers || 0}</td>
                             <td className="py-4 px-6 text-purple-600 font-semibold">{row.gems || 0}</td>
-                            <td className="py-4 px-6 text-neutral-600">{parseInt(row.fans || 0).toLocaleString()}</td>
-                            <td className="py-4 px-6 text-neutral-600">{row.drafts_opened || 0}</td>
+                            <td className="py-4 px-6 text-[var(--text-main)] opacity-70">{parseInt(row.fans || 0).toLocaleString()}</td>
+                            <td className="py-4 px-6 text-[var(--text-main)] opacity-70">{row.drafts_opened || 0}</td>
                           </>
                         )}
                         {tab === 'inventory' && (
@@ -471,17 +471,17 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-700">{row.user_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-[var(--text-main)] opacity-90">{row.user_id}</td>
                             <td className="py-4 px-6">
-                              <div className="font-bold text-neutral-900">{row.player_name}</div>
-                              <div className="text-xs text-neutral-500">{row.program}</div>
+                              <div className="font-bold text-[var(--text-main)]">{row.player_name}</div>
+                              <div className="text-xs text-[var(--text-main)] opacity-50">{row.program}</div>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-[var(--card-bg)] text-amber-400 shadow-sm">
                                 {row.ovr} {row.position}
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-xs text-neutral-600">
+                            <td className="py-4 px-6 text-xs text-[var(--text-main)] opacity-70">
                               <div>🛡️ {row.club_name}</div>
                               <div>🌍 {row.nation_name}</div>
                             </td>
@@ -491,7 +491,7 @@ export default function DatabasePage() {
                                   <Lock className="w-3 h-3" /> Locked
                                 </span>
                               ) : (
-                                <span className="text-xs text-neutral-400 font-medium">Unlocked</span>
+                                <span className="text-xs text-[var(--text-main)] opacity-70 font-medium">Unlocked</span>
                               )}
                             </td>
                           </>
@@ -501,20 +501,20 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-700">{row.seller_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-[var(--text-main)] opacity-90">{row.seller_id}</td>
                             <td className="py-4 px-6">
-                              <div className="font-bold text-neutral-900">{row.player_name}</div>
-                              <div className="text-xs text-neutral-500">{row.program}</div>
+                              <div className="font-bold text-[var(--text-main)]">{row.player_name}</div>
+                              <div className="text-xs text-[var(--text-main)] opacity-50">{row.program}</div>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-[var(--card-bg)] text-amber-400 shadow-sm">
                                 {row.ovr} {row.position}
                               </span>
                             </td>
                             <td className="py-4 px-6 font-bold text-emerald-600">
                               🪙 {parseInt(row.price || 0).toLocaleString()}
                             </td>
-                            <td className="py-4 px-6 text-xs text-neutral-500 font-mono">
+                            <td className="py-4 px-6 text-xs text-[var(--text-main)] opacity-50 font-mono">
                               {new Date(row.listed_at).toLocaleString()}
                             </td>
                           </>
@@ -524,21 +524,21 @@ export default function DatabasePage() {
                             <td className="py-3 px-6">
                               {renderCardThumbnail(row)}
                             </td>
-                            <td className="py-4 px-6 font-mono text-xs text-neutral-600">#{row.asset_id}</td>
+                            <td className="py-4 px-6 font-mono text-xs text-[var(--text-main)] opacity-70">#{row.asset_id}</td>
                             <td className="py-4 px-6">
-                              <div className="font-bold text-neutral-900">{row.player_name}</div>
+                              <div className="font-bold text-[var(--text-main)]">{row.player_name}</div>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-neutral-900 text-amber-400 shadow-sm">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black bg-[var(--card-bg)] text-amber-400 shadow-sm">
                                 {row.rating} {row.position}
                               </span>
                             </td>
                             <td className="py-4 px-6">
-                              <span className="px-2 py-0.5 rounded text-xs font-semibold bg-neutral-100 text-neutral-700 border border-neutral-200">
+                              <span className="px-2 py-0.5 rounded text-xs font-semibold bg-neutral-100 text-[var(--text-main)] opacity-90 border border-neutral-200">
                                 {row.program}
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-xs text-neutral-600">
+                            <td className="py-4 px-6 text-xs text-[var(--text-main)] opacity-70">
                               <div>🛡️ {row.club_name}</div>
                               <div>🌍 {row.nation_name}</div>
                             </td>
@@ -552,22 +552,22 @@ export default function DatabasePage() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="p-4 border-t border-black/5 flex items-center justify-between bg-white/40">
-              <span className="text-xs font-semibold text-neutral-500">
-                Showing Page <span className="text-neutral-900 font-bold">{page}</span> of <span className="text-neutral-900 font-bold">{totalPages}</span> ({total.toLocaleString()} records)
+            <div className="p-4 border-t border-[var(--border-glass)] flex items-center justify-between bg-[var(--card-bg)]/40">
+              <span className="text-xs font-semibold text-[var(--text-main)] opacity-50">
+                Showing Page <span className="text-[var(--text-main)] font-bold">{page}</span> of <span className="text-[var(--text-main)] font-bold">{totalPages}</span> ({total.toLocaleString()} records)
               </span>
               <div className="flex items-center gap-2">
                 <button
                   disabled={page <= 1 || loading}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-1.5 rounded-xl border border-black/10 text-xs font-bold text-neutral-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-[var(--border-glass)] text-xs font-bold text-[var(--text-main)] opacity-90 hover:bg-[var(--card-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" /> Previous
                 </button>
                 <button
                   disabled={page >= totalPages || loading}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="px-3 py-1.5 rounded-xl border border-black/10 text-xs font-bold text-neutral-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-[var(--border-glass)] text-xs font-bold text-[var(--text-main)] opacity-90 hover:bg-[var(--card-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                 >
                   Next <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -579,8 +579,8 @@ export default function DatabasePage() {
         {/* Card Inspector HD Modal */}
         {inspectCard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
-            <div className="bg-neutral-950 border border-white/10 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-3xl max-w-lg w-full p-6 text-[var(--text-main)] shadow-2xl space-y-6">
+              <div className="flex items-center justify-between border-b border-[var(--border-glass)] pb-4">
                 <div className="flex items-center gap-2">
                   <Flame className="w-5 h-5 text-amber-400" />
                   <h2 className="text-base font-bold">Player Card Inspector</h2>
@@ -590,7 +590,7 @@ export default function DatabasePage() {
                 </div>
                 <button
                   onClick={() => setInspectCard(null)}
-                  className="p-1.5 rounded-xl hover:bg-white/10 text-neutral-400 hover:text-white cursor-pointer"
+                  className="p-1.5 rounded-xl hover:bg-[var(--card-bg)]/10 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -598,7 +598,7 @@ export default function DatabasePage() {
 
               {/* Large Card Visual */}
               <div className="flex justify-center">
-                <div className="w-48 h-64 rounded-3xl bg-neutral-900 relative overflow-hidden flex flex-col justify-between p-3 border border-white/20 shadow-2xl">
+                <div className="w-48 h-64 rounded-3xl bg-[var(--card-bg)] relative overflow-hidden flex flex-col justify-between p-3 border border-white/20 shadow-2xl">
                   {inspectCard.bg_image ? (
                     <img 
                       src={getProxyUrl(inspectCard.bg_image)} 
@@ -607,7 +607,7 @@ export default function DatabasePage() {
                       className="absolute inset-0 w-full h-full object-contain pointer-events-none"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-neutral-800"></div>
+                    <div className="absolute inset-0 bg-[var(--card-bg)]"></div>
                   )}
 
                   {inspectCard.image && (
@@ -625,7 +625,7 @@ export default function DatabasePage() {
                       <span className="text-xl font-black text-amber-400 drop-shadow">
                         {inspectCard.rating || inspectCard.ovr}
                       </span>
-                      <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow mt-0.5">
+                      <span className="text-xs font-black text-[var(--text-main)] uppercase tracking-wider drop-shadow mt-0.5">
                         {inspectCard.position || 'ST'}
                       </span>
                     </div>
@@ -652,7 +652,7 @@ export default function DatabasePage() {
 
                   {/* Bottom Banner */}
                   <div className="relative z-20 w-full text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-2 pb-1 rounded-b-2xl">
-                    <span className="block text-xs font-black text-white uppercase tracking-wide truncate">
+                    <span className="block text-xs font-black text-[var(--text-main)] uppercase tracking-wide truncate">
                       {inspectCard.player_name}
                     </span>
                     <span className="block text-[9px] font-bold text-amber-400 uppercase tracking-wider">
@@ -663,27 +663,27 @@ export default function DatabasePage() {
               </div>
 
               {/* Player Metadata & Stats */}
-              <div className="bg-neutral-900/80 rounded-2xl p-4 border border-white/5 space-y-2 text-xs">
+              <div className="bg-[var(--card-bg)]/80 rounded-2xl p-4 border border-white/5 space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Player Name:</span>
-                  <span className="font-bold text-white">{inspectCard.player_name}</span>
+                  <span className="text-[var(--text-main)] opacity-70">Player Name:</span>
+                  <span className="font-bold text-[var(--text-main)]">{inspectCard.player_name}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Rating & Position:</span>
+                  <span className="text-[var(--text-main)] opacity-70">Rating & Position:</span>
                   <span className="font-bold text-amber-400">{inspectCard.rating || inspectCard.ovr} OVR • {inspectCard.position}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Club & League:</span>
-                  <span className="font-medium text-neutral-200">{inspectCard.club_name || 'Club'}</span>
+                  <span className="text-[var(--text-main)] opacity-70">Club & League:</span>
+                  <span className="font-medium text-[var(--text-main)] opacity-90">{inspectCard.club_name || 'Club'}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Nation:</span>
-                  <span className="font-medium text-neutral-200">{inspectCard.nation_name || 'World'}</span>
+                  <span className="text-[var(--text-main)] opacity-70">Nation:</span>
+                  <span className="font-medium text-[var(--text-main)] opacity-90">{inspectCard.nation_name || 'World'}</span>
                 </div>
                 {inspectCard.asset_id && (
                   <div className="flex justify-between py-1">
-                    <span className="text-neutral-400">RenderZ Asset ID:</span>
-                    <span className="font-mono text-neutral-300">#{inspectCard.asset_id}</span>
+                    <span className="text-[var(--text-main)] opacity-70">RenderZ Asset ID:</span>
+                    <span className="font-mono text-[var(--text-main)] opacity-90">#{inspectCard.asset_id}</span>
                   </div>
                 )}
               </div>
@@ -691,7 +691,7 @@ export default function DatabasePage() {
               <div className="text-right">
                 <button
                   onClick={() => setInspectCard(null)}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[var(--card-bg)]/10 hover:bg-[var(--card-bg)]/20 text-[var(--text-main)] cursor-pointer"
                 >
                   Close Inspector
                 </button>

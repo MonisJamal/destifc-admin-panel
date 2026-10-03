@@ -384,7 +384,7 @@ export default function FormationsPage() {
   const currentPitchImage = customPitchUrl || selectedTheme.image;
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl select-none">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -392,20 +392,20 @@ export default function FormationsPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-neutral-900">3D Formation Studio</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-600 border border-purple-500/20 flex items-center gap-1">
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">3D Formation Studio</h1>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-600 border border-[var(--border-glass)] flex items-center gap-1">
                   <Sparkles className="w-3 h-3" /> Live Discord Sync
                 </span>
               </div>
-              <p className="text-sm text-neutral-500 mt-1">
-                Customize, drag & drop, and map player nodes for all 30 tactical formations. Changes apply instantly to Discord <code className="bg-white/80 px-1.5 py-0.5 rounded text-neutral-700 font-mono font-bold">/squad view</code>.
+              <p className="text-sm text-[var(--text-main)] opacity-50 mt-1">
+                Customize, drag & drop, and map player nodes for all 30 tactical formations. Changes apply instantly to Discord <code className="bg-[var(--card-bg)]/80 px-1.5 py-0.5 rounded text-[var(--text-main)] opacity-90 font-mono font-bold">/squad view</code>.
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={handleReset}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/80 hover:bg-white text-xs font-bold text-neutral-700 transition-all border border-black/5 shadow-sm cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--card-bg)]/80 hover:bg-[var(--card-bg)] text-xs font-bold text-[var(--text-main)] opacity-90 transition-all border border-[var(--border-glass)] shadow-sm cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" /> Reset Default
               </button>
@@ -423,8 +423,8 @@ export default function FormationsPage() {
           <div className="glass-card p-5 space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-neutral-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Official Stadium Themes:</span>
+                <Layers className="w-4 h-4 text-[var(--text-main)] opacity-50" />
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50">Official Stadium Themes:</span>
               </div>
 
               {/* Custom Upload / Reset Button */}
@@ -437,7 +437,7 @@ export default function FormationsPage() {
                     <Trash2 className="w-3.5 h-3.5" /> Remove Custom Pitch
                   </button>
                 )}
-                <label className="px-3.5 py-1.5 rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm">
+                <label className="px-3.5 py-1.5 rounded-xl bg-[var(--card-bg)] text-[var(--text-main)] hover:bg-[var(--card-bg)] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm">
                   <Upload className="w-3.5 h-3.5 text-amber-400" />
                   <span>Upload Pitch PNG</span>
                   <input type="file" accept="image/*" onChange={handlePitchUpload} className="hidden" />
@@ -458,8 +458,8 @@ export default function FormationsPage() {
                     }}
                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-neutral-900 text-white shadow-md border-neutral-900'
-                        : 'bg-white/60 hover:bg-white text-neutral-600 border-black/5'
+                        ? 'bg-[var(--card-bg)] text-[var(--text-main)] shadow-md border-neutral-900'
+                        : 'bg-[var(--card-bg)]/60 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 border-[var(--border-glass)]'
                     }`}
                   >
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.glow }}></span>
@@ -481,11 +481,11 @@ export default function FormationsPage() {
             <div className="glass-card p-6 space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Select Formation ({ALL_FORMATIONS.length} Available)</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-2">Select Formation ({ALL_FORMATIONS.length} Available)</label>
                   <select
                     value={selectedFormation}
                     onChange={(e) => setSelectedFormation(e.target.value)}
-                    className="apple-input font-black text-sm bg-white cursor-pointer"
+                    className="apple-input font-black text-sm bg-[var(--card-bg)] cursor-pointer"
                   >
                     {ALL_FORMATIONS.map(f => (
                       <option key={f} value={f}>{f}</option>
@@ -494,7 +494,7 @@ export default function FormationsPage() {
                 </div>
 
                 <div>
-                  <span className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Tactical Positions ({Object.keys(positions).length})</span>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-2">Tactical Positions ({Object.keys(positions).length})</span>
                   <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
                     {Object.entries(positions).map(([pos, coords]) => (
                       <div
@@ -502,8 +502,8 @@ export default function FormationsPage() {
                         onClick={() => setActiveNode(pos)}
                         className={`flex items-center justify-between p-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                           activeNode === pos
-                            ? 'bg-neutral-900 text-amber-400 font-bold shadow-md'
-                            : 'bg-white/50 hover:bg-white text-neutral-700 border border-black/5'
+                            ? 'bg-[var(--card-bg)] text-amber-400 font-bold shadow-md'
+                            : 'bg-[var(--card-bg)]/50 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-[var(--border-glass)]'
                         }`}
                       >
                         <span className="font-bold">{pos}</span>
@@ -514,7 +514,7 @@ export default function FormationsPage() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-neutral-900/5 border border-black/5 text-[11px] text-neutral-500 space-y-1">
+              <div className="p-4 rounded-2xl bg-[var(--card-bg)]/5 border border-[var(--border-glass)] text-[11px] text-[var(--text-main)] opacity-50 space-y-1">
                 <p className="font-bold text-neutral-800">💡 Pro Tip:</p>
                 <p>Click and drag any node on the pitch to adjust its 3D depth and wing spacing. Hit <strong>Save Layout</strong> when done!</p>
               </div>
@@ -536,7 +536,7 @@ export default function FormationsPage() {
 
                 {/* Stadium Floodlights & Turf Marking Guidelines */}
                 <div className="absolute inset-x-12 top-6 bottom-6 border-2 border-white/20 rounded-2xl pointer-events-none">
-                  <div className="absolute top-1/2 inset-x-0 h-0.5 bg-white/20 -translate-y-1/2"></div>
+                  <div className="absolute top-1/2 inset-x-0 h-0.5 bg-[var(--card-bg)]/20 -translate-y-1/2"></div>
                   <div className="absolute top-1/2 left-1/2 w-44 h-44 rounded-full border-2 border-white/20 -translate-x-1/2 -translate-y-1/2"></div>
                   <div className="absolute top-0 left-1/2 w-80 h-28 border-2 border-white/20 border-t-0 -translate-x-1/2"></div>
                   <div className="absolute bottom-0 left-1/2 w-80 h-28 border-2 border-white/20 border-b-0 -translate-x-1/2"></div>
@@ -562,8 +562,8 @@ export default function FormationsPage() {
                       }}
                       className={`absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-transform ${
                         isSelected
-                          ? 'bg-neutral-950 text-white scale-125 z-30 ring-2 ring-white'
-                          : 'bg-neutral-900/90 hover:bg-neutral-900 text-white z-20 border border-white/30 hover:scale-110'
+                          ? 'bg-[var(--input-bg)] text-[var(--text-main)] scale-125 z-30 ring-2 ring-white'
+                          : 'bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg)] text-[var(--text-main)] z-20 border border-white/30 hover:scale-110'
                       }`}
                     >
                       {/* Positional 3D Base Hologram Line */}
@@ -571,10 +571,10 @@ export default function FormationsPage() {
                         className="absolute -bottom-2 w-10 h-1.5 rounded-full blur-[1px]"
                         style={{ backgroundColor: glowColor }}
                       ></div>
-                      <span className="text-xs font-black tracking-wider leading-none text-white drop-shadow">
+                      <span className="text-xs font-black tracking-wider leading-none text-[var(--text-main)] drop-shadow">
                         {pos}
                       </span>
-                      <span className="text-[8px] font-bold text-neutral-300 mt-0.5">
+                      <span className="text-[8px] font-bold text-[var(--text-main)] opacity-90 mt-0.5">
                         {coords[0]},{coords[1]}
                       </span>
                     </div>

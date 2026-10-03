@@ -270,7 +270,7 @@ export default function LeaksDraftsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0d0914] text-neutral-100 font-sans">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -278,7 +278,7 @@ export default function LeaksDraftsPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Leaks & Upcoming Drafts</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">Leaks & Upcoming Drafts</h1>
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center gap-1">
                   <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> DATA-MINED REVEALS
                 </span>
@@ -289,7 +289,7 @@ export default function LeaksDraftsPage() {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-neutral-500 mt-1">
+              <p className="text-sm text-[var(--text-main)] opacity-50 mt-1">
                 Real-time data-mined leaked cards scraped from EA game files before release. Preview exclusive card art & generate 16:9 launch banners.
               </p>
             </div>
@@ -299,7 +299,7 @@ export default function LeaksDraftsPage() {
               <button
                 onClick={() => fetchLeaks()}
                 disabled={loading}
-                className="p-2.5 rounded-2xl bg-white border border-black/10 hover:bg-neutral-50 text-neutral-700 font-bold text-xs shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="p-2.5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-glass)] hover:bg-[var(--bg-surface)] text-[var(--text-main)] opacity-90 font-bold text-xs shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 title="Re-scrape latest leaks"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
@@ -307,7 +307,7 @@ export default function LeaksDraftsPage() {
               </button>
 
               <div className="relative w-full md:w-72">
-                <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[var(--text-main)] opacity-70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={search}
@@ -318,7 +318,7 @@ export default function LeaksDraftsPage() {
                 {search && (
                   <button
                     onClick={() => setSearch('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -343,7 +343,7 @@ export default function LeaksDraftsPage() {
                   key={tab.id}
                   onClick={() => { setCategory(tab.id); setPage(1); }}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                    isActive ? 'bg-neutral-900 text-amber-400 shadow-md' : 'text-neutral-600 hover:text-neutral-900'
+                    isActive ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -355,7 +355,7 @@ export default function LeaksDraftsPage() {
 
           {/* Cards Grid */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between text-xs font-semibold text-neutral-500 px-1">
+            <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-main)] opacity-50 px-1">
               <span>{loading ? 'Data-mining RenderZ releases...' : `Showing ${cards.length} unreleased leaks`}</span>
               <span>Page {page}</span>
             </div>
@@ -372,11 +372,11 @@ export default function LeaksDraftsPage() {
               </div>
             ) : cards.length === 0 ? (
               <div className="glass-card p-16 text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto text-neutral-400">
+                <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto text-[var(--text-main)] opacity-70">
                   <Clock className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold text-neutral-900">No New Leaks in this Category</h3>
-                <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+                <h3 className="text-base font-bold text-[var(--text-main)]">No New Leaks in this Category</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-50 max-w-sm mx-auto">
                   All cards in this category are already live or no unreleased cards are currently detected in EA game files.
                 </p>
               </div>
@@ -393,11 +393,11 @@ export default function LeaksDraftsPage() {
                     >
                       {/* Top Badges & Status */}
                       <div className="flex items-start justify-between z-10">
-                        <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-neutral-900 text-white shadow-md">
+                        <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-[var(--card-bg)] text-[var(--text-main)] shadow-md">
                           <span className={`text-lg font-black leading-none ${isMaster ? 'text-amber-400' : 'text-blue-400'}`}>
                             {ovr}
                           </span>
-                          <span className="text-[10px] font-bold text-neutral-300 tracking-wider">
+                          <span className="text-[10px] font-bold text-[var(--text-main)] opacity-90 tracking-wider">
                             {card.position}
                           </span>
                         </div>
@@ -408,14 +408,14 @@ export default function LeaksDraftsPage() {
                             <span>Unreleased Leak</span>
                           </span>
 
-                          <div className="text-[10px] text-neutral-500 font-medium truncate max-w-[120px]">
+                          <div className="text-[10px] text-[var(--text-main)] opacity-50 font-medium truncate max-w-[120px]">
                             🛡️ {card.club?.name || 'Club'}
                           </div>
                         </div>
                       </div>
 
                       {/* Authentic Layered Card Canvas */}
-                      <div className="my-2 flex items-center justify-center relative w-full h-44 overflow-hidden rounded-2xl bg-neutral-950/5 border border-black/5">
+                      <div className="my-2 flex items-center justify-center relative w-full h-44 overflow-hidden rounded-2xl bg-[var(--input-bg)]/5 border border-[var(--border-glass)]">
                         {card.images?.playerCardBackground && (
                           <img
                             src={getProxyUrl(card.images.playerCardBackground)}
@@ -445,7 +445,7 @@ export default function LeaksDraftsPage() {
                             }}
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-300">
+                          <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center text-[var(--text-main)] opacity-90">
                             <Sparkles className="w-8 h-8" />
                           </div>
                         )}
@@ -454,7 +454,7 @@ export default function LeaksDraftsPage() {
                       {/* Info & Schedule Banner */}
                       <div className="space-y-2.5 z-10">
                         <div className="text-center">
-                          <div className="font-black text-sm text-neutral-900 uppercase tracking-wide truncate">
+                          <div className="font-black text-sm text-[var(--text-main)] uppercase tracking-wide truncate">
                             {card.cardName || card.lastName}
                           </div>
                           <div className="text-[10px] font-bold tracking-wider text-blue-600 uppercase mt-0.5 truncate">
@@ -463,14 +463,14 @@ export default function LeaksDraftsPage() {
                         </div>
 
                         {/* Scheduled Release Timing */}
-                        <div className="p-2 rounded-xl bg-neutral-900/5 border border-black/5 text-[11px] space-y-1">
-                          <div className="flex items-center justify-between text-neutral-600 font-semibold">
+                        <div className="p-2 rounded-xl bg-[var(--card-bg)]/5 border border-[var(--border-glass)] text-[11px] space-y-1">
+                          <div className="flex items-center justify-between text-[var(--text-main)] opacity-70 font-semibold">
                             <span className="flex items-center gap-1">
                               <Calendar className="w-3 h-3 text-amber-500" /> Unlock:
                             </span>
-                            <span className="text-neutral-900 font-bold truncate max-w-[130px]">{card.revealFormatted}</span>
+                            <span className="text-[var(--text-main)] font-bold truncate max-w-[130px]">{card.revealFormatted}</span>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] text-neutral-400 font-medium">
+                          <div className="flex items-center justify-between text-[10px] text-[var(--text-main)] opacity-70 font-medium">
                             <span>Mined: {card.addedFormatted}</span>
                             <span className="text-emerald-600 font-bold">Preview Only</span>
                           </div>
@@ -479,7 +479,7 @@ export default function LeaksDraftsPage() {
                         {/* Generate 16:9 Banner Button */}
                         <button
                           onClick={() => openBannerGenerator(card)}
-                          className="w-full py-2.5 px-3 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs shadow-md shadow-neutral-900/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full py-2.5 px-3 rounded-2xl bg-[var(--card-bg)] hover:bg-[var(--card-bg)] text-[var(--text-main)] font-bold text-xs shadow-md shadow-neutral-900/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
                           <span>Generate 16:9 Banner</span>
@@ -492,19 +492,19 @@ export default function LeaksDraftsPage() {
             )}
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-black/5">
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--border-glass)]">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 rounded-xl text-xs font-bold glass-card text-neutral-700 hover:text-neutral-900 disabled:opacity-40 flex items-center gap-1 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold glass-card text-[var(--text-main)] opacity-90 hover:text-[var(--text-main)] disabled:opacity-40 flex items-center gap-1 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
-              <span className="text-xs font-bold text-neutral-500">Page {page}</span>
+              <span className="text-xs font-bold text-[var(--text-main)] opacity-50">Page {page}</span>
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={!hasMore}
-                className="px-4 py-2 rounded-xl text-xs font-bold glass-card text-neutral-700 hover:text-neutral-900 disabled:opacity-40 flex items-center gap-1 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold glass-card text-[var(--text-main)] opacity-90 hover:text-[var(--text-main)] disabled:opacity-40 flex items-center gap-1 cursor-pointer"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -515,8 +515,8 @@ export default function LeaksDraftsPage() {
         {/* 16:9 Banner Generator Modal */}
         {bannerCard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
-            <div className="bg-neutral-950 border border-white/10 rounded-3xl max-w-4xl w-full p-6 text-white shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-3xl max-w-4xl w-full p-6 text-[var(--text-main)] shadow-2xl space-y-6">
+              <div className="flex items-center justify-between border-b border-[var(--border-glass)] pb-4">
                 <div className="flex items-center gap-2">
                   <Flame className="w-5 h-5 text-amber-400" />
                   <h2 className="text-lg font-bold">16:9 Leaks Announcement Banner</h2>
@@ -526,14 +526,14 @@ export default function LeaksDraftsPage() {
                 </div>
                 <button
                   onClick={() => setBannerCard(null)}
-                  className="p-1.5 rounded-xl hover:bg-white/10 text-neutral-400 hover:text-white"
+                  className="p-1.5 rounded-xl hover:bg-[var(--card-bg)]/10 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)]"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Canvas Preview Container */}
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center">
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black/50 border border-[var(--border-glass)] flex items-center justify-center">
                 <canvas ref={canvasRef} className="w-full h-full object-contain" />
                 {isGeneratingBanner && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 text-sm font-bold text-amber-400">
@@ -543,13 +543,13 @@ export default function LeaksDraftsPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <div className="text-xs text-neutral-400">
+                <div className="text-xs text-[var(--text-main)] opacity-70">
                   ⚡ Card Design, Player Render & Reveal Schedule mapped automatically onto 16:9 DestiFC template.
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => setBannerCard(null)}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white"
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-[var(--card-bg)]/10 hover:bg-[var(--card-bg)]/20 text-[var(--text-main)]"
                   >
                     Close
                   </button>

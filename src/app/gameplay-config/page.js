@@ -225,10 +225,10 @@ export default function GameplayConfigAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d0914] text-white flex font-sans">
+      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex font-sans">
         <Sidebar />
         <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 text-neutral-400">
+          <div className="flex flex-col items-center gap-4 text-[var(--text-main)] opacity-70">
             <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400" />
             <p className="text-sm font-medium">Loading Gameplay and Match Engine...</p>
           </div>
@@ -238,14 +238,14 @@ export default function GameplayConfigAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0914] text-neutral-100 flex selection:bg-purple-500/30 font-sans">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex selection:bg-purple-500/30 font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-purple-900/30">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-[var(--border-glass)]">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-[var(--border-glass)] flex items-center gap-1.5">
                 <Gamepad2 className="w-3.5 h-3.5" /> Simulation and PvP Mechanics
               </span>
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30">
@@ -255,7 +255,7 @@ export default function GameplayConfigAdminPage() {
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
               Match Rewards, Timings and Simulation
             </h1>
-            <p className="text-sm text-neutral-400 mt-1">
+            <p className="text-sm text-[var(--text-main)] opacity-70 mt-1">
               Configure Head-to-Head ranked rewards, match response timeouts, simulation play speed, Draft Battle jackpots, and custom card boosts.
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function GameplayConfigAdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={fetchConfig}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 border border-purple-900/40 transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-[var(--card-bg)]/80 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-purple-900/40 transition-colors flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" /> Reset
             </button>
@@ -298,22 +298,22 @@ export default function GameplayConfigAdminPage() {
 
         
         {/* Global Timers & Rotations Adjuster */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl mb-8 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-purple-900/20">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl mb-8 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-[var(--border-glass)]">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">🔄 Global Pool & Refresh Timers Adjuster</h2>
-              <p className="text-xs text-neutral-400">
+              <h2 className="text-lg font-bold text-[var(--text-main)]">🔄 Global Pool & Refresh Timers Adjuster</h2>
+              <p className="text-xs text-[var(--text-main)] opacity-70">
                 Adjust how often draft pools rotate, player market shops restock, and dynamic exchanges refresh in Discord.
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
-              <label className="block text-xs font-bold text-neutral-200">📦 /draft Pool Refresh Cycle</label>
+            <div className="p-4 rounded-2xl bg-[var(--input-bg)]/60 border border-[var(--border-glass)] space-y-3">
+              <label className="block text-xs font-bold text-[var(--text-main)] opacity-90">📦 /draft Pool Refresh Cycle</label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -322,15 +322,15 @@ export default function GameplayConfigAdminPage() {
                   max="48"
                   value={draftRotationHours}
                   onChange={(e) => setDraftRotationHours(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
                 />
-                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+                <span className="text-xs font-semibold text-[var(--text-main)] opacity-70 shrink-0">Hours</span>
               </div>
-              <p className="text-[11px] text-neutral-500">Every {draftRotationHours}h, 3 brand new Featured Walkout draft packs are automatically selected.</p>
+              <p className="text-[11px] text-[var(--text-main)] opacity-50">Every {draftRotationHours}h, 3 brand new Featured Walkout draft packs are automatically selected.</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
-              <label className="block text-xs font-bold text-neutral-200">🏪 /store Player Shop Rotation</label>
+            <div className="p-4 rounded-2xl bg-[var(--input-bg)]/60 border border-[var(--border-glass)] space-y-3">
+              <label className="block text-xs font-bold text-[var(--text-main)] opacity-90">🏪 /store Player Shop Rotation</label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -339,15 +339,15 @@ export default function GameplayConfigAdminPage() {
                   max="48"
                   value={storeRotationHours}
                   onChange={(e) => setStoreRotationHours(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
                 />
-                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+                <span className="text-xs font-semibold text-[var(--text-main)] opacity-70 shrink-0">Hours</span>
               </div>
-              <p className="text-[11px] text-neutral-500">Every {storeRotationHours}h, the featured coin & voucher store inventory is restocked.</p>
+              <p className="text-[11px] text-[var(--text-main)] opacity-50">Every {storeRotationHours}h, the featured coin & voucher store inventory is restocked.</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/30 space-y-3">
-              <label className="block text-xs font-bold text-neutral-200">⚡ /exchange Requirements Cycle</label>
+            <div className="p-4 rounded-2xl bg-[var(--input-bg)]/60 border border-[var(--border-glass)] space-y-3">
+              <label className="block text-xs font-bold text-[var(--text-main)] opacity-90">⚡ /exchange Requirements Cycle</label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -356,95 +356,95 @@ export default function GameplayConfigAdminPage() {
                   max="48"
                   value={exchangeRotationHours}
                   onChange={(e) => setExchangeRotationHours(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm font-semibold focus:outline-none focus:border-fuchsia-500"
                 />
-                <span className="text-xs font-semibold text-neutral-400 shrink-0">Hours</span>
+                <span className="text-xs font-semibold text-[var(--text-main)] opacity-70 shrink-0">Hours</span>
               </div>
-              <p className="text-[11px] text-neutral-500">Every {exchangeRotationHours}h, the OVR sacrifice card exchange requirements rotate.</p>
+              <p className="text-[11px] text-[var(--text-main)] opacity-50">Every {exchangeRotationHours}h, the OVR sacrifice card exchange requirements rotate.</p>
             </div>
           </div>
         </div>
     
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Match Coin Payouts */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+          <div className="p-6 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-[var(--border-glass)]">
               <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-300 flex items-center justify-center border border-pink-500/30">
                 <Trophy className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">H2H /match Coin Payouts</h2>
-                <p className="text-xs text-neutral-400">Coins rewarded to users upon match completion</p>
+                <h2 className="text-base font-bold text-[var(--text-main)]">H2H /match Coin Payouts</h2>
+                <p className="text-xs text-[var(--text-main)] opacity-70">Coins rewarded to users upon match completion</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Victory Win Reward</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Victory Win Reward</label>
                 <input
                   type="number"
                   value={matchWinCoins}
                   onChange={(e) => setMatchWinCoins(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
                 />
                 <span className="text-[11px] font-mono text-pink-400 mt-1 block">{formatShortPrice(matchWinCoins)} coins</span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Draw / Tie Reward</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Draw / Tie Reward</label>
                 <input
                   type="number"
                   value={matchDrawCoins}
                   onChange={(e) => setMatchDrawCoins(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                 />
                 <span className="text-[11px] font-mono text-fuchsia-300 mt-1 block">{formatShortPrice(matchDrawCoins)} coins</span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Consolation Loss Reward</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Consolation Loss Reward</label>
                 <input
                   type="number"
                   value={matchLossCoins}
                   onChange={(e) => setMatchLossCoins(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
                 />
-                <span className="text-[11px] font-mono text-neutral-400 mt-1 block">{formatShortPrice(matchLossCoins)} coins</span>
+                <span className="text-[11px] font-mono text-[var(--text-main)] opacity-70 mt-1 block">{formatShortPrice(matchLossCoins)} coins</span>
               </div>
             </div>
           </div>
 
           {/* Ranked Fans Rating Ladder & XP */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+          <div className="p-6 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-[var(--border-glass)]">
               <div className="w-9 h-9 rounded-xl bg-fuchsia-500/15 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Ranked Fans ELO & Season XP</h2>
-                <p className="text-xs text-neutral-400">Fans and Season Pass XP gained/lost for leaderboard rankings</p>
+                <h2 className="text-base font-bold text-[var(--text-main)]">Ranked Fans ELO & Season XP</h2>
+                <p className="text-xs text-[var(--text-main)] opacity-70">Fans and Season Pass XP gained/lost for leaderboard rankings</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Win</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Fans Gained on Win</label>
                   <input
                     type="number"
                     value={matchWinFans}
                     onChange={(e) => setMatchWinFans(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
                   />
                   <span className="text-[11px] text-pink-300 mt-1 block">+{matchWinFans} Fans</span>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Season Pass XP per Win</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Season Pass XP per Win</label>
                   <input
                     type="number"
                     value={matchWinXp}
                     onChange={(e) => setMatchWinXp(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-pink-500 font-semibold"
                   />
                   <span className="text-[11px] text-pink-300 mt-1 block">+{matchWinXp} Season XP</span>
                 </div>
@@ -452,22 +452,22 @@ export default function GameplayConfigAdminPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Gained on Draw</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Fans Gained on Draw</label>
                   <input
                     type="number"
                     value={matchDrawFans}
                     onChange={(e) => setMatchDrawFans(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                   />
                   <span className="text-[11px] text-fuchsia-300 mt-1 block">{matchDrawFans >= 0 ? `+${matchDrawFans}` : matchDrawFans} Fans</span>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Fans Lost on Defeat</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Fans Lost on Defeat</label>
                   <input
                     type="number"
                     value={matchLossFans}
                     onChange={(e) => setMatchLossFans(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-purple-500 font-semibold"
                   />
                   <span className="text-[11px] text-purple-400 mt-1 block">{matchLossFans} Fans</span>
                 </div>
@@ -479,48 +479,48 @@ export default function GameplayConfigAdminPage() {
         {/* Bottom Grid: Match Timings & Draft Battle */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Match Timings Settings */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+          <div className="p-6 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-[var(--border-glass)]">
               <div className="w-9 h-9 rounded-xl bg-fuchsia-500/15 text-fuchsia-300 flex items-center justify-center border border-fuchsia-500/30">
                 <Timer className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Match Timing and Simulation Speed</h2>
-                <p className="text-xs text-neutral-400">Controls acceptance timers, play-by-play animation, and cooldowns</p>
+                <h2 className="text-base font-bold text-[var(--text-main)]">Match Timing and Simulation Speed</h2>
+                <p className="text-xs text-[var(--text-main)] opacity-70">Controls acceptance timers, play-by-play animation, and cooldowns</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Match Challenge Response Timeout (Seconds)</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Match Challenge Response Timeout (Seconds)</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="number"
                     value={matchChallengeTimeoutSecs}
                     onChange={(e) => setMatchChallengeTimeoutSecs(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                   />
-                  <span className="text-xs font-bold text-neutral-400 shrink-0">Seconds</span>
+                  <span className="text-xs font-bold text-[var(--text-main)] opacity-70 shrink-0">Seconds</span>
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-1">Opponent has {matchChallengeTimeoutSecs}s to click Accept or Decline before the match challenge expires.</p>
+                <p className="text-[11px] text-[var(--text-main)] opacity-50 mt-1">Opponent has {matchChallengeTimeoutSecs}s to click Accept or Decline before the match challenge expires.</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Match Cooldown Between Challenges (Minutes)</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Match Cooldown Between Challenges (Minutes)</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="number"
                     value={matchCooldownMins}
                     onChange={(e) => setMatchCooldownMins(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                   />
-                  <span className="text-xs font-bold text-neutral-400 shrink-0">Minutes</span>
+                  <span className="text-xs font-bold text-[var(--text-main)] opacity-70 shrink-0">Minutes</span>
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-1">Time users must wait between challenging each other (Set to 0 for unlimited instant rematches).</p>
+                <p className="text-[11px] text-[var(--text-main)] opacity-50 mt-1">Time users must wait between challenging each other (Set to 0 for unlimited instant rematches).</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Live Play-by-Play Event Delay (Seconds)</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Live Play-by-Play Event Delay (Seconds)</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="number"
@@ -528,53 +528,53 @@ export default function GameplayConfigAdminPage() {
                     max="10"
                     value={matchSimStepDelaySecs}
                     onChange={(e) => setMatchSimStepDelaySecs(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500 font-semibold"
                   />
-                  <span className="text-xs font-bold text-neutral-400 shrink-0">Secs / Event</span>
+                  <span className="text-xs font-bold text-[var(--text-main)] opacity-70 shrink-0">Secs / Event</span>
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-1">0 = Instant match result. 1-5s = Dramatic live play-by-play commentary stream.</p>
+                <p className="text-[11px] text-[var(--text-main)] opacity-50 mt-1">0 = Instant match result. 1-5s = Dramatic live play-by-play commentary stream.</p>
               </div>
             </div>
           </div>
 
           {/* Draft Battle Arena & Aura Boost */}
-          <div className="p-6 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-3 pb-3 border-b border-purple-900/20">
+          <div className="p-6 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-3 pb-3 border-b border-[var(--border-glass)]">
               <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-300 flex items-center justify-center border border-pink-500/30">
                 <Swords className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white">Draft Battle and Card Aura Multipliers</h2>
-                <p className="text-xs text-neutral-400">Settings for 1v1 Draft Battle tournament mode and custom card buffs</p>
+                <h2 className="text-base font-bold text-[var(--text-main)]">Draft Battle and Card Aura Multipliers</h2>
+                <p className="text-xs text-[var(--text-main)] opacity-70">Settings for 1v1 Draft Battle tournament mode and custom card buffs</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Default Battle Winner Coins</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Default Battle Winner Coins</label>
                 <input
                   type="number"
                   value={draftBattleWinnerCoins}
                   onChange={(e) => setDraftBattleWinnerCoins(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-pink-500"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-pink-500"
                 />
                 <span className="text-[11px] font-mono text-pink-400 mt-1 block">{formatShortPrice(draftBattleWinnerCoins)} coins</span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">Winner Draft Vouchers Bonus</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5">Winner Draft Vouchers Bonus</label>
                 <input
                   type="number"
                   value={draftBattleWinnerVouchers}
                   onChange={(e) => setDraftBattleWinnerVouchers(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-950 border border-purple-900/40 text-neutral-100 font-mono text-sm focus:outline-none focus:border-fuchsia-500"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-sm focus:outline-none focus:border-fuchsia-500"
                 />
-                <span className="text-[11px] text-neutral-400 mt-1 block">{draftBattleWinnerVouchers} Vouchers</span>
+                <span className="text-[11px] text-[var(--text-main)] opacity-70 mt-1 block">{draftBattleWinnerVouchers} Vouchers</span>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs font-medium mb-1.5">
-                  <span className="text-neutral-300 font-semibold">Custom & Signature Card Impact Boost</span>
+                  <span className="text-[var(--text-main)] opacity-90 font-semibold">Custom & Signature Card Impact Boost</span>
                   <span className="text-fuchsia-300 font-mono font-bold">{((customCardMatchBoost - 1) * 100).toFixed(0)}% Boost ({customCardMatchBoost}x)</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -594,24 +594,24 @@ export default function GameplayConfigAdminPage() {
                     max="2.0"
                     value={customCardMatchBoost}
                     onChange={(e) => setCustomCardMatchBoost(e.target.value)}
-                    className="w-20 px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-purple-900/40 text-right font-mono text-sm font-semibold text-fuchsia-300"
+                    className="w-20 px-2.5 py-1.5 rounded-lg bg-[var(--input-bg)] border border-purple-900/40 text-right font-mono text-sm font-semibold text-fuchsia-300"
                   />
                 </div>
               </div>
 
               <div className="pt-2 flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-neutral-200 block">Sudden Death Penalty Shootouts</span>
-                  <span className="text-[11px] text-neutral-400">Resolve drawn matches with penalties</span>
+                  <span className="text-xs font-semibold text-[var(--text-main)] opacity-90 block">Sudden Death Penalty Shootouts</span>
+                  <span className="text-[11px] text-[var(--text-main)] opacity-70">Resolve drawn matches with penalties</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPenaltyShootoutEnabled(!penaltyShootoutEnabled)}
                   className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${
-                    penaltyShootoutEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-neutral-800 justify-start'
+                    penaltyShootoutEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-[var(--card-bg)] justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                  <div className="w-4 h-4 rounded-full bg-[var(--card-bg)] shadow-md" />
                 </button>
               </div>
             </div>
@@ -619,20 +619,20 @@ export default function GameplayConfigAdminPage() {
         </div>
 
         {/* Division Rivals & Ladder Tiers Controller */}
-        <div className="mt-8 p-6 sm:p-8 rounded-3xl bg-neutral-900/50 border border-purple-900/30 backdrop-blur-xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-purple-900/20">
+        <div className="mt-8 p-6 sm:p-8 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-glass)]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-pink-500/20 text-amber-300 flex items-center justify-center border border-amber-500/30 shadow-lg shadow-amber-500/10">
                 <Crown className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-white">Division Rivals & Ladder Tiers Controller</h2>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  <h2 className="text-lg font-bold text-[var(--text-main)]">Division Rivals & Ladder Tiers Controller</h2>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/15 text-purple-300 border border-[var(--border-glass)]">
                     {divisionTiers.length} Active Divisions
                   </span>
                 </div>
-                <p className="text-xs text-neutral-400 mt-0.5">
+                <p className="text-xs text-[var(--text-main)] opacity-70 mt-0.5">
                   Configure required fans for promotion, division badge icons, and milestone win rewards applied in <code className="text-fuchsia-300">/play</code> and <code className="text-fuchsia-300">/leaderboard</code>.
                 </p>
               </div>
@@ -642,14 +642,14 @@ export default function GameplayConfigAdminPage() {
               <button
                 type="button"
                 onClick={handleResetTiers}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 border border-purple-900/40 transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--input-bg)] hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90 border border-purple-900/40 transition-colors flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Reset 13 Tiers
               </button>
               <button
                 type="button"
                 onClick={handleAddTier}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white shadow-lg shadow-pink-500/20 transition-all flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-[var(--text-main)] shadow-lg shadow-pink-500/20 transition-all flex items-center gap-1.5"
               >
                 <Plus className="w-4 h-4" /> Add Division Tier
               </button>
@@ -657,8 +657,8 @@ export default function GameplayConfigAdminPage() {
           </div>
 
           {/* Ladder Visual Preview */}
-          <div className="p-4 rounded-2xl bg-neutral-950/60 border border-purple-900/20 overflow-x-auto">
-            <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block mb-2.5 flex items-center gap-1.5">
+          <div className="p-4 rounded-2xl bg-[var(--input-bg)]/60 border border-[var(--border-glass)] overflow-x-auto">
+            <span className="text-[11px] font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider block mb-2.5 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-fuchsia-400" /> Progression Ladder Preview
             </span>
             <div className="flex items-center gap-2 min-w-max">
@@ -666,13 +666,13 @@ export default function GameplayConfigAdminPage() {
                 .sort((a, b) => (Number(a.min_fans) || 0) - (Number(b.min_fans) || 0))
                 .map((tier, idx, arr) => (
                   <div key={tier.id || idx} className="flex items-center gap-2">
-                    <div className="px-3 py-2 rounded-xl bg-neutral-900 border border-purple-900/40 text-center flex flex-col items-center min-w-[110px]">
+                    <div className="px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-purple-900/40 text-center flex flex-col items-center min-w-[110px]">
                       <span className="text-lg">{tier.badge || '🥉'}</span>
-                      <span className="text-xs font-bold text-neutral-200 mt-0.5 truncate max-w-[100px]">{tier.name}</span>
+                      <span className="text-xs font-bold text-[var(--text-main)] opacity-90 mt-0.5 truncate max-w-[100px]">{tier.name}</span>
                       <span className="text-[10px] font-mono text-fuchsia-400 font-semibold">{Number(tier.min_fans || 0).toLocaleString()} Fans</span>
                     </div>
                     {idx < arr.length - 1 && (
-                      <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-[var(--text-main)] opacity-70 shrink-0" />
                     )}
                   </div>
                 ))}
@@ -684,19 +684,19 @@ export default function GameplayConfigAdminPage() {
             {divisionTiers.map((tier, idx) => (
               <div 
                 key={tier.id || idx}
-                className="p-4 rounded-2xl bg-neutral-950/80 border border-purple-900/30 hover:border-purple-700/50 transition-all space-y-3 relative group"
+                className="p-4 rounded-2xl bg-[var(--input-bg)]/80 border border-[var(--border-glass)] hover:border-purple-700/50 transition-all space-y-3 relative group"
               >
-                <div className="flex items-center justify-between pb-2 border-b border-purple-900/20">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--border-glass)]">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold flex items-center justify-center border border-purple-500/30">
+                    <span className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold flex items-center justify-center border border-[var(--border-glass)]">
                       {idx + 1}
                     </span>
-                    <span className="text-xs font-bold text-neutral-300">Tier #{idx + 1}</span>
+                    <span className="text-xs font-bold text-[var(--text-main)] opacity-90">Tier #{idx + 1}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteTier(tier.id)}
-                    className="p-1.5 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    className="p-1.5 rounded-lg text-[var(--text-main)] opacity-50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                     title="Delete Tier"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -705,61 +705,61 @@ export default function GameplayConfigAdminPage() {
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Division Name</label>
+                    <label className="block text-[11px] font-semibold text-[var(--text-main)] opacity-70 mb-1">Division Name</label>
                     <input
                       type="text"
                       value={tier.name}
                       onChange={(e) => handleTierChange(idx, 'name', e.target.value)}
                       placeholder="e.g. Pro I"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Badge Emoji</label>
+                    <label className="block text-[11px] font-semibold text-[var(--text-main)] opacity-70 mb-1">Badge Emoji</label>
                     <input
                       type="text"
                       value={tier.badge || ''}
                       onChange={(e) => handleTierChange(idx, 'badge', e.target.value)}
                       placeholder="🥉"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 text-xs text-center font-semibold focus:outline-none focus:border-fuchsia-500"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] text-xs text-center font-semibold focus:outline-none focus:border-fuchsia-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Required Min Fans</label>
+                  <label className="block text-[11px] font-semibold text-[var(--text-main)] opacity-70 mb-1">Required Min Fans</label>
                   <input
                     type="number"
                     min="0"
                     value={tier.min_fans}
                     onChange={(e) => handleTierChange(idx, 'min_fans', e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-xs font-semibold focus:outline-none focus:border-fuchsia-500"
                   />
                   <span className="text-[10px] text-fuchsia-400 font-mono mt-0.5 block">{Number(tier.min_fans || 0).toLocaleString()} Fans required</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div>
-                    <label className="block text-[10px] font-semibold text-neutral-400 mb-1">Win Bonus Coins</label>
+                    <label className="block text-[10px] font-semibold text-[var(--text-main)] opacity-70 mb-1">Win Bonus Coins</label>
                     <input
                       type="number"
                       min="0"
                       value={tier.win_reward_coins || 0}
                       onChange={(e) => handleTierChange(idx, 'win_reward_coins', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs focus:outline-none focus:border-pink-500"
+                      className="w-full px-2 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-xs focus:outline-none focus:border-pink-500"
                     />
                     <span className="text-[9px] text-pink-400 font-mono mt-0.5 block">{formatShortPrice(tier.win_reward_coins || 0)}</span>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold text-neutral-400 mb-1">Win Bonus Vouchers</label>
+                    <label className="block text-[10px] font-semibold text-[var(--text-main)] opacity-70 mb-1">Win Bonus Vouchers</label>
                     <input
                       type="number"
                       min="0"
                       value={tier.win_reward_vouchers || 0}
                       onChange={(e) => handleTierChange(idx, 'win_reward_vouchers', e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-lg bg-neutral-900 border border-purple-900/40 text-neutral-100 font-mono text-xs focus:outline-none focus:border-fuchsia-500"
+                      className="w-full px-2 py-1.5 rounded-lg bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] font-mono text-xs focus:outline-none focus:border-fuchsia-500"
                     />
-                    <span className="text-[9px] text-neutral-400 mt-0.5 block">+{tier.win_reward_vouchers || 0}x Vouchers</span>
+                    <span className="text-[9px] text-[var(--text-main)] opacity-70 mt-0.5 block">+{tier.win_reward_vouchers || 0}x Vouchers</span>
                   </div>
                 </div>
               </div>
