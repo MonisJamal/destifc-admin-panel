@@ -120,26 +120,63 @@ export default function Sidebar() {
 
 
   const searchIndex = [
+    // Economy
     { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
-    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
     { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    // Prices
     { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
     { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
-    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
-    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Market Tax', route: '/prices', section: 'Prices' },
+    // Bot Config
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Discord Presence', route: '/bot-config', section: 'Bot Config' },
+    // Signatures
     { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Signature Probabilities', route: '/signature-box', section: 'Signatures' },
+    // Luck
     { label: 'Drop Rates', route: '/luck', section: 'Luck' },
     { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Walkout Rates (120+)', route: '/luck', section: 'Luck' },
+    { label: 'Pity System', route: '/luck', section: 'Luck' },
+    // Gameplay
     { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
     { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Match Duration', route: '/gameplay-config', section: 'Gameplay' },
+    // SBCs & Season
     { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
     { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
-    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'Season Rewards', route: '/season-sbc', section: 'Season' },
+    // Cards
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'Edit Custom Cards', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'View Official Cards', route: '/cards', section: 'Cards' },
+    // Formations
+    { label: 'Formation Adjuster', route: '/formations', section: 'Formations' },
+    { label: 'Lineup Coordinates', route: '/formations', section: 'Formations' },
+    { label: 'Tactical Layouts', route: '/formations', section: 'Formations' },
+    // Database
     { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'SQL Queries', route: '/database', section: 'Database' },
+    { label: 'Users List', route: '/users', section: 'Users' },
+    { label: 'User Inventories', route: '/users', section: 'Users' },
+    { label: 'User Balances', route: '/users', section: 'Users' },
+    // System
+    { label: 'Server Diagnostics', route: '/diagnostics', section: 'System' },
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
+    { label: 'Server Control', route: '/hosting', section: 'System' },
+    // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+    { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
+    { label: 'Give Players', route: '/admin-commands', section: 'Admin' },
+    // Leaks
+    { label: 'EA Leaks', route: '/leaks', section: 'Leaks' },
+    { label: 'Upcoming Drafts', route: '/leaks', section: 'Leaks' },
+    { label: 'RenderZ Datamines', route: '/leaks', section: 'Leaks' },
   ];
 
   const searchResults = searchQuery.length > 1 
@@ -258,26 +295,63 @@ export default function Sidebar() {
 
             
   const searchIndex = [
+    // Economy
     { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
-    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
     { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    // Prices
     { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
     { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
-    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
-    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Market Tax', route: '/prices', section: 'Prices' },
+    // Bot Config
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Discord Presence', route: '/bot-config', section: 'Bot Config' },
+    // Signatures
     { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Signature Probabilities', route: '/signature-box', section: 'Signatures' },
+    // Luck
     { label: 'Drop Rates', route: '/luck', section: 'Luck' },
     { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Walkout Rates (120+)', route: '/luck', section: 'Luck' },
+    { label: 'Pity System', route: '/luck', section: 'Luck' },
+    // Gameplay
     { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
     { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Match Duration', route: '/gameplay-config', section: 'Gameplay' },
+    // SBCs & Season
     { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
     { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
-    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'Season Rewards', route: '/season-sbc', section: 'Season' },
+    // Cards
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'Edit Custom Cards', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'View Official Cards', route: '/cards', section: 'Cards' },
+    // Formations
+    { label: 'Formation Adjuster', route: '/formations', section: 'Formations' },
+    { label: 'Lineup Coordinates', route: '/formations', section: 'Formations' },
+    { label: 'Tactical Layouts', route: '/formations', section: 'Formations' },
+    // Database
     { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'SQL Queries', route: '/database', section: 'Database' },
+    { label: 'Users List', route: '/users', section: 'Users' },
+    { label: 'User Inventories', route: '/users', section: 'Users' },
+    { label: 'User Balances', route: '/users', section: 'Users' },
+    // System
+    { label: 'Server Diagnostics', route: '/diagnostics', section: 'System' },
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
+    { label: 'Server Control', route: '/hosting', section: 'System' },
+    // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+    { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
+    { label: 'Give Players', route: '/admin-commands', section: 'Admin' },
+    // Leaks
+    { label: 'EA Leaks', route: '/leaks', section: 'Leaks' },
+    { label: 'Upcoming Drafts', route: '/leaks', section: 'Leaks' },
+    { label: 'RenderZ Datamines', route: '/leaks', section: 'Leaks' },
   ];
 
   const searchResults = searchQuery.length > 1 
@@ -295,26 +369,63 @@ export default function Sidebar() {
                       const isActive = pathname === item.href;
                     
   const searchIndex = [
+    // Economy
     { label: 'Starting Coins', route: '/economy-config', section: 'Economy' },
-    { label: 'Daily Coins', route: '/economy-config', section: 'Economy' },
+    { label: 'Daily Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Match Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Draft Vouchers', route: '/economy-config', section: 'Economy' },
     { label: 'Starter Pack Claim', route: '/economy-config', section: 'Economy' },
+    // Prices
     { label: 'OVR Price Floors', route: '/prices', section: 'Prices' },
     { label: 'Quicksell Values', route: '/prices', section: 'Prices' },
-    { label: 'Bot Status', route: '/bot-config', section: 'Bot' },
-    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot' },
+    { label: 'Market Tax', route: '/prices', section: 'Prices' },
+    // Bot Config
+    { label: 'Bot Status', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Maintenance Mode', route: '/bot-config', section: 'Bot Config' },
+    { label: 'Discord Presence', route: '/bot-config', section: 'Bot Config' },
+    // Signatures
     { label: 'Signature Box Limit', route: '/signature-box', section: 'Signatures' },
+    { label: 'Signature Probabilities', route: '/signature-box', section: 'Signatures' },
+    // Luck
     { label: 'Drop Rates', route: '/luck', section: 'Luck' },
     { label: 'Pack Animation Luck', route: '/luck', section: 'Luck' },
+    { label: 'Walkout Rates (120+)', route: '/luck', section: 'Luck' },
+    { label: 'Pity System', route: '/luck', section: 'Luck' },
+    // Gameplay
     { label: 'Match Engine Difficulty', route: '/gameplay-config', section: 'Gameplay' },
     { label: 'Energy Recharge', route: '/gameplay-config', section: 'Gameplay' },
+    { label: 'Match Duration', route: '/gameplay-config', section: 'Gameplay' },
+    // SBCs & Season
     { label: 'SBC Requirements', route: '/season-sbc', section: 'SBCs' },
     { label: 'Season Pass XP', route: '/season-sbc', section: 'Season' },
-    { label: 'Add Custom Card', route: '/custom-cards', section: 'Cards' },
+    { label: 'Season Rewards', route: '/season-sbc', section: 'Season' },
+    // Cards
+    { label: 'Add Custom Card', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'Edit Custom Cards', route: '/custom-cards', section: 'Custom Cards' },
+    { label: 'View Official Cards', route: '/cards', section: 'Cards' },
+    // Formations
+    { label: 'Formation Adjuster', route: '/formations', section: 'Formations' },
+    { label: 'Lineup Coordinates', route: '/formations', section: 'Formations' },
+    { label: 'Tactical Layouts', route: '/formations', section: 'Formations' },
+    // Database
     { label: 'View Database', route: '/database', section: 'Database' },
+    { label: 'SQL Queries', route: '/database', section: 'Database' },
+    { label: 'Users List', route: '/users', section: 'Users' },
+    { label: 'User Inventories', route: '/users', section: 'Users' },
+    { label: 'User Balances', route: '/users', section: 'Users' },
+    // System
+    { label: 'Server Diagnostics', route: '/diagnostics', section: 'System' },
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
+    { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
+    { label: 'Server Control', route: '/hosting', section: 'System' },
+    // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
+    { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
+    { label: 'Give Players', route: '/admin-commands', section: 'Admin' },
+    // Leaks
+    { label: 'EA Leaks', route: '/leaks', section: 'Leaks' },
+    { label: 'Upcoming Drafts', route: '/leaks', section: 'Leaks' },
+    { label: 'RenderZ Datamines', route: '/leaks', section: 'Leaks' },
   ];
 
   const searchResults = searchQuery.length > 1 
