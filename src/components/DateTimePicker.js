@@ -73,7 +73,7 @@ export default function DateTimePicker({
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider">
+        <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 uppercase tracking-wider">
           {label}
         </label>
         {helperText && (
@@ -83,14 +83,14 @@ export default function DateTimePicker({
         )}
       </div>
 
-      <div className="p-3.5 rounded-2xl bg-neutral-950/80 border border-purple-900/40 space-y-3">
+      <div className="p-3.5 rounded-2xl bg-[var(--input-bg)]/80 border border-purple-900/40 space-y-3">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <input
               type="datetime-local"
               value={internalValue}
               onChange={handleDateChange}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-purple-900/40 text-neutral-100 text-sm focus:outline-none focus:border-fuchsia-500 font-mono"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--card-bg)] border border-purple-900/40 text-[var(--text-main)] text-sm focus:outline-none focus:border-fuchsia-500 font-mono"
             />
           </div>
 
@@ -98,7 +98,7 @@ export default function DateTimePicker({
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="p-2.5 rounded-xl bg-neutral-900 hover:bg-red-500/10 text-neutral-400 hover:text-red-400 border border-purple-900/30 transition-colors"
+              className="p-2.5 rounded-xl bg-[var(--card-bg)] hover:bg-red-500/10 text-[var(--text-main)] opacity-70 hover:text-red-400 border border-[var(--border-glass)] transition-colors"
               title="Clear date"
             >
               <X className="w-4 h-4" />
@@ -107,8 +107,8 @@ export default function DateTimePicker({
         </div>
 
         {/* Quick Shortcut Presets */}
-        <div className="pt-2 border-t border-purple-900/20 flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold mr-1">
+        <div className="pt-2 border-t border-[var(--border-glass)] flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="text-[10px] uppercase tracking-wider text-[var(--text-main)] opacity-50 font-bold mr-1">
             Presets:
           </span>
           {presets.map((preset) => (
@@ -116,7 +116,7 @@ export default function DateTimePicker({
               key={preset.label}
               type="button"
               onClick={() => handleApplyPreset(preset.hours)}
-              className="px-2.5 py-1 rounded-lg bg-neutral-900 hover:bg-fuchsia-500/20 text-neutral-300 hover:text-fuchsia-300 border border-purple-900/30 hover:border-fuchsia-500/40 transition-colors font-semibold text-[11px]"
+              className="px-2.5 py-1 rounded-lg bg-[var(--card-bg)] hover:bg-fuchsia-500/20 text-[var(--text-main)] opacity-90 hover:text-fuchsia-300 border border-[var(--border-glass)] hover:border-fuchsia-500/40 transition-colors font-semibold text-[11px]"
             >
               {preset.label}
             </button>
@@ -125,7 +125,7 @@ export default function DateTimePicker({
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="px-2.5 py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 border border-purple-900/30 transition-colors font-semibold text-[11px]"
+              className="px-2.5 py-1 rounded-lg bg-[var(--card-bg)] hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90 border border-[var(--border-glass)] transition-colors font-semibold text-[11px]"
             >
               Clear
             </button>

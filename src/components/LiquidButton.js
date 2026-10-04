@@ -19,9 +19,9 @@ export default function LiquidButton({
   };
 
   const variantClasses = {
-    primary: "bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-600 hover:from-pink-500 hover:via-fuchsia-500 hover:to-purple-500 text-white shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-500/40 border border-fuchsia-400/30",
-    secondary: "bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 border border-purple-900/40 hover:border-purple-700",
-    danger: "bg-red-600/80 hover:bg-red-600 text-white border border-red-500/30 shadow-lg shadow-red-600/20"
+    primary: "bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-600 hover:from-pink-500 hover:via-fuchsia-500 hover:to-purple-500 text-[var(--text-main)] shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-500/40 border border-fuchsia-400/30",
+    secondary: "bg-[var(--card-bg)]/80 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-purple-900/40 hover:border-purple-700",
+    danger: "bg-red-600/80 hover:bg-red-600 text-[var(--text-main)] border border-red-500/30 shadow-lg shadow-red-600/20"
   };
 
   return (
