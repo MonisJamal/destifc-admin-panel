@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaSave, FaGift, FaCoins, FaTicketAlt, FaGem } from 'react-svg-icons';
 
 export default function CompensationConfig() {
   const [config, setConfig] = useState({
