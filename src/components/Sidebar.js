@@ -171,6 +171,7 @@ export default function Sidebar() {
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
     { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
     { label: 'Server Control', route: '/hosting', section: 'System' },
+    { label: 'Compensation Event', route: '/compensation', section: 'Admin' },
     // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
     { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
@@ -346,6 +347,7 @@ export default function Sidebar() {
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
     { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
     { label: 'Server Control', route: '/hosting', section: 'System' },
+    { label: 'Compensation Event', route: '/compensation', section: 'Admin' },
     // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
     { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
@@ -420,6 +422,7 @@ export default function Sidebar() {
     { label: 'Server Ping', route: '/diagnostics', section: 'System' },
     { label: 'Pterodactyl Hosting', route: '/hosting', section: 'System' },
     { label: 'Server Control', route: '/hosting', section: 'System' },
+    { label: 'Compensation Event', route: '/compensation', section: 'Admin' },
     // Admin
     { label: 'Give Coins / Vouchers', route: '/admin-commands', section: 'Admin' },
     { label: 'Make Exchange Exclusive', route: '/admin-commands', section: 'Admin' },
