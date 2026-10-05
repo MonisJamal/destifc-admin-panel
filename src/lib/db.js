@@ -4,11 +4,11 @@ let pool;
 
 export function getPool() {
   if (!pool) {
-    let connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || "postgresql://neondb_owner:npg_EZ7gQ4pOFNYU@ep-dry-thunder-b1l2ju9a.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require";
+    let connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
     
-    // Always route to Neon PostgreSQL if old Supabase credentials linger in Vercel env
-    if (!connectionString || connectionString.includes('supabase.co') || connectionString.includes('supabase.com') || connectionString.includes('xreebpmibnbttuhevall')) {
-      connectionString = "postgresql://neondb_owner:npg_EZ7gQ4pOFNYU@ep-dry-thunder-b1l2ju9a.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require";
+    // Clean sslmode=require from URL if present so pg SSL config handles it cleanly
+    if (connectionString) {
+      connectionString = connectionString.replace(/[\?&]sslmode=require/, '');
     }
 
     pool = new Pool({
