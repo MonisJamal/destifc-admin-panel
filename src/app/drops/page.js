@@ -1,0 +1,213 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { Gift, Save, CheckCircle, AlertCircle, RefreshCw, Send, Radio } from 'lucide-react';
+
+export default function DropsConfigPage() {
+  const [config, setConfig] = useState({
+    enabled: true,
+    channel_id: '',
+    interval_mins: 60,
+    vouchers_per_drop: 3,
+    coins_per_drop: 5000000,
+    max_claims: 3
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [statusMsg, setStatusMsg] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/drops-config')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data) {
+          setConfig(prev => ({ ...prev, ...d.data }));
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setStatusMsg(null);
+    try {
+      const res = await fetch('/api/drops-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatusMsg({ type: 'success', text: '✅ Loot Drops configuration saved and synced with bot!' });
+      } else {
+        setStatusMsg({ type: 'error', text: `❌ Error: ${data.error}` });
+      }
+    } catch (err) {
+      setStatusMsg({ type: 'error', text: `❌ Failed to save: ${err.message}` });
+    }
+    setSaving(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <RefreshCw className="w-8 h-8 animate-spin text-pink-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-glass)]">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-pink-500/25">
+              <Gift className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-[var(--text-main)]">Loot Drops & Voucher Rains</h1>
+              <p className="text-xs text-[var(--text-muted)] font-medium">Automatic periodic supply crates & voucher rains in your Discord channels</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {statusMsg && (
+        <div className={`p-4 rounded-2xl flex items-center gap-3 border ${
+          statusMsg.type === 'success' 
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
+            : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+        }`}>
+          {statusMsg.type === 'success' ? <CheckCircle className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+          <span className="text-xs font-semibold">{statusMsg.text}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSave} className="space-y-6">
+        {/* Main Status Toggle */}
+        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-bold text-[var(--text-main)]">Active Loot Drops Status</h2>
+              <p className="text-xs text-[var(--text-muted)]">Toggle automatic periodic supply crate drops in Discord</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={config.enabled}
+                onChange={e => setConfig({ ...config, enabled: e.target.checked })}
+                className="sr-only peer"
+              />
+              <div className="w-12 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+            </label>
+          </div>
+        </div>
+
+        {/* Drop Settings */}
+        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-6">
+          <h2 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
+            <Radio className="w-4 h-4 text-pink-400" />
+            Target Channel & Frequency
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Discord Channel ID
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 123456789012345678"
+                value={config.channel_id || ''}
+                onChange={e => setConfig({ ...config, channel_id: e.target.value.trim() })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">Right-click the channel in Discord (with Developer Mode ON) and copy ID.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Drop Interval (Minutes)
+              </label>
+              <input
+                type="number"
+                min="5"
+                max="1440"
+                value={config.interval_mins || 60}
+                onChange={e => setConfig({ ...config, interval_mins: parseInt(e.target.value) || 60 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">How often the bot drops a new supply crate (e.g. 45 or 60 mins).</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Reward Settings */}
+        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-6">
+          <h2 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
+            <Gift className="w-4 h-4 text-purple-400" />
+            Crate Rewards & Claimers
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Draft Vouchers per Claim
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={config.vouchers_per_drop || 3}
+                onChange={e => setConfig({ ...config, vouchers_per_drop: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Bonus Coins per Claim
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="500000"
+                value={config.coins_per_drop || 5000000}
+                onChange={e => setConfig({ ...config, coins_per_drop: parseInt(e.target.value) || 0 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Max Fast Claimers
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={config.max_claims || 3}
+                onChange={e => setConfig({ ...config, max_claims: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">First X players to click button get the loot.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Submit */}
+        <div className="flex items-center justify-end gap-3 pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-600 text-white font-bold text-sm shadow-lg shadow-pink-500/25 hover:opacity-90 transition-all disabled:opacity-50"
+          >
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Drops Configuration
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
