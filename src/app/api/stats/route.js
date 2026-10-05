@@ -14,7 +14,8 @@ export async function GET() {
     const hbRes = await query("SELECT value FROM system_settings WHERE key = 'bot_heartbeat'");
     let heartbeat = null;
     try {
-      heartbeat = hbRes.rows[0]?.value ? JSON.parse(hbRes.rows[0].value) : null;
+      const raw = hbRes.rows[0]?.value;
+      heartbeat = typeof raw === 'string' ? JSON.parse(raw) : (raw || null);
     } catch (e) {
       heartbeat = null;
     }
@@ -23,8 +24,8 @@ export async function GET() {
     let secondsSincePing = null;
     if (heartbeat && heartbeat.last_ping) {
       const diff = Math.round((Date.now() - new Date(heartbeat.last_ping).getTime()) / 1000);
-      secondsSincePing = diff;
-      if (diff <= 35 && diff >= 0) {
+      secondsSincePing = Math.max(0, diff);
+      if (Math.abs(diff) <= 60) {
         isOnline = true;
       }
     }

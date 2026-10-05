@@ -45,9 +45,9 @@ export async function GET() {
     if (heartbeat && heartbeat.last_ping) {
       const lastPingTime = new Date(heartbeat.last_ping).getTime();
       const now = Date.now();
-      secondsSincePing = Math.round((now - lastPingTime) / 1000);
-      // Considered online if pulse received within last 35 seconds
-      if (secondsSincePing <= 35 && secondsSincePing >= 0) {
+      const diff = Math.round((now - lastPingTime) / 1000);
+      secondsSincePing = Math.max(0, diff);
+      if (Math.abs(diff) <= 60) {
         isOnline = true;
       }
     }
