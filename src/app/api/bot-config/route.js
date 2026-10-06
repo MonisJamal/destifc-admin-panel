@@ -22,7 +22,9 @@ const DEFAULT_BOT_CONFIG = {
     daily: true,
     work: true,
     match: true
-  }
+  },
+  auto_role_enabled: false,
+  auto_role_id: ''
 };
 
 export async function GET() {

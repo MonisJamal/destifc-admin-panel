@@ -16,7 +16,8 @@ import {
   Activity,
   Lock,
   Unlock,
-  Sparkles
+  Sparkles,
+  UserCheck
 } from 'lucide-react';
 
 const COMMAND_LIST = [
@@ -55,6 +56,10 @@ export default function BotConfigAdminPage() {
   // Command Toggles
   const [commandsEnabled, setCommandsEnabled] = useState({});
 
+  // Auto-Role on Bot Interaction State
+  const [autoRoleEnabled, setAutoRoleEnabled] = useState(false);
+  const [autoRoleId, setAutoRoleId] = useState('');
+
   useEffect(() => {
     fetchConfig();
   }, []);
@@ -69,12 +74,17 @@ export default function BotConfigAdminPage() {
         setActivityType(c.presence_activity_type || 'Playing');
         setStatusText(c.presence_status_text || 'FC Mobile 27');
         setStatusState(c.presence_status_state || 'online');
+        setDraftRotationHours(c.draft_rotation_hours || 2);
+        setStoreRotationHours(c.store_rotation_hours || 3);
+        setExchangeRotationHours(c.exchange_rotation_hours || 2);
         setMaintenanceMode(Boolean(c.maintenance_mode));
         setMaintenanceMessage(
           c.maintenance_message ||
             "DestiFC is currently undergoing scheduled maintenance. Commands are temporarily paused."
         );
         setCommandsEnabled(c.commands_enabled || {});
+        setAutoRoleEnabled(Boolean(c.auto_role_enabled));
+        setAutoRoleId(c.auto_role_id || '');
       }
     } catch (err) {
       console.error(err);
@@ -112,7 +122,9 @@ export default function BotConfigAdminPage() {
       exchange_rotation_hours: parseFloat(exchangeRotationHours) || 2,
       maintenance_mode: Boolean(maintenanceMode),
       maintenance_message: maintenanceMessage,
-      commands_enabled: commandsEnabled
+      commands_enabled: commandsEnabled,
+      auto_role_enabled: Boolean(autoRoleEnabled),
+      auto_role_id: autoRoleId.trim()
     };
 
     try {
@@ -307,6 +319,64 @@ export default function BotConfigAdminPage() {
                   onChange={(e) => setMaintenanceMessage(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] text-sm focus:outline-none focus:border-red-500 resize-none"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Auto-Role on Bot Interaction Card */}
+          <div className="p-6 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-glass)] backdrop-blur-xl space-y-5 lg:col-span-2">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-glass)]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-500/20 to-pink-500/20 text-purple-300 flex items-center justify-center border border-purple-500/30">
+                  <UserCheck className="w-5 h-5 text-pink-400" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">Auto-Role on Bot Usage</h2>
+                  <p className="text-xs text-[var(--text-main)] opacity-70">
+                    Automatically grants a specific Discord role to any member who executes any command
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setAutoRoleEnabled(!autoRoleEnabled)}
+                className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-200 cursor-pointer ${
+                  autoRoleEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-[var(--card-bg)] justify-start'
+                }`}
+              >
+                <div className="w-5 h-5 rounded-full bg-[var(--card-bg)] shadow-md" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90">
+                  Target Discord Role ID
+                </label>
+                <input
+                  type="text"
+                  value={autoRoleId}
+                  onChange={(e) => setAutoRoleId(e.target.value)}
+                  placeholder="e.g. 1214258876434878548"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-[var(--text-main)] text-sm font-mono focus:outline-none focus:border-pink-500"
+                />
+                <p className="text-[11px] text-[var(--text-main)] opacity-50">
+                  Right-click your desired role in Discord Server Settings → Roles → Copy Role ID.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[var(--input-bg)]/60 border border-[var(--border-glass)] text-xs space-y-1.5 flex flex-col justify-center">
+                <div className="font-bold text-[var(--text-main)] flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>How it works:</span>
+                </div>
+                <p className="text-[var(--text-main)] opacity-70 leading-relaxed">
+                  When enabled, whenever any server member uses any slash command (like <code className="text-pink-400">/draft</code>, <code className="text-pink-400">/daily</code>, or <code className="text-pink-400">/exchange</code>), the bot will immediately assign this role to them in the background without slowing down the command.
+                </p>
+                <p className="text-[10px] text-pink-400/80">
+                  * Note: Ensure the bot's highest role is positioned above this role in Server Settings with "Manage Roles" permission.
+                </p>
               </div>
             </div>
           </div>
