@@ -30,6 +30,7 @@ export default function ExchangeExclusivePage() {
   // Settings
   const [targetOvr, setTargetOvr] = useState(122);
   const [enabled, setEnabled] = useState(true);
+  const [allowOtherInExchanges, setAllowOtherInExchanges] = useState(false);
 
   // Cards
   const [exclusiveCards, setExclusiveCards] = useState([]);
@@ -49,6 +50,7 @@ export default function ExchangeExclusivePage() {
       if (data.success) {
         setTargetOvr(parseInt(data.settings?.target_ovr || 122, 10));
         setEnabled(data.settings?.enabled !== undefined ? Boolean(data.settings.enabled) : true);
+        setAllowOtherInExchanges(Boolean(data.settings?.allow_other_in_exchanges));
         setExclusiveCards(data.exclusiveCards || []);
         setTargetOvrCards(data.targetOvrCards || []);
       } else {
@@ -72,7 +74,8 @@ export default function ExchangeExclusivePage() {
         body: JSON.stringify({
           action: 'save_settings',
           target_ovr: parseInt(targetOvr, 10),
-          enabled
+          enabled,
+          allow_other_in_exchanges: allowOtherInExchanges
         })
       });
       const data = await res.json();
@@ -241,7 +244,7 @@ export default function ExchangeExclusivePage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">
                   Exchange Exclusive Target Rating (OVR)
@@ -266,7 +269,7 @@ export default function ExchangeExclusivePage() {
 
               <div className="flex flex-col justify-center">
                 <label className="block text-xs font-bold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">
-                  System Status
+                  Segregation System
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div className="relative">
@@ -283,6 +286,33 @@ export default function ExchangeExclusivePage() {
                     {enabled ? 'Active Strict Segregation' : 'System Disabled'}
                   </span>
                 </label>
+                <p className="text-[11px] text-[var(--text-main)] opacity-50 mt-1.5">
+                  When active, selected cards never appear in drafts.
+                </p>
+              </div>
+
+              <div className="flex flex-col justify-center">
+                <label className="block text-xs font-bold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">
+                  Other {targetOvr}s in Exchanges
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={allowOtherInExchanges}
+                      onChange={(e) => setAllowOtherInExchanges(e.target.checked)}
+                    />
+                    <div className={`w-12 h-6 rounded-full transition-colors ${allowOtherInExchanges ? 'bg-cyan-500' : 'bg-zinc-700'}`} />
+                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${allowOtherInExchanges ? 'translate-x-6' : ''}`} />
+                  </div>
+                  <span className="text-sm font-semibold text-[var(--text-main)]">
+                    {allowOtherInExchanges ? 'Allowed in Exchanges' : 'Exclusive ONLY'}
+                  </span>
+                </label>
+                <p className="text-[11px] text-[var(--text-main)] opacity-50 mt-1.5">
+                  {allowOtherInExchanges ? `Exclusives stay locked out of drafts, but non-exclusive ${targetOvr}s can roll in exchanges too.` : `Only your selected exclusive cards can ever appear in exchanges.`}
+                </p>
               </div>
 
               <div className="flex items-end justify-start md:justify-end">
@@ -292,7 +322,7 @@ export default function ExchangeExclusivePage() {
                   className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{savingSettings ? 'Saving...' : 'Save OVR Tier'}</span>
+                  <span>{savingSettings ? 'Saving...' : 'Save Settings'}</span>
                 </button>
               </div>
             </div>

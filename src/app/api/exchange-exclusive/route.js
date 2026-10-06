@@ -103,11 +103,12 @@ export async function POST(request) {
 
     // Save target OVR or general configuration
     if (action === 'save_settings') {
-      const { target_ovr, enabled } = body;
+      const { target_ovr, enabled, allow_other_in_exchanges } = body;
       const targetOvrInt = parseInt(target_ovr || 122, 10);
       const payload = {
         target_ovr: targetOvrInt,
-        enabled: enabled !== undefined ? Boolean(enabled) : true
+        enabled: enabled !== undefined ? Boolean(enabled) : true,
+        allow_other_in_exchanges: allow_other_in_exchanges !== undefined ? Boolean(allow_other_in_exchanges) : false
       };
 
       await query(`
@@ -120,7 +121,7 @@ export async function POST(request) {
 
       return NextResponse.json({
         success: true,
-        message: `Exchange Exclusive settings saved! Target Rating set to ${targetOvrInt} OVR.`,
+        message: `Exchange settings saved! (Target: ${targetOvrInt} OVR, Other 122s in exchanges: ${payload.allow_other_in_exchanges ? 'Allowed' : 'Blocked'}).`,
         settings: payload
       });
     }
