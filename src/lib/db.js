@@ -16,8 +16,9 @@ export function getPool() {
       ssl: {
         rejectUnauthorized: false
       },
-      max: 10,
-      idleTimeoutMillis: 30000,
+      max: 3,
+      idleTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
     });
   }
   return pool;
