@@ -309,7 +309,7 @@ export default function BlackMarketAdminPage() {
             </div>
 
             <div className="p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-amber-500/20 space-y-1">
-              <span className="text-[11px] text-amber-400/80 font-medium">Random Drop Time Today</span>
+              <span className="text-[11px] text-amber-400/80 font-medium">Random Drop Time</span>
               <div className="flex flex-wrap items-baseline gap-2">
                 <p className="text-base sm:text-lg font-mono font-black text-amber-300">
                   {schedule?.target_hour !== undefined
@@ -335,7 +335,7 @@ export default function BlackMarketAdminPage() {
               <p className="text-sm font-semibold flex items-center gap-2">
                 {schedule?.executed ? (
                   <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> Already Spawned Today
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> Market Concluded Today
                   </span>
                 ) : (
                   <span className="text-yellow-400 font-bold flex items-center gap-1.5">
@@ -346,7 +346,7 @@ export default function BlackMarketAdminPage() {
             </div>
           </div>
           <p className="text-[11px] text-neutral-400">
-            🔒 <strong>Note:</strong> Every single day, the bot calculates a random hour and minute between 02:00 and 22:00 UTC. Use "Reroll Today's Drop Time" above if you want to regenerate a new random time immediately!
+            🔒 <strong>Automatic Cycle:</strong> When a 1-hour session closes, the bot automatically schedules the NEXT drop time. Use "Reroll Today's Drop Time" above if you want to manually regenerate a new upcoming time.
           </p>
         </div>
 
