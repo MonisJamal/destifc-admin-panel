@@ -8,7 +8,7 @@ export default function ImageUpload({
   label = "Upload Image", 
   helperText = "Supports high quality .png, .webp, or .jpg (transparency supported)",
   aspectRatio = "square", // "square" | "banner"
-  maxDimension = 800
+  maxDimension = 500
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -26,15 +26,16 @@ export default function ImageUpload({
     reader.onload = (e) => {
       const img = new window.Image();
       img.onload = () => {
+        let maxD = aspectRatio === "banner" ? 700 : 450;
         let w = img.width;
         let h = img.height;
-        if (w > maxDimension || h > maxDimension) {
+        if (w > maxD || h > maxD) {
           if (w > h) {
-            h = Math.round((h * maxDimension) / w);
-            w = maxDimension;
+            h = Math.round((h * maxD) / w);
+            w = maxD;
           } else {
-            w = Math.round((w * maxDimension) / h);
-            h = maxDimension;
+            w = Math.round((w * maxD) / h);
+            h = maxD;
           }
         }
         const canvas = document.createElement('canvas');
@@ -42,11 +43,11 @@ export default function ImageUpload({
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingQuality = 'medium';
         ctx.drawImage(img, 0, 0, w, h);
 
-        // Export as high-quality webp with transparency preserved
-        const dataUrl = canvas.toDataURL('image/webp', 0.75);
+        // Export as optimized webp with transparency preserved (<200KB per image)
+        const dataUrl = canvas.toDataURL('image/webp', 0.65);
         onChange(dataUrl);
         setProcessing(false);
       };
