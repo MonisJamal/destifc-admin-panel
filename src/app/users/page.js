@@ -23,23 +23,31 @@ import {
 
 const AVAILABLE_PERMISSIONS = [
   { id: 'all', label: '⭐ Full Superadmin (All Permissions)', category: 'Root' },
-  // Bot & Economy
-  { id: 'dashboard', label: 'Dashboard & Global Analytics', href: '/', category: 'Bot & Economy' },
-  { id: 'diagnostics', label: 'Command Health & Ping Suite', href: '/diagnostics', category: 'Bot & Economy' },
-  { id: 'hosting', label: 'Hosting & Bot Process Control', href: '/hosting', category: 'Bot & Economy' },
-  { id: 'bot-config', label: 'Bot Status & Maintenance', href: '/bot-config', category: 'Bot & Economy' },
-  { id: 'prices', label: 'Price Setter & Market Tax', href: '/prices', category: 'Bot & Economy' },
-  { id: 'luck', label: 'Drop Rates & Luck Multipliers', href: '/luck', category: 'Bot & Economy' },
-  { id: 'signature-box', label: 'Signature Box & Live Promos', href: '/signature-box', category: 'Bot & Economy' },
-  { id: 'economy-config', label: 'Economy & Quest Rewards', href: '/economy-config', category: 'Bot & Economy' },
-  { id: 'gameplay-config', label: 'Gameplay & Division Rivals Tiers', href: '/gameplay-config', category: 'Bot & Economy' },
-  { id: 'season-sbc', label: 'Season Pass & Active SBCs', href: '/season-sbc', category: 'Bot & Economy' },
+  // Bot & Hosting
+  { id: 'dashboard', label: 'Dashboard & Global Analytics', href: '/', category: 'Bot & Hosting' },
+  { id: 'hosting', label: 'Hosting & Server Control', href: '/hosting', category: 'Bot & Hosting' },
+  { id: 'diagnostics', label: 'Command Health & Ping Suite', href: '/diagnostics', category: 'Bot & Hosting' },
+  { id: 'bot-config', label: 'Bot Status & Maintenance', href: '/bot-config', category: 'Bot & Hosting' },
+  // Events & Special Markets
+  { id: 'drops', label: 'Loot Drops & Voucher Rains', href: '/drops', category: 'Events & Markets' },
+  { id: 'black-market', label: 'Black Market & Flash Discounts', href: '/black-market', category: 'Events & Markets' },
+  { id: 'exchange-exclusive', label: 'Exchange Exclusives Management', href: '/exchange-exclusive', category: 'Events & Markets' },
+  { id: 'arcade', label: 'Arcade & Minigames Engine', href: '/arcade', category: 'Events & Markets' },
+  { id: 'compensation', label: 'Compensation Events & Grants', href: '/compensation', category: 'Events & Markets' },
+  // Economy & Progression
+  { id: 'prices', label: 'Price Setter & Market Tax', href: '/prices', category: 'Economy & Gameplay' },
+  { id: 'luck', label: 'Drop Rates & Luck Multipliers', href: '/luck', category: 'Economy & Gameplay' },
+  { id: 'signature-box', label: 'Signature Box & Live Promos', href: '/signature-box', category: 'Economy & Gameplay' },
+  { id: 'economy-config', label: 'Economy & Quest Rewards', href: '/economy-config', category: 'Economy & Gameplay' },
+  { id: 'gameplay-config', label: 'Gameplay & Matches Settings', href: '/gameplay-config', category: 'Economy & Gameplay' },
+  { id: 'season-sbc', label: 'Season Pass & Active SBCs', href: '/season-sbc', category: 'Economy & Gameplay' },
   // Cards & Database
   { id: 'leaks', label: 'Leaks & Promo Drafts', href: '/leaks', category: 'Cards & Database' },
   { id: 'cards', label: 'Card Database & Catalog', href: '/cards', category: 'Cards & Database' },
   { id: 'custom-cards', label: 'Custom Cards Designer', href: '/custom-cards', category: 'Cards & Database' },
   { id: 'formations', label: 'Formations 3D Geometry', href: '/formations', category: 'Cards & Database' },
   { id: 'admin-commands', label: 'Admin Commands & Currency Grants', href: '/admin-commands', category: 'Cards & Database' },
+  { id: 'announcements', label: 'Announcements (Mass DMs)', href: '/announcements', category: 'Cards & Database' },
   { id: 'database', label: 'Cloud Tables & Direct SQL', href: '/database', category: 'Cards & Database' },
   // Administration
   { id: 'users', label: 'Team & Access Control (User RBAC)', href: '/users', category: 'Administration' },
@@ -317,7 +325,7 @@ export default function UsersAdminPage() {
                         <td className="py-4 px-4 max-w-xs sm:max-w-md">
                           {isSuper ? (
                             <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                              Full Access (All 17 Sections Unlocked)
+                              Full Access (All 23 Sections Unlocked)
                             </span>
                           ) : (
                             <div className="flex flex-wrap gap-1">
