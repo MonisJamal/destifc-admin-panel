@@ -31,7 +31,8 @@ import {
   Swords,
   Radio,
   HeartHandshake,
-  ShoppingBag
+  ShoppingBag,
+  ArrowRightLeft
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -86,6 +87,7 @@ export default function Sidebar() {
         { href: '/bot-config', label: 'Bot Status & Maint.', icon: Bot, perm: 'bot-config' },
         { href: '/drops', label: 'Loot Drops & Rains', icon: Radio, perm: 'economy-config' },
         { href: '/black-market', label: 'Black Market', icon: ShoppingBag, perm: 'economy-config' },
+        { href: '/exchange-exclusive', label: 'Exchange Exclusives', icon: ArrowRightLeft, perm: 'gameplay-config' },
         { href: '/arcade', label: 'Arcade & Minigames', icon: Swords, perm: 'gameplay-config' },
         { href: '/prices', label: 'Price Setter', icon: Coins, perm: 'prices' },
         { href: '/luck', label: 'Drop Rates & Luck', icon: Percent, perm: 'luck' },
@@ -147,6 +149,10 @@ export default function Sidebar() {
     { label: 'Black Market Random Schedule & Hours', route: '/black-market', section: 'Black Market' },
     { label: 'Black Market 120+ Discounts & Vouchers', route: '/black-market', section: 'Black Market' },
     { label: 'Black Market Multi-Channel Pings & Role Ping', route: '/black-market', section: 'Black Market' },
+    // Exchange Exclusives
+    { label: 'Exchange Exclusive Players (122 OVR)', route: '/exchange-exclusive', section: 'Exclusives' },
+    { label: 'Exchange Only Cards Configuration', route: '/exchange-exclusive', section: 'Exclusives' },
+    { label: 'Target OVR Upgrade Setting', route: '/exchange-exclusive', section: 'Exclusives' },
     // Economy & Streak
     { label: 'Daily 7-Day Streak Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Draft Voucher Earning Limits', route: '/economy-config', section: 'Economy' },

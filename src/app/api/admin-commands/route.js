@@ -71,14 +71,22 @@ export async function POST(request) {
       return NextResponse.json({ success: true, message: `Successfully wiped data for user ${uid}` });
     }
 
-    if (action === 'refresh_store') {
-      await query(`
-        INSERT INTO portal_jobs (job_name, requested_at) 
-        VALUES ('refresh_store', NOW()) 
-        ON CONFLICT (job_name) 
-        DO UPDATE SET requested_at = NOW()
-      `);
-      return NextResponse.json({ success: true, message: 'Queued Store & Draft Refresh command for Discord bot.' });
+    if (action === 'toggle_exchange_exclusive') {
+      const { assetId, exclusive } = body;
+      if (!assetId) {
+        return NextResponse.json({ success: false, error: 'Asset ID required' }, { status: 400 });
+      }
+
+      const val = exclusive ? 1 : 0;
+      await query(
+        'UPDATE official_cards SET exchange_exclusive = $1 WHERE asset_id = $2',
+        [val, parseInt(assetId, 10)]
+      );
+
+      return NextResponse.json({
+        success: true,
+        message: `Updated card ${assetId} exclusivity: ${exclusive ? 'Exchange Exclusive' : 'Standard'}`
+      });
     }
 
     return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 });

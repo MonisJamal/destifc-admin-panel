@@ -49,7 +49,7 @@ export async function GET(request) {
       const offsetIdx = sqlParams.length;
 
       const dbRes = await query(`
-        SELECT asset_id, player_name, card_name, rating, position, source, club_name, nation_name, player_data
+        SELECT asset_id, player_name, card_name, rating, position, source, club_name, nation_name, player_data, exchange_exclusive
         FROM official_cards
         ${whereClause}
         ORDER BY rating DESC, asset_id DESC
@@ -78,6 +78,8 @@ export async function GET(request) {
             ovr: r.rating,
             position: r.position,
             source: r.source || '',
+            exchange_exclusive: r.exchange_exclusive || 0,
+            isExchangeExclusive: Boolean(r.exchange_exclusive),
             program: {
               name: formatProgram(r.source)
             },

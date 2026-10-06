@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
-import { Users, CreditCard, ShoppingBag, Sparkles, Flame, ArrowUpRight, Database, Sliders, Dices, Gift, Award, Coins } from 'lucide-react';
+import { Users, CreditCard, ShoppingBag, Sparkles, Flame, ArrowUpRight, Database, Sliders, Dices, Gift, Award, Coins, ArrowRightLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
@@ -192,6 +192,17 @@ export default function Dashboard() {
                 </div>
                 <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Compensation Events</h3>
                 <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Launch global apology packs, coin & voucher grants, and schedule claim windows.</p>
+              </Link>
+
+              <Link href="/exchange-exclusive" className="glass-card p-6 group hover:border-amber-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    <ArrowRightLeft className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-amber-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                </div>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Exchange Exclusives</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Set 122 OVR players to Exchange-only (removed from drafts) with future-proof tier upgrades.</p>
               </Link>
             </div>
           </div>
