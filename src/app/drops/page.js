@@ -108,22 +108,26 @@ export default function DropsConfigPage() {
         <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-6">
           <h2 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
             <Radio className="w-4 h-4 text-pink-400" />
-            Target Channel & Frequency
+            Target Channels & Frequency (Multi-Server Support)
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Discord Channel ID
+                Discord Channel IDs (Comma or Space Separated)
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 123456789012345678"
-                value={config.channel_id || ''}
-                onChange={e => setConfig({ ...config, channel_id: e.target.value.trim() })}
+              <textarea
+                rows={2}
+                placeholder="e.g. 123456789012345678, 987654321098765432"
+                value={Array.isArray(config.channels) ? config.channels.join(', ') : (config.channels || config.channel_id || '')}
+                onChange={e => {
+                  const val = e.target.value;
+                  const arr = val.split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+                  setConfig({ ...config, channels: arr, channel_id: arr[0] || '' });
+                }}
                 className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
               />
-              <p className="text-[10px] text-[var(--text-muted)]">Right-click the channel in Discord (with Developer Mode ON) and copy ID.</p>
+              <p className="text-[10px] text-[var(--text-muted)]">Add multiple channel IDs to broadcast loot drops simultaneously across multiple Discord servers!</p>
             </div>
 
             <div className="space-y-2">
@@ -138,7 +142,7 @@ export default function DropsConfigPage() {
                 onChange={e => setConfig({ ...config, interval_mins: parseInt(e.target.value) || 60 })}
                 className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
               />
-              <p className="text-[10px] text-[var(--text-muted)]">How often the bot drops a new supply crate (e.g. 45 or 60 mins).</p>
+              <p className="text-[10px] text-[var(--text-muted)]">How often the bot drops a standard supply crate (e.g. 30 or 60 mins).</p>
             </div>
           </div>
         </div>
@@ -233,6 +237,44 @@ export default function DropsConfigPage() {
                 {config.rare_drop_enabled ? 'ENABLED' : 'DISABLED'}
               </button>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-[var(--border-glass)]">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-amber-200">
+                Ping Target Type
+              </label>
+              <select
+                value={config.rare_drop_ping_type || (config.ping_everyone ? 'everyone' : 'none')}
+                onChange={e => {
+                  const val = e.target.value;
+                  setConfig({ ...config, rare_drop_ping_type: val, ping_everyone: val === 'everyone' });
+                }}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400 font-semibold"
+              >
+                <option value="none">🔕 No Ping (Clean Embed Only)</option>
+                <option value="everyone">🔔 Ping @everyone</option>
+                <option value="here">📍 Ping @here (Online Members)</option>
+                <option value="role">👥 Ping Specific Role</option>
+              </select>
+              <p className="text-[10px] text-[var(--text-muted)]">Select who gets pinged when the 2x daily rare gift drops.</p>
+            </div>
+
+            {config.rare_drop_ping_type === 'role' && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-amber-200">
+                  Discord Role ID to Ping
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 112233445566778899"
+                  value={config.rare_drop_role_id || ''}
+                  onChange={e => setConfig({ ...config, rare_drop_role_id: e.target.value.trim() })}
+                  className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400 font-mono"
+                />
+                <p className="text-[10px] text-[var(--text-muted)]">Right-click the role in Server Settings -&gt; Roles and copy ID.</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

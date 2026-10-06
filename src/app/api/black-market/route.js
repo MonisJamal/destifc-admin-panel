@@ -27,7 +27,10 @@ export async function GET() {
       data: {
         ...row,
         voucher_packages: typeof row.voucher_packages === 'string' ? JSON.parse(row.voucher_packages) : (row.voucher_packages || []),
-        player_deals: typeof row.player_deals === 'string' ? JSON.parse(row.player_deals) : (row.player_deals || [])
+        player_deals: typeof row.player_deals === 'string' ? JSON.parse(row.player_deals) : (row.player_deals || []),
+        channels: typeof row.channels === 'string' ? JSON.parse(row.channels) : (row.channels || []),
+        role_id: row.role_id || '',
+        ping_type: row.ping_type || 'none'
       }
     });
   } catch (error) {
@@ -39,27 +42,40 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { action, is_active, voucher_packages, player_deals, opens_at, closes_at } = body;
+    const { action, is_active, voucher_packages, player_deals, opens_at, closes_at, channels, role_id, ping_type } = body;
+
+    // Ensure columns exist
+    try {
+      await query("ALTER TABLE black_market_config ADD COLUMN IF NOT EXISTS channels JSONB DEFAULT '[]'::jsonb");
+      await query("ALTER TABLE black_market_config ADD COLUMN IF NOT EXISTS role_id TEXT DEFAULT ''");
+      await query("ALTER TABLE black_market_config ADD COLUMN IF NOT EXISTS ping_type TEXT DEFAULT 'none'");
+    } catch (e) {}
 
     if (action === 'trigger_now') {
       const now = new Date();
       const close = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour
 
       await query(`
-        INSERT INTO black_market_config (id, is_active, opens_at, closes_at, voucher_packages, player_deals, updated_at)
-        VALUES (1, true, $1, $2, $3::jsonb, $4::jsonb, CURRENT_TIMESTAMP)
+        INSERT INTO black_market_config (id, is_active, opens_at, closes_at, voucher_packages, player_deals, channels, role_id, ping_type, updated_at)
+        VALUES (1, true, $1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6, $7, CURRENT_TIMESTAMP)
         ON CONFLICT (id) DO UPDATE SET
           is_active = true,
           opens_at = EXCLUDED.opens_at,
           closes_at = EXCLUDED.closes_at,
           voucher_packages = EXCLUDED.voucher_packages,
           player_deals = EXCLUDED.player_deals,
+          channels = EXCLUDED.channels,
+          role_id = EXCLUDED.role_id,
+          ping_type = EXCLUDED.ping_type,
           updated_at = CURRENT_TIMESTAMP
       `, [
         now.toISOString(),
         close.toISOString(),
         JSON.stringify(voucher_packages || []),
-        JSON.stringify(player_deals || [])
+        JSON.stringify(player_deals || []),
+        JSON.stringify(channels || []),
+        role_id || '',
+        ping_type || 'none'
       ]);
 
       // Schedule portal job so bot instantly announces in Discord
@@ -81,21 +97,27 @@ export async function POST(request) {
 
     // Standard settings update
     await query(`
-      INSERT INTO black_market_config (id, is_active, opens_at, closes_at, voucher_packages, player_deals, updated_at)
-      VALUES (1, $1, $2, $3, $4::jsonb, $5::jsonb, CURRENT_TIMESTAMP)
+      INSERT INTO black_market_config (id, is_active, opens_at, closes_at, voucher_packages, player_deals, channels, role_id, ping_type, updated_at)
+      VALUES (1, $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO UPDATE SET
         is_active = EXCLUDED.is_active,
         opens_at = EXCLUDED.opens_at,
         closes_at = EXCLUDED.closes_at,
         voucher_packages = EXCLUDED.voucher_packages,
         player_deals = EXCLUDED.player_deals,
+        channels = EXCLUDED.channels,
+        role_id = EXCLUDED.role_id,
+        ping_type = EXCLUDED.ping_type,
         updated_at = CURRENT_TIMESTAMP
     `, [
       Boolean(is_active),
       opens_at ? new Date(opens_at).toISOString() : null,
       closes_at ? new Date(closes_at).toISOString() : null,
       JSON.stringify(voucher_packages || []),
-      JSON.stringify(player_deals || [])
+      JSON.stringify(player_deals || []),
+      JSON.stringify(channels || []),
+      role_id || '',
+      ping_type || 'none'
     ]);
 
     return NextResponse.json({ success: true, message: 'Black market configuration saved!' });

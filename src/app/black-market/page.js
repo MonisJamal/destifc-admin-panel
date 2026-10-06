@@ -12,6 +12,9 @@ export default function BlackMarketAdminPage() {
   const [isActive, setIsActive] = useState(false);
   const [opensAt, setOpensAt] = useState(null);
   const [closesAt, setClosesAt] = useState(null);
+  const [channels, setChannels] = useState([]);
+  const [roleId, setRoleId] = useState('');
+  const [pingType, setPingType] = useState('none');
 
   // Voucher packages (50% off)
   const [voucherPackages, setVoucherPackages] = useState([
@@ -36,6 +39,9 @@ export default function BlackMarketAdminPage() {
         setIsActive(Boolean(data.data.is_active));
         setOpensAt(data.data.opens_at);
         setClosesAt(data.data.closes_at);
+        setChannels(data.data.channels || []);
+        setRoleId(data.data.role_id || '');
+        setPingType(data.data.ping_type || 'none');
         if (data.data.voucher_packages && data.data.voucher_packages.length > 0) {
           setVoucherPackages(data.data.voucher_packages);
         }
@@ -51,7 +57,7 @@ export default function BlackMarketAdminPage() {
   };
 
   const handleTriggerNow = async () => {
-    if (!confirm('Open the Secret Black Market right now for 1 hour? A server-wide @everyone notification will be sent to all Discord members!')) return;
+    if (!confirm('Open the Secret Black Market right now for 1 hour? The announcement and deal controls will be broadcasted to your configured channels!')) return;
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
@@ -61,13 +67,16 @@ export default function BlackMarketAdminPage() {
         body: JSON.stringify({
           action: 'trigger_now',
           voucher_packages: voucherPackages,
-          player_deals: playerDeals
+          player_deals: playerDeals,
+          channels,
+          role_id: roleId,
+          ping_type: pingType
         })
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         setIsActive(true);
-        setMessage({ type: 'success', text: '🔥 The Black Market is NOW LIVE for 1 hour in Discord and users have been notified!' });
+        setMessage({ type: 'success', text: '🔥 The Black Market is NOW LIVE for 1 hour in Discord across all target channels!' });
         fetchMarketData();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to open Black Market' });
@@ -113,12 +122,15 @@ export default function BlackMarketAdminPage() {
         body: JSON.stringify({
           is_active: isActive,
           voucher_packages: voucherPackages,
-          player_deals: playerDeals
+          player_deals: playerDeals,
+          channels,
+          role_id: roleId,
+          ping_type: pingType
         })
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
-        setMessage({ type: 'success', text: 'Black Market deals and packages saved!' });
+        setMessage({ type: 'success', text: 'Black Market deals, target channels, and role ping settings saved!' });
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to save' });
       }
@@ -233,8 +245,73 @@ export default function BlackMarketAdminPage() {
             )}
           </div>
           <p className="text-xs text-[var(--text-main)] opacity-70">
-            When triggered, the bot automatically sends an <code>@everyone</code> notification to the server, and the <code>/blackmarket</code> command unlocks with purchase dropdown menus.
+            When triggered, the bot automatically broadcasts the contraband menu and unlocks the <code>/blackmarket</code> interactive command.
           </p>
+        </div>
+
+        {/* Multi-Channel & Role Ping Settings */}
+        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-glass)]">
+            <h2 className="text-base font-bold text-purple-300 flex items-center gap-2">
+              <Radio className="w-4 h-4 text-purple-400" />
+              Multi-Server Channels & Role Notification Ping
+            </h2>
+            <span className="text-xs font-mono text-[var(--text-muted)]">Independent from Drops config</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Broadcast Discord Channel IDs (Comma or Space Separated)
+              </label>
+              <textarea
+                rows={2}
+                placeholder="e.g. 112233445566778899, 998877665544332211"
+                value={Array.isArray(channels) ? channels.join(', ') : (channels || '')}
+                onChange={e => {
+                  const arr = e.target.value.split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+                  setChannels(arr);
+                }}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-purple-400 font-mono"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">
+                Add multiple channel IDs across multiple servers so the Black Market broadcasts to all of them at once!
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-purple-200">
+                Ping Target Type
+              </label>
+              <select
+                value={pingType}
+                onChange={e => setPingType(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-purple-900/40 text-sm text-[var(--text-main)] focus:outline-none focus:border-purple-400 font-semibold"
+              >
+                <option value="none">🔕 No Ping (Clean Embed Only)</option>
+                <option value="everyone">🔔 Ping @everyone</option>
+                <option value="here">📍 Ping @here (Online Members)</option>
+                <option value="role">👥 Ping Specific Role</option>
+              </select>
+              <p className="text-[10px] text-[var(--text-muted)]">Choose how users are alerted when the Black Market opens.</p>
+            </div>
+
+            {pingType === 'role' && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-purple-200">
+                  Discord Role ID to Ping
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 987654321098765432"
+                  value={roleId}
+                  onChange={e => setRoleId(e.target.value.trim())}
+                  className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-purple-900/40 text-sm text-[var(--text-main)] focus:outline-none focus:border-purple-400 font-mono"
+                />
+                <p className="text-[10px] text-[var(--text-muted)]">Right-click the role in Server Settings -&gt; Roles and copy ID.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 1. Voucher Deals (50% Half Price) */}
