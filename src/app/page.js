@@ -59,124 +59,141 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Stat Tiles */}
+          {/* Quick Stat Tiles - Now Interactive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div className="glass-card p-6 flex flex-col justify-between">
+            <Link href="/database?table=users" className="glass-card p-6 flex flex-col justify-between group hover:border-pink-500/40 transition-all cursor-pointer">
               <div className="flex items-center justify-between text-[var(--text-main)] opacity-70 mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider">Registered Players</span>
-                <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-pink-400 transition-colors">Registered Players</span>
+                <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20 group-hover:scale-110 transition-transform">
                   <Users className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
-                {loading ? '...' : stats.users.toLocaleString()}
+              <div className="flex items-baseline justify-between">
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
+                  {loading ? '...' : stats.users.toLocaleString()}
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-pink-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
-            </div>
+            </Link>
 
-            <div className="glass-card p-6 flex flex-col justify-between">
+            <Link href="/database?table=inventory" className="glass-card p-6 flex flex-col justify-between group hover:border-fuchsia-500/40 transition-all cursor-pointer">
               <div className="flex items-center justify-between text-[var(--text-main)] opacity-70 mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Card Inventory</span>
-                <div className="p-2 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20">
+                <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-fuchsia-400 transition-colors">Total Card Inventory</span>
+                <div className="p-2 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 group-hover:scale-110 transition-transform">
                   <CreditCard className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
-                {loading ? '...' : stats.inventory.toLocaleString()}
+              <div className="flex items-baseline justify-between">
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
+                  {loading ? '...' : stats.inventory.toLocaleString()}
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-fuchsia-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
-            </div>
+            </Link>
 
-            <div className="glass-card p-6 flex flex-col justify-between">
+            <Link href="/database?table=market" className="glass-card p-6 flex flex-col justify-between group hover:border-purple-500/40 transition-all cursor-pointer">
               <div className="flex items-center justify-between text-[var(--text-main)] opacity-70 mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider">Active Market Listings</span>
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-[var(--border-glass)]">
+                <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-purple-400 transition-colors">Active Market Listings</span>
+                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-[var(--border-glass)] group-hover:scale-110 transition-transform">
                   <ShoppingBag className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
-                {loading ? '...' : stats.market.toLocaleString()}
+              <div className="flex items-baseline justify-between">
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
+                  {loading ? '...' : stats.market.toLocaleString()}
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-purple-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
-            </div>
+            </Link>
 
-            <div className="glass-card p-6 flex flex-col justify-between">
+            <Link href="/custom-cards" className="glass-card p-6 flex flex-col justify-between group hover:border-pink-500/40 transition-all cursor-pointer">
               <div className="flex items-center justify-between text-[var(--text-main)] opacity-70 mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider">Custom Draft Releases</span>
-                <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-pink-400 transition-colors">Custom Draft Releases</span>
+                <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20 group-hover:scale-110 transition-transform">
                   <Sparkles className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
-                {loading ? '...' : stats.customCards.toLocaleString()}
+              <div className="flex items-baseline justify-between">
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-main)] font-mono">
+                  {loading ? '...' : stats.customCards.toLocaleString()}
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-pink-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
-            </div>
+            </Link>
           </div>
 
-          {/* Quick Action Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/luck" className="glass-card p-8 group hover:border-pink-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-pink-500/15 text-pink-300 border border-pink-500/30">
-                  <Dices className="w-6 h-6" />
+          {/* Quick Action Navigation Grid - Comprehensive Command Modules */}
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-60 mb-4">
+              Core Control Suites
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <Link href="/black-market" className="glass-card p-6 group hover:border-red-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">
+                    <ShoppingBag className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-red-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-pink-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">Drop Rates & Luck Engine</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Configure draft pool probabilities, exchange chances, and pool user caps.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Black Market Manager</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Configure timed flash sales, 120+ discount percentages, multi-channel announcements, and role pings.</p>
+              </Link>
 
-            <Link href="/signature-box" className="glass-card p-8 group hover:border-fuchsia-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30">
-                  <Gift className="w-6 h-6" />
+              <Link href="/drops" className="glass-card p-6 group hover:border-amber-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    <Gift className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-amber-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-fuchsia-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">Signature Box Manager</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Configure exclusive 10-reward draws, step costs, and custom signature player cards.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Loot Drops & Rare Gifts</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Automate random daily gift drops, crate rain intervals, multi-server channels, and ping mentions.</p>
+              </Link>
 
-            <Link href="/prices" className="glass-card p-8 group hover:border-purple-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-purple-500/15 text-purple-300 border border-[var(--border-glass)]">
-                  <Coins className="w-6 h-6" />
+              <Link href="/arcade" className="glass-card p-6 group hover:border-indigo-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-indigo-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-purple-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">OVR Price Matrix</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Set minimum price floors, maximum price ceilings, and quicksell values per card rating.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Arcade & Minigames</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Tune pack battle wagers (up to 50 vouchers), shootout dive physics, and lucky spin jackpots.</p>
+              </Link>
 
-            <Link href="/database" className="glass-card p-8 group hover:border-pink-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-pink-500/15 text-pink-300 border border-pink-500/30">
-                  <Database className="w-6 h-6" />
+              <Link href="/luck" className="glass-card p-6 group hover:border-pink-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-pink-500/15 text-pink-300 border border-pink-500/30">
+                    <Dices className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-pink-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-pink-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">Cloud Database Explorer</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Inspect card data with OVR, clubs, nations, player inventories, and market listings.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Drop Rates & Luck Engine</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Configure draft pool probabilities, exchange chances, pity counters, and tier caps.</p>
+              </Link>
 
-            <Link href="/economy-config" className="glass-card p-8 group hover:border-fuchsia-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30">
-                  <Sliders className="w-6 h-6" />
+              <Link href="/prices" className="glass-card p-6 group hover:border-purple-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-purple-500/15 text-purple-300 border border-[var(--border-glass)]">
+                    <Coins className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-purple-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-fuchsia-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">Economy & Cooldowns</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Daily claim coins, work shift wages, voucher prices, daily buy limits, and taxes.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">OVR Price Matrix</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Review minimum price floors, maximum market ceilings, and 70% static quicksell returns.</p>
+              </Link>
 
-            <Link href="/gameplay-config" className="glass-card p-8 group hover:border-purple-500/40 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-purple-500/15 text-purple-300 border border-[var(--border-glass)]">
-                  <Flame className="w-6 h-6" />
+              <Link href="/compensation" className="glass-card p-6 group hover:border-emerald-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    <Sliders className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-emerald-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </div>
-                <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-purple-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-              </div>
-              <h3 className="text-lg font-bold text-[var(--text-main)] mb-1">Gameplay & Ranked Arena</h3>
-              <p className="text-sm text-[var(--text-main)] opacity-70 leading-relaxed">Match coin rewards, ranked fan ladders, Draft Battle jackpots, and custom card boosts.</p>
-            </Link>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Compensation Events</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Launch global apology packs, coin & voucher grants, and schedule claim windows.</p>
+              </Link>
+            </div>
           </div>
         </div>
       </main>

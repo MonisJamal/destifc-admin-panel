@@ -136,10 +136,17 @@ export default function Sidebar() {
     { label: 'Draft Battles ELO Settings', route: '/arcade', section: 'Arcade' },
     // Loot Drops & Rains
     { label: 'Loot Drops & Voucher Rains', route: '/drops', section: 'Loot Drops' },
-    { label: 'Discord Drop Channel ID', route: '/drops', section: 'Loot Drops' },
+    { label: 'Discord Drop Channel ID & Multi-Channel', route: '/drops', section: 'Loot Drops' },
     { label: 'Crate Drop Interval & Timers', route: '/drops', section: 'Loot Drops' },
     { label: 'Vouchers per Crate Drop', route: '/drops', section: 'Loot Drops' },
     { label: 'Fast Claim Limits for Drops', route: '/drops', section: 'Loot Drops' },
+    { label: 'Rare Gift Drops Config', route: '/drops', section: 'Loot Drops' },
+    { label: 'Drop Role Ping Notifications', route: '/drops', section: 'Loot Drops' },
+    // Black Market
+    { label: 'Black Market Dynamic Shop', route: '/black-market', section: 'Black Market' },
+    { label: 'Black Market Random Schedule & Hours', route: '/black-market', section: 'Black Market' },
+    { label: 'Black Market 120+ Discounts & Vouchers', route: '/black-market', section: 'Black Market' },
+    { label: 'Black Market Multi-Channel Pings & Role Ping', route: '/black-market', section: 'Black Market' },
     // Economy & Streak
     { label: 'Daily 7-Day Streak Rewards', route: '/economy-config', section: 'Economy' },
     { label: 'Draft Voucher Earning Limits', route: '/economy-config', section: 'Economy' },
@@ -158,7 +165,7 @@ export default function Sidebar() {
     { label: 'Flush RAM Caches', route: '/hosting', section: 'Hosting' },
     // Prices
     { label: 'OVR Price Floors & Minimums', route: '/prices', section: 'Prices' },
-    { label: 'Quicksell Value Percentage', route: '/prices', section: 'Prices' },
+    { label: 'Quicksell Value Percentage (Static 70%)', route: '/prices', section: 'Prices' },
     { label: 'Max Market Listing Ceiling', route: '/prices', section: 'Prices' },
     // Bot Config
     { label: 'Discord Presence & Playing Status', route: '/bot-config', section: 'Bot Config' },
@@ -187,9 +194,13 @@ export default function Sidebar() {
     { label: 'Tactical Layout Editor', route: '/formations', section: 'Formations' },
     // Database
     { label: 'Live Database Tables & SQL', route: '/database', section: 'Database' },
-    { label: 'Users List & Inventories', route: '/users', section: 'Users' },
-    { label: 'Reset User Account / Progress', route: '/admin-commands', section: 'Admin' },
+    { label: 'Discord Players & Balances', route: '/database?table=users', section: 'Database' },
+    { label: 'Player Inventories & Cards', route: '/database?table=inventory', section: 'Database' },
+    { label: 'Marketplace Active Listings', route: '/database?table=market', section: 'Database' },
+    // Staff & Access
+    { label: 'Staff Admin RBAC Permissions', route: '/users', section: 'Staff' },
     // Admin Commands
+    { label: 'Reset User Account / Progress', route: '/admin-commands', section: 'Admin' },
     { label: 'Grant Coins & Vouchers', route: '/admin-commands', section: 'Admin' },
     { label: 'Wipe User Inventory', route: '/admin-commands', section: 'Admin' },
     { label: 'Spawn Player into Inventory', route: '/admin-commands', section: 'Admin' },

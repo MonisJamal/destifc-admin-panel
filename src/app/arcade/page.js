@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
 import { Gamepad2, Save, CheckCircle, AlertCircle, RefreshCw, Swords, Target, Sparkles, Trophy } from 'lucide-react';
 
 export default function ArcadeConfigPage() {
@@ -53,14 +54,20 @@ export default function ArcadeConfigPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <RefreshCw className="w-8 h-8 animate-spin text-pink-500" />
+      <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
+        <Sidebar />
+        <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 flex items-center justify-center">
+          <RefreshCw className="w-8 h-8 animate-spin text-pink-500" />
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
+      <Sidebar />
+      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
+        <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-3 pb-6 border-b border-[var(--border-glass)]">
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
           <Gamepad2 className="w-5 h-5" />
@@ -226,6 +233,8 @@ export default function ArcadeConfigPage() {
           </button>
         </div>
       </form>
+        </div>
+      </main>
     </div>
   );
 }

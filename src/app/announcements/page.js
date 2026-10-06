@@ -41,10 +41,10 @@ export default function Announcements() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] flex">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex">
       <Sidebar />
-      <main className="flex-1 lg:ml-64 p-8 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 relative overflow-hidden min-h-screen">
+        <div className="max-w-7xl mx-auto space-y-6 relative z-10">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
               <Megaphone className="w-6 h-6 text-purple-400" />
