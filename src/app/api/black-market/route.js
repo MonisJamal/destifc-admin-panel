@@ -12,9 +12,9 @@ export async function GET() {
           opens_at: null,
           closes_at: null,
           voucher_packages: [
-            { id: "v1", title: "5x Draft Vouchers Pack", vouchers: 5, original_price: 50000000, discount_price: 25000000, discount_pct: 50 },
-            { id: "v2", title: "15x Draft Vouchers Pack", vouchers: 15, original_price: 140000000, discount_price: 70000000, discount_pct: 50 },
-            { id: "v3", title: "30x Mega Voucher Hoard", vouchers: 30, original_price: 270000000, discount_price: 135000000, discount_pct: 50 }
+            { id: "v1", title: "10x Draft Vouchers Pack", vouchers: 10, original_price: 200000000, discount_price: 100000000, discount_pct: 50 },
+            { id: "v2", title: "25x Draft Vouchers Bundle", vouchers: 25, original_price: 500000000, discount_price: 250000000, discount_pct: 50 },
+            { id: "v3", title: "50x Mega Voucher Hoard", vouchers: 50, original_price: 1000000000, discount_price: 500000000, discount_pct: 50 }
           ],
           player_deals: []
         }
@@ -22,10 +22,23 @@ export async function GET() {
     }
 
     const row = res.rows[0];
+
+    // Fetch random schedule from system_settings
+    let schedule = null;
+    try {
+      const schedRes = await query("SELECT value FROM system_settings WHERE key = 'black_market_schedule'");
+      if (schedRes.rows.length > 0 && schedRes.rows[0].value) {
+        schedule = typeof schedRes.rows[0].value === 'string' ? JSON.parse(schedRes.rows[0].value) : schedRes.rows[0].value;
+      }
+    } catch (e) {
+      console.error('Error fetching black market schedule:', e);
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         ...row,
+        schedule,
         voucher_packages: typeof row.voucher_packages === 'string' ? JSON.parse(row.voucher_packages) : (row.voucher_packages || []),
         player_deals: typeof row.player_deals === 'string' ? JSON.parse(row.player_deals) : (row.player_deals || []),
         channels: typeof row.channels === 'string' ? JSON.parse(row.channels) : (row.channels || []),

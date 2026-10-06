@@ -15,12 +15,13 @@ export default function BlackMarketAdminPage() {
   const [channels, setChannels] = useState([]);
   const [roleId, setRoleId] = useState('');
   const [pingType, setPingType] = useState('none');
+  const [schedule, setSchedule] = useState(null);
 
   // Voucher packages (50% off)
   const [voucherPackages, setVoucherPackages] = useState([
-    { id: "v1", title: "5x Draft Vouchers Pack", vouchers: 5, original_price: 50000000, discount_price: 25000000, discount_pct: 50 },
-    { id: "v2", title: "15x Draft Vouchers Pack", vouchers: 15, original_price: 140000000, discount_price: 70000000, discount_pct: 50 },
-    { id: "v3", title: "30x Mega Voucher Hoard", vouchers: 30, original_price: 270000000, discount_price: 135000000, discount_pct: 50 }
+    { id: "v1", title: "10x Draft Vouchers Pack", vouchers: 10, original_price: 200000000, discount_price: 100000000, discount_pct: 50 },
+    { id: "v2", title: "25x Draft Vouchers Bundle", vouchers: 25, original_price: 500000000, discount_price: 250000000, discount_pct: 50 },
+    { id: "v3", title: "50x Mega Voucher Hoard", vouchers: 50, original_price: 1000000000, discount_price: 500000000, discount_pct: 50 }
   ]);
 
   // 5 Player Deals (30%+ discounts)
@@ -42,6 +43,7 @@ export default function BlackMarketAdminPage() {
         setChannels(data.data.channels || []);
         setRoleId(data.data.role_id || '');
         setPingType(data.data.ping_type || 'none');
+        setSchedule(data.data.schedule || null);
         if (data.data.voucher_packages && data.data.voucher_packages.length > 0) {
           setVoucherPackages(data.data.voucher_packages);
         }
@@ -246,6 +248,70 @@ export default function BlackMarketAdminPage() {
           </div>
           <p className="text-xs text-[var(--text-main)] opacity-70">
             When triggered, the bot automatically broadcasts the contraband menu and unlocks the <code>/blackmarket</code> interactive command.
+          </p>
+        </div>
+
+        {/* 🕵️ Confidential Daily Spawn Radar (Admin/Owner Only) */}
+        <div className="glass-card p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-black to-purple-950/20 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Shield className="w-5 h-5 text-amber-400" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-amber-300">
+                Confidential Smuggler Schedule Radar (Owner-Only)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold">
+              TOP SECRET
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+              <span className="text-[11px] text-[var(--text-muted)] font-medium">Scheduled Date (UTC)</span>
+              <p className="text-sm font-mono font-bold text-white">
+                {schedule?.date || 'Today'}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-black/40 border border-amber-500/20 space-y-1">
+              <span className="text-[11px] text-amber-400/80 font-medium">Random Drop Time Today</span>
+              <div className="flex items-baseline gap-2">
+                <p className="text-lg font-mono font-black text-amber-300">
+                  {schedule?.target_hour !== undefined
+                    ? `${String(schedule.target_hour).padStart(2, '0')}:${String(schedule.target_min || 0).padStart(2, '0')} UTC`
+                    : 'Selecting random time...'}
+                </p>
+                {schedule?.target_hour !== undefined && (
+                  <span className="text-xs text-neutral-400 font-mono">
+                    ({new Date(Date.UTC(
+                      new Date().getUTCFullYear(),
+                      new Date().getUTCMonth(),
+                      new Date().getUTCDate(),
+                      schedule.target_hour,
+                      schedule.target_min || 0
+                    )).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} your local time)
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+              <span className="text-[11px] text-[var(--text-muted)] font-medium">Execution Status</span>
+              <p className="text-sm font-semibold flex items-center gap-2">
+                {schedule?.executed ? (
+                  <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" /> Already Spawned Today
+                  </span>
+                ) : (
+                  <span className="text-yellow-400 font-bold flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 animate-spin" /> Pending Auto-Drop
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <p className="text-[11px] text-neutral-400">
+            🔒 <strong>Note:</strong> Every single day, the bot calculates a random hour and minute between 02:00 and 22:00 UTC. Only you can view this schedule here on the admin panel.
           </p>
         </div>
 
