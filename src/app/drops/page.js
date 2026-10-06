@@ -208,17 +208,31 @@ export default function DropsConfigPage() {
                 A massive jackpot gift crate dropped at 2 completely random times per day. Notifies @everyone.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setConfig({ ...config, rare_drop_enabled: !config.rare_drop_enabled })}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
-                config.rare_drop_enabled
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50'
-                  : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
-              }`}
-            >
-              {config.rare_drop_enabled ? 'ENABLED' : 'DISABLED'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setConfig({ ...config, ping_everyone: !config.ping_everyone })}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  config.ping_everyone
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 shadow-sm shadow-rose-500/10'
+                    : 'bg-neutral-800 text-neutral-400 border-neutral-700'
+                }`}
+                title="Toggle @everyone notification ping when rare drop lands"
+              >
+                {config.ping_everyone ? '🔔 PING @everyone ON' : '🔕 PING @everyone OFF'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfig({ ...config, rare_drop_enabled: !config.rare_drop_enabled })}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                  config.rare_drop_enabled
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50'
+                    : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                }`}
+              >
+                {config.rare_drop_enabled ? 'ENABLED' : 'DISABLED'}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
