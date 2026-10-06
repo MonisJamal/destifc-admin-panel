@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
@@ -63,6 +66,32 @@ export async function POST(request) {
       await query("ALTER TABLE black_market_config ADD COLUMN IF NOT EXISTS role_id TEXT DEFAULT ''");
       await query("ALTER TABLE black_market_config ADD COLUMN IF NOT EXISTS ping_type TEXT DEFAULT 'none'");
     } catch (e) {}
+
+    if (action === 'reroll_schedule') {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      // Random hour between 2 and 21 UTC, random minute 0-59
+      const randHour = Math.floor(Math.random() * 20) + 2;
+      const randMin = Math.floor(Math.random() * 60);
+
+      const newSched = {
+        date: todayStr,
+        target_hour: randHour,
+        target_min: randMin,
+        executed: false
+      };
+
+      await query(
+        "INSERT INTO system_settings (key, value) VALUES ('black_market_schedule', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+        [JSON.stringify(newSched)]
+      );
+
+      return NextResponse.json({
+        success: true,
+        message: `Rerolled spawn time to ${String(randHour).padStart(2, '0')}:${String(randMin).padStart(2, '0')} UTC today!`,
+        schedule: newSched
+      });
+    }
 
     if (action === 'trigger_now') {
       const now = new Date();

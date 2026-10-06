@@ -143,6 +143,30 @@ export default function BlackMarketAdminPage() {
     }
   };
 
+  const handleRerollSchedule = async () => {
+    if (!confirm("Reroll today's random spawn time now? The bot will pick a new random time.")) return;
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/black-market', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reroll_schedule' })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSchedule(data.schedule);
+        setMessage({ type: 'success', text: `🎲 ${data.message}` });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to reroll schedule' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message || 'Network error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const updateVoucherDeal = (idx, field, val) => {
     const list = [...voucherPackages];
     list[idx] = { ...list[idx], [field]: val };
@@ -159,7 +183,7 @@ export default function BlackMarketAdminPage() {
     return (
       <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
         <Sidebar />
-        <main className="flex-1 lg:ml-72 ml-0 p-8 flex items-center justify-center">
+        <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-8 flex items-center justify-center">
           <RefreshCw className="w-8 h-8 animate-spin text-purple-500" />
         </main>
       </div>
@@ -170,17 +194,17 @@ export default function BlackMarketAdminPage() {
     <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl space-y-8">
+      <main className="flex-1 lg:ml-72 ml-0 p-3 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl w-full space-y-6 sm:space-y-8 overflow-x-hidden">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-glass)]">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-black flex items-center justify-center text-purple-300 shadow-lg shadow-purple-900/30">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-black flex items-center justify-center text-purple-300 shadow-lg shadow-purple-900/30 flex-shrink-0">
                 <ShoppingBag className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-purple-300 flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-purple-300 flex flex-wrap items-center gap-2">
                 Secret Black Market
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   1-HR FLASH EVENT
                 </span>
               </h1>
@@ -190,13 +214,13 @@ export default function BlackMarketAdminPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             {isActive ? (
               <button
                 type="button"
                 onClick={handleCloseNow}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-xl border border-red-500/40 text-red-300 hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-all"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-red-500/40 text-red-300 hover:bg-red-500/20 text-xs font-bold flex items-center justify-center gap-2 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
                 Close Market Now
@@ -206,14 +230,14 @@ export default function BlackMarketAdminPage() {
                 type="button"
                 onClick={handleTriggerNow}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 text-white text-xs font-black shadow-lg shadow-purple-500/25 hover:opacity-90 flex items-center gap-2 transition-all"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 text-white text-xs font-black shadow-lg shadow-purple-500/25 hover:opacity-90 flex items-center justify-center gap-2 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
-                Trigger 1-Hr Opening Now
+                Trigger 1-Hr Opening
               </button>
             )}
 
-            <LiquidButton onClick={handleSaveSettings} disabled={saving} loading={saving}>
+            <LiquidButton onClick={handleSaveSettings} disabled={saving} loading={saving} className="flex-1 sm:flex-initial justify-center">
               <Save className="w-4 h-4" />
               Save Deals
             </LiquidButton>
@@ -222,25 +246,25 @@ export default function BlackMarketAdminPage() {
 
         {/* Message Banner */}
         {message.text && (
-          <div className={`p-4 rounded-2xl flex items-center gap-3 text-sm font-semibold border ${
+          <div className={`p-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-semibold border ${
             message.type === 'success' ? 'bg-purple-950/40 border-purple-500/40 text-purple-200' : 'bg-red-950/40 border-red-500/40 text-red-200'
           }`}>
             {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-purple-400" /> : <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />}
-            {message.text}
+            <span className="break-words">{message.text}</span>
           </div>
         )}
 
         {/* Status Card */}
-        <div className="glass-card p-6 rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-950/20 to-black space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="glass-card p-4 sm:p-6 rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-950/20 to-black space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className={`w-3.5 h-3.5 rounded-full ${isActive ? 'bg-emerald-400 animate-ping' : 'bg-neutral-600'}`} />
-              <h2 className="text-base font-bold text-[var(--text-main)]">
-                Live Black Market Status: <span className={isActive ? 'text-emerald-400 font-black' : 'text-neutral-400 font-bold'}>{isActive ? 'OPEN RIGHT NOW IN DISCORD' : 'CLOSED (WAITING FOR DAILY RANDOM DROP)'}</span>
+              <span className={`w-3.5 h-3.5 rounded-full flex-shrink-0 ${isActive ? 'bg-emerald-400 animate-ping' : 'bg-neutral-600'}`} />
+              <h2 className="text-sm sm:text-base font-bold text-[var(--text-main)]">
+                Live Status: <span className={isActive ? 'text-emerald-400 font-black' : 'text-neutral-400 font-bold'}>{isActive ? 'OPEN RIGHT NOW IN DISCORD' : 'CLOSED (WAITING FOR DAILY RANDOM DROP)'}</span>
               </h2>
             </div>
             {closesAt && isActive && (
-              <div className="text-xs text-purple-300 font-mono bg-purple-900/40 px-3 py-1.5 rounded-xl border border-purple-500/30 flex items-center gap-1.5">
+              <div className="text-xs text-purple-300 font-mono bg-purple-900/40 px-3 py-1.5 rounded-xl border border-purple-500/30 flex items-center gap-1.5 self-start sm:self-auto">
                 <Clock className="w-3.5 h-3.5" />
                 Closes: {new Date(closesAt).toLocaleTimeString()}
               </div>
@@ -252,66 +276,77 @@ export default function BlackMarketAdminPage() {
         </div>
 
         {/* 🕵️ Confidential Daily Spawn Radar (Admin/Owner Only) */}
-        <div className="glass-card p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-black to-purple-950/20 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="glass-card p-4 sm:p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-black to-purple-950/20 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <Shield className="w-5 h-5 text-amber-400" />
-              <h3 className="text-sm font-black uppercase tracking-wider text-amber-300">
+              <Shield className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300">
                 Confidential Smuggler Schedule Radar (Owner-Only)
               </h3>
             </div>
-            <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold">
-              TOP SECRET
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRerollSchedule}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-xl border border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1.5 transition-all"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${saving ? 'animate-spin' : ''}`} />
+                Reroll Today's Drop Time
+              </button>
+              <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold">
+                TOP SECRET
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
               <span className="text-[11px] text-[var(--text-muted)] font-medium">Scheduled Date (UTC)</span>
               <p className="text-sm font-mono font-bold text-white">
                 {schedule?.date || 'Today'}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-black/40 border border-amber-500/20 space-y-1">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-amber-500/20 space-y-1">
               <span className="text-[11px] text-amber-400/80 font-medium">Random Drop Time Today</span>
-              <div className="flex items-baseline gap-2">
-                <p className="text-lg font-mono font-black text-amber-300">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <p className="text-base sm:text-lg font-mono font-black text-amber-300">
                   {schedule?.target_hour !== undefined
                     ? `${String(schedule.target_hour).padStart(2, '0')}:${String(schedule.target_min || 0).padStart(2, '0')} UTC`
                     : 'Selecting random time...'}
                 </p>
                 {schedule?.target_hour !== undefined && (
-                  <span className="text-xs text-neutral-400 font-mono">
+                  <span className="text-[11px] text-neutral-400 font-mono">
                     ({new Date(Date.UTC(
                       new Date().getUTCFullYear(),
                       new Date().getUTCMonth(),
                       new Date().getUTCDate(),
                       schedule.target_hour,
                       schedule.target_min || 0
-                    )).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} your local time)
+                    )).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} local)
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1 sm:col-span-2 lg:col-span-1">
               <span className="text-[11px] text-[var(--text-muted)] font-medium">Execution Status</span>
               <p className="text-sm font-semibold flex items-center gap-2">
                 {schedule?.executed ? (
                   <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" /> Already Spawned Today
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> Already Spawned Today
                   </span>
                 ) : (
                   <span className="text-yellow-400 font-bold flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 animate-spin" /> Pending Auto-Drop
+                    <Clock className="w-4 h-4 animate-spin flex-shrink-0" /> Pending Auto-Drop
                   </span>
                 )}
               </p>
             </div>
           </div>
           <p className="text-[11px] text-neutral-400">
-            🔒 <strong>Note:</strong> Every single day, the bot calculates a random hour and minute between 02:00 and 22:00 UTC. Only you can view this schedule here on the admin panel.
+            🔒 <strong>Note:</strong> Every single day, the bot calculates a random hour and minute between 02:00 and 22:00 UTC. Use "Reroll Today's Drop Time" above if you want to regenerate a new random time immediately!
           </p>
         </div>
 
