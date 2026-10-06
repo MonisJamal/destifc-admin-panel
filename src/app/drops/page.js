@@ -159,7 +159,7 @@ export default function DropsConfigPage() {
                 type="number"
                 min="1"
                 max="50"
-                value={config.vouchers_per_drop || 3}
+                value={config.vouchers_per_drop ?? 3}
                 onChange={e => setConfig({ ...config, vouchers_per_drop: parseInt(e.target.value) || 1 })}
                 className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
               />
@@ -173,7 +173,7 @@ export default function DropsConfigPage() {
                 type="number"
                 min="0"
                 step="500000"
-                value={config.coins_per_drop || 5000000}
+                value={config.coins_per_drop ?? 5000000}
                 onChange={e => setConfig({ ...config, coins_per_drop: parseInt(e.target.value) || 0 })}
                 className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
               />
@@ -187,11 +187,84 @@ export default function DropsConfigPage() {
                 type="number"
                 min="1"
                 max="20"
-                value={config.max_claims || 3}
+                value={config.max_claims ?? 3}
                 onChange={e => setConfig({ ...config, max_claims: parseInt(e.target.value) || 1 })}
                 className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500 font-mono"
               />
               <p className="text-[10px] text-[var(--text-muted)]">First X players to click button get the loot.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Rare Gift Drops (2x Daily at Random Times) */}
+        <div className="glass-card p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-glass)]">
+            <div>
+              <h2 className="text-base font-bold text-amber-300 flex items-center gap-2">
+                <span>🌟</span>
+                Daily Rare Gift Drops (2 Random Times Daily)
+              </h2>
+              <p className="text-xs text-[var(--text-muted)] mt-1">
+                A massive jackpot gift crate dropped at 2 completely random times per day. Notifies @everyone.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setConfig({ ...config, rare_drop_enabled: !config.rare_drop_enabled })}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                config.rare_drop_enabled
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50'
+                  : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+              }`}
+            >
+              {config.rare_drop_enabled ? 'ENABLED' : 'DISABLED'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-amber-200">
+                Rare Gift Vouchers
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="200"
+                value={config.rare_drop_vouchers ?? 25}
+                onChange={e => setConfig({ ...config, rare_drop_vouchers: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400 font-mono font-bold"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">Draft vouchers inside each Rare Gift crate.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-amber-200">
+                Rare Gift Coins
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="5000000"
+                value={config.rare_drop_coins ?? 150000000}
+                onChange={e => setConfig({ ...config, rare_drop_coins: parseInt(e.target.value) || 0 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400 font-mono font-bold"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">Bonus coins inside each Rare Gift crate.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-amber-200">
+                Rare Gift Claimers
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={config.rare_drop_max_claims ?? 5}
+                onChange={e => setConfig({ ...config, rare_drop_max_claims: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400 font-mono font-bold"
+              />
+              <p className="text-[10px] text-[var(--text-muted)]">Number of players who can grab the rare loot.</p>
             </div>
           </div>
         </div>

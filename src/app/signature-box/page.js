@@ -123,17 +123,22 @@ export default function SignatureBoxAdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (data.success) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
         setMessage({ type: 'success', text: 'Signature Box saved and synchronized live to Discord Bot.' });
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to save Signature Box' });
+        setMessage({ type: 'error', text: data.error || `Server responded with ${res.status}: Failed to save Signature Box` });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Network connection error: ' + (err.message || 'Unknown Payload Error') });
+      console.error('Signature Box Save Error:', err);
+      setMessage({ type: 'error', text: 'Error saving settings: ' + (err.message || 'Unknown Payload Error') });
     } finally {
       setSaving(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      try {
+        if (typeof window !== 'undefined') {
+          window.scrollTo(0, 0);
+        }
+      } catch (scrollErr) {}
     }
   };
 

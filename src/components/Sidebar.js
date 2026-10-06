@@ -30,7 +30,8 @@ import {
   Sun,
   Swords,
   Radio,
-  HeartHandshake
+  HeartHandshake,
+  ShoppingBag
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -84,6 +85,7 @@ export default function Sidebar() {
         { href: '/diagnostics', label: 'Command Health & Ping', icon: Activity, perm: 'diagnostics' },
         { href: '/bot-config', label: 'Bot Status & Maint.', icon: Bot, perm: 'bot-config' },
         { href: '/drops', label: 'Loot Drops & Rains', icon: Radio, perm: 'economy-config' },
+        { href: '/black-market', label: 'Black Market', icon: ShoppingBag, perm: 'economy-config' },
         { href: '/arcade', label: 'Arcade & Minigames', icon: Swords, perm: 'gameplay-config' },
         { href: '/prices', label: 'Price Setter', icon: Coins, perm: 'prices' },
         { href: '/luck', label: 'Drop Rates & Luck', icon: Percent, perm: 'luck' },
