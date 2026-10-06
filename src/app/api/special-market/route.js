@@ -18,7 +18,8 @@ export async function GET() {
           custom_rewards: [],
           channels: [],
           role_id: '',
-          ping_type: 'none'
+          ping_type: 'none',
+          duration_minutes: 60
         }
       });
     }
@@ -32,6 +33,7 @@ export async function GET() {
         channels: typeof row.channels === 'string' ? JSON.parse(row.channels) : (row.channels || []),
         role_id: row.role_id || '',
         ping_type: row.ping_type || 'none',
+        duration_minutes: parseInt(row.duration_minutes) || 60,
         title: row.title || '👑 OWNER VIP SPECIAL MARKET 👑'
       }
     });
@@ -44,7 +46,8 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { action, is_active, title, custom_rewards, channels, role_id, ping_type } = body;
+    const { action, is_active, title, custom_rewards, channels, role_id, ping_type, duration_minutes } = body;
+    const durMins = Math.max(1, Math.min(1440, parseInt(duration_minutes) || 60));
 
     // Ensure table structure exists
     try {
@@ -59,18 +62,20 @@ export async function POST(request) {
           channels JSONB DEFAULT '[]'::jsonb,
           role_id TEXT DEFAULT '',
           ping_type TEXT DEFAULT 'none',
+          duration_minutes INT DEFAULT 60,
           updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      await query(`ALTER TABLE special_market_config ADD COLUMN IF NOT EXISTS duration_minutes INT DEFAULT 60`);
     } catch (e) {}
 
     if (action === 'trigger_now') {
       const now = new Date();
-      const close = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour
+      const close = new Date(now.getTime() + durMins * 60 * 1000);
 
       await query(`
-        INSERT INTO special_market_config (id, is_active, opens_at, closes_at, title, custom_rewards, channels, role_id, ping_type, updated_at)
-        VALUES (1, true, $1, $2, $3, $4::jsonb, $5::jsonb, $6, $7, CURRENT_TIMESTAMP)
+        INSERT INTO special_market_config (id, is_active, opens_at, closes_at, title, custom_rewards, channels, role_id, ping_type, duration_minutes, updated_at)
+        VALUES (1, true, $1, $2, $3, $4::jsonb, $5::jsonb, $6, $7, $8, CURRENT_TIMESTAMP)
         ON CONFLICT (id) DO UPDATE SET
           is_active = true,
           opens_at = EXCLUDED.opens_at,
@@ -80,6 +85,7 @@ export async function POST(request) {
           channels = EXCLUDED.channels,
           role_id = EXCLUDED.role_id,
           ping_type = EXCLUDED.ping_type,
+          duration_minutes = EXCLUDED.duration_minutes,
           updated_at = CURRENT_TIMESTAMP
       `, [
         now.toISOString(),
@@ -88,7 +94,8 @@ export async function POST(request) {
         JSON.stringify(custom_rewards || []),
         JSON.stringify(channels || []),
         role_id || '',
-        ping_type || 'none'
+        ping_type || 'none',
+        durMins
       ]);
 
       // Schedule portal job so bot instantly announces in Discord
@@ -96,7 +103,7 @@ export async function POST(request) {
         await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('open_special_market', '{}', 'pending')");
       } catch (e) {}
 
-      return NextResponse.json({ success: true, message: 'VIP Special Market successfully opened for 1 hour live in Discord!' });
+      return NextResponse.json({ success: true, message: `VIP Special Market successfully opened for ${durMins} minutes live in Discord!` });
     }
 
     if (action === 'close_now') {
@@ -110,8 +117,8 @@ export async function POST(request) {
 
     // Save custom rewards configuration
     await query(`
-      INSERT INTO special_market_config (id, is_active, title, custom_rewards, channels, role_id, ping_type, updated_at)
-      VALUES (1, $1, $2, $3::jsonb, $4::jsonb, $5, $6, CURRENT_TIMESTAMP)
+      INSERT INTO special_market_config (id, is_active, title, custom_rewards, channels, role_id, ping_type, duration_minutes, updated_at)
+      VALUES (1, $1, $2, $3::jsonb, $4::jsonb, $5, $6, $7, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO UPDATE SET
         is_active = EXCLUDED.is_active,
         title = EXCLUDED.title,
@@ -119,6 +126,7 @@ export async function POST(request) {
         channels = EXCLUDED.channels,
         role_id = EXCLUDED.role_id,
         ping_type = EXCLUDED.ping_type,
+        duration_minutes = EXCLUDED.duration_minutes,
         updated_at = CURRENT_TIMESTAMP
     `, [
       Boolean(is_active),
@@ -126,7 +134,8 @@ export async function POST(request) {
       JSON.stringify(custom_rewards || []),
       JSON.stringify(channels || []),
       role_id || '',
-      ping_type || 'none'
+      ping_type || 'none',
+      durMins
     ]);
 
     return NextResponse.json({ success: true, message: 'VIP Special Market deals and rewards saved!' });

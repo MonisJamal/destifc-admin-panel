@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Crown, Zap, Clock, Coins, Plus, Trash2, Save, AlertCircle, CheckCircle2, Shield, Radio, Sparkles, RefreshCw, Gift } from 'lucide-react';
+import { 
+  Crown, Zap, Clock, Coins, Plus, Trash2, Save, AlertCircle, CheckCircle2, 
+  Shield, Radio, Sparkles, RefreshCw, Gift, UserPlus, Search, X, User
+} from 'lucide-react';
 
 export default function SpecialMarketAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -11,6 +14,7 @@ export default function SpecialMarketAdminPage() {
 
   const [isActive, setIsActive] = useState(false);
   const [closesAt, setClosesAt] = useState(null);
+  const [durationMinutes, setDurationMinutes] = useState(60);
   const [title, setTitle] = useState('👑 OWNER VIP SPECIAL MARKET 👑');
   const [channels, setChannels] = useState([]);
   const [roleId, setRoleId] = useState('');
@@ -20,6 +24,7 @@ export default function SpecialMarketAdminPage() {
   const [rewards, setRewards] = useState([
     {
       id: "vip_1",
+      deal_type: "voucher", // "voucher" | "player" | "custom"
       title: "100x Mega Voucher Treasury",
       description: "100 Draft Vouchers + VIP Pass",
       cost_coins: 1000000000,
@@ -28,6 +33,7 @@ export default function SpecialMarketAdminPage() {
     },
     {
       id: "vip_2",
+      deal_type: "voucher",
       title: "250x Imperial Voucher Hoard",
       description: "250 Draft Vouchers",
       cost_coins: 2500000000,
@@ -36,9 +42,40 @@ export default function SpecialMarketAdminPage() {
     }
   ]);
 
+  // Player search modal state
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerRewardIndex, setPickerRewardIndex] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+
   useEffect(() => {
     fetchMarketData();
   }, []);
+
+  // Card search debounce
+  useEffect(() => {
+    if (!pickerOpen) return;
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const res = await fetch(`/api/renderz/cards?query=${encodeURIComponent(searchQuery.trim())}&size=12`);
+        const data = await res.json();
+        if (data.success) {
+          setSearchResults(data.cards || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery, pickerOpen]);
 
   const fetchMarketData = async () => {
     setLoading(true);
@@ -48,6 +85,7 @@ export default function SpecialMarketAdminPage() {
       if (data.success && data.data) {
         setIsActive(Boolean(data.data.is_active));
         setClosesAt(data.data.closes_at);
+        setDurationMinutes(data.data.duration_minutes || 60);
         setTitle(data.data.title || '👑 OWNER VIP SPECIAL MARKET 👑');
         setChannels(data.data.channels || []);
         setRoleId(data.data.role_id || '');
@@ -64,7 +102,8 @@ export default function SpecialMarketAdminPage() {
   };
 
   const handleTriggerNow = async () => {
-    if (!confirm('Open the VIP Special Market right now for 1 hour? The announcement and deal controls will be broadcasted to your target channels in Discord!')) return;
+    const dur = parseInt(durationMinutes) || 60;
+    if (!confirm(`Open the VIP Special Market right now for ${dur} minutes? The announcement and deal controls will be broadcasted to your target channels in Discord!`)) return;
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
@@ -77,13 +116,14 @@ export default function SpecialMarketAdminPage() {
           custom_rewards: rewards,
           channels,
           role_id: roleId,
-          ping_type: pingType
+          ping_type: pingType,
+          duration_minutes: dur
         })
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setIsActive(true);
-        setMessage({ type: 'success', text: '👑 The VIP Special Market is NOW LIVE for 1 hour in Discord!' });
+        setMessage({ type: 'success', text: `👑 The VIP Special Market is NOW LIVE for ${dur} minutes in Discord!` });
         fetchMarketData();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to open Special Market' });
@@ -132,7 +172,8 @@ export default function SpecialMarketAdminPage() {
           custom_rewards: rewards,
           channels,
           role_id: roleId,
-          ping_type: pingType
+          ping_type: pingType,
+          duration_minutes: parseInt(durationMinutes) || 60
         })
       });
       const data = await res.json();
@@ -148,19 +189,73 @@ export default function SpecialMarketAdminPage() {
     }
   };
 
-  const addReward = () => {
+  const addVoucherReward = () => {
     const newId = `vip_${Date.now()}`;
     setRewards([
       ...rewards,
       {
         id: newId,
-        title: "Exclusive Mystery Reward",
-        description: "50 Vouchers or Special Perk",
+        deal_type: "voucher",
+        title: "Exclusive Voucher Treasury",
+        description: "50 Draft Vouchers",
         cost_coins: 500000000,
         vouchers: 50,
         player_data: null
       }
     ]);
+  };
+
+  const addPlayerReward = () => {
+    const newId = `vip_${Date.now()}`;
+    const newIndex = rewards.length;
+    setRewards([
+      ...rewards,
+      {
+        id: newId,
+        deal_type: "player",
+        title: "⭐ Superstar Player Deal",
+        description: "Exclusive High-OVR Card",
+        cost_coins: 1000000000,
+        vouchers: 0,
+        player_data: null
+      }
+    ]);
+    // Automatically open card search for this slot
+    setPickerRewardIndex(newIndex);
+    setSearchQuery('');
+    setSearchResults([]);
+    setPickerOpen(true);
+  };
+
+  const openPlayerPickerFor = (idx) => {
+    setPickerRewardIndex(idx);
+    setSearchQuery('');
+    setSearchResults([]);
+    setPickerOpen(true);
+  };
+
+  const selectCardForReward = (card) => {
+    if (pickerRewardIndex === null) return;
+    const ovr = card.rating || card.ovr || 120;
+    const name = card.cardName || card.lastName || card.player_name || 'Superstar';
+    const pos = card.position || 'ST';
+    
+    // Suggested pricing based on OVR
+    const baseCost = ovr >= 122 ? 3000000000 : (ovr >= 120 ? 1500000000 : 750000000);
+
+    const updated = [...rewards];
+    updated[pickerRewardIndex] = {
+      ...updated[pickerRewardIndex],
+      deal_type: "player",
+      title: `⭐ ${name} (${ovr} OVR, ${pos})`,
+      description: `${ovr} OVR ${pos} • ${card.club?.name || 'Club'} / ${card.nation?.name || 'Nation'}`,
+      cost_coins: updated[pickerRewardIndex].cost_coins || baseCost,
+      vouchers: 0,
+      player_data: card
+    };
+    setRewards(updated);
+    setPickerOpen(false);
+    setPickerRewardIndex(null);
   };
 
   const removeReward = (idx) => {
@@ -173,6 +268,12 @@ export default function SpecialMarketAdminPage() {
     const updated = [...rewards];
     updated[idx] = { ...updated[idx], [field]: val };
     setRewards(updated);
+  };
+
+  const getProxyUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
 
   if (loading) {
@@ -206,7 +307,7 @@ export default function SpecialMarketAdminPage() {
               </h1>
             </div>
             <p className="text-xs text-[var(--text-main)] opacity-70">
-              Exclusive high-roller bazaar that <strong>never opens randomly</strong>. Only you can summon this market and define custom prices & rewards.
+              Exclusive high-roller bazaar that <strong>never opens randomly</strong>. Only you can summon this market, customize duration, pick specific players, and define custom coin prices.
             </p>
           </div>
 
@@ -216,7 +317,7 @@ export default function SpecialMarketAdminPage() {
                 type="button"
                 onClick={handleCloseNow}
                 disabled={saving}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-red-500/40 text-red-300 hover:bg-red-500/20 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-red-500/40 text-red-300 hover:bg-red-500/20 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Zap className="w-3.5 h-3.5" />
                 Close Market Now
@@ -226,16 +327,16 @@ export default function SpecialMarketAdminPage() {
                 type="button"
                 onClick={handleTriggerNow}
                 disabled={saving}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-black text-xs font-black shadow-lg shadow-amber-500/25 hover:opacity-90 flex items-center justify-center gap-2 transition-all"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-black text-xs font-black shadow-lg shadow-amber-500/25 hover:opacity-90 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Zap className="w-3.5 h-3.5" />
-                Summon VIP Market (1 Hr)
+                Summon VIP Market ({durationMinutes}m)
               </button>
             )}
 
             <LiquidButton onClick={handleSaveSettings} disabled={saving} loading={saving} className="flex-1 sm:flex-initial justify-center">
               <Save className="w-4 h-4" />
-              Save Deals
+              Save Settings
             </LiquidButton>
           </div>
         </div>
@@ -250,7 +351,7 @@ export default function SpecialMarketAdminPage() {
           </div>
         )}
 
-        {/* Status Card */}
+        {/* Status Card & Duration Controls */}
         <div className="glass-card p-4 sm:p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-black to-yellow-950/20 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -266,9 +367,50 @@ export default function SpecialMarketAdminPage() {
               </div>
             )}
           </div>
-          <p className="text-xs text-[var(--text-main)] opacity-70">
-            🔒 <strong>Strict Protection:</strong> This market has <strong>NO automated daily random scheduler</strong>. It will strictly open only when you trigger it here or run <code>/admin_special_market_open</code>.
-          </p>
+
+          <div className="pt-3 border-t border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-amber-400" />
+                Custom VIP Market Duration (Minutes)
+              </label>
+              <p className="text-[11px] text-[var(--text-main)] opacity-70">
+                Set how long this market will stay open when triggered (e.g. 15m, 30m, 60m, 120m, or 1440m for 24h).
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-[var(--input-bg)] border border-amber-500/30 rounded-2xl px-3 py-1.5">
+                <input
+                  type="number"
+                  min="1"
+                  max="1440"
+                  value={durationMinutes}
+                  onChange={e => setDurationMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-20 text-center font-mono font-bold text-sm text-amber-300 bg-transparent focus:outline-none"
+                />
+                <span className="text-xs font-bold text-[var(--text-muted)]">mins</span>
+              </div>
+
+              {/* Quick preset pills */}
+              <div className="flex items-center gap-1">
+                {[15, 30, 60, 120, 360, 1440].map(m => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setDurationMinutes(m)}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      durationMinutes === m 
+                        ? 'bg-amber-500 text-black shadow-md' 
+                        : 'bg-[var(--card-bg)] text-amber-300/80 hover:bg-amber-500/20 border border-amber-500/20'
+                    }`}
+                  >
+                    {m >= 60 ? `${m/60}h` : `${m}m`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Custom Title & Target Channels */}
@@ -349,79 +491,250 @@ export default function SpecialMarketAdminPage() {
             <div>
               <h2 className="text-base font-bold text-yellow-300 flex items-center gap-2">
                 <Gift className="w-4 h-4 text-yellow-400" />
-                Custom Rewards & Price Setter
+                VIP Rewards & Player Cards
               </h2>
-              <p className="text-xs text-[var(--text-muted)]">Configure exact coin prices and voucher quantities for each special deal</p>
+              <p className="text-xs text-[var(--text-muted)]">Configure exact coin prices, pick specific FC Mobile superstars from database, and set voucher packs</p>
             </div>
-            <button
-              type="button"
-              onClick={addReward}
-              className="px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add VIP Deal
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={addPlayerReward}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:opacity-90 text-xs font-black flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                + Add Player Deal
+              </button>
+              <button
+                type="button"
+                onClick={addVoucherReward}
+                className="px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                + Add Voucher Deal
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {rewards.map((r, i) => (
-              <div key={r.id || i} className="p-4 rounded-2xl bg-[var(--input-bg)] border border-amber-500/20 space-y-3 relative group">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-amber-300">VIP Slot #{i + 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeReward(i)}
-                    className="p-1 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            {rewards.map((r, i) => {
+              const isPlayer = Boolean(r.player_data) || r.deal_type === 'player';
+              const card = r.player_data;
+              const ovr = card ? (card.rating || card.ovr) : null;
 
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Title</label>
-                  <input
-                    type="text"
-                    value={r.title}
-                    onChange={e => updateReward(i, 'title', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs text-[var(--text-main)] font-semibold focus:outline-none focus:border-amber-400"
-                  />
-                </div>
+              return (
+                <div key={r.id || i} className={`p-4 rounded-2xl bg-[var(--input-bg)] border space-y-3 relative group transition-all ${
+                  isPlayer ? 'border-amber-400/40 bg-gradient-to-b from-amber-950/20 to-[var(--input-bg)]' : 'border-amber-500/20'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                      {isPlayer ? <Crown className="w-3.5 h-3.5 text-amber-400" /> : <Gift className="w-3.5 h-3.5 text-yellow-400" />}
+                      VIP Slot #{i + 1} {isPlayer && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">PLAYER CARD</span>}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeReward(i)}
+                      className="p-1 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Subtitle / Description</label>
-                  <input
-                    type="text"
-                    value={r.description || ''}
-                    onChange={e => updateReward(i, 'description', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs text-[var(--text-main)] focus:outline-none focus:border-amber-400"
-                  />
-                </div>
+                  {/* Player Card Preview & Selection */}
+                  {isPlayer && (
+                    <div className="p-3 rounded-xl bg-black/40 border border-amber-500/30 flex items-center gap-3">
+                      {card ? (
+                        <>
+                          <div className="relative w-14 h-16 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-neutral-900 border border-amber-500/40">
+                            {card.images?.playerCardBackground && (
+                              <img
+                                src={getProxyUrl(card.images.playerCardBackground)}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                              />
+                            )}
+                            {card.images?.playerCardImage || card.images?.playerImage ? (
+                              <img
+                                src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
+                                alt=""
+                                className="relative z-10 w-12 h-12 object-contain"
+                              />
+                            ) : (
+                              <User className="w-6 h-6 text-amber-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-black text-amber-400">{ovr} OVR</span>
+                              <span className="text-[10px] font-bold text-neutral-400">{card.position || 'ST'}</span>
+                            </div>
+                            <div className="text-xs font-bold text-[var(--text-main)] truncate">
+                              {card.cardName || card.lastName || card.player_name}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => openPlayerPickerFor(i)}
+                              className="text-[10px] font-bold text-amber-400 hover:underline mt-1 cursor-pointer"
+                            >
+                              Change Player Card →
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full flex items-center justify-between">
+                          <span className="text-xs text-neutral-400">No card selected</span>
+                          <button
+                            type="button"
+                            onClick={() => openPlayerPickerFor(i)}
+                            className="px-2.5 py-1 rounded-lg bg-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/40 transition-all cursor-pointer"
+                          >
+                            Select Player
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Draft Vouchers</label>
+                    <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Title</label>
                     <input
-                      type="number"
-                      value={r.vouchers || 0}
-                      onChange={e => updateReward(i, 'vouchers', parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-[var(--text-main)] focus:outline-none focus:border-amber-400"
+                      type="text"
+                      value={r.title}
+                      onChange={e => updateReward(i, 'title', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs text-[var(--text-main)] font-semibold focus:outline-none focus:border-amber-400"
                     />
                   </div>
+
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Price (Coins)</label>
+                    <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Subtitle / Description</label>
                     <input
-                      type="number"
-                      step="10000000"
-                      value={r.cost_coins || 0}
-                      onChange={e => updateReward(i, 'cost_coins', parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-amber-300 font-bold focus:outline-none focus:border-amber-400"
+                      type="text"
+                      value={r.description || ''}
+                      onChange={e => updateReward(i, 'description', e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs text-[var(--text-main)] focus:outline-none focus:border-amber-400"
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">
+                        {isPlayer ? "Bonus Vouchers" : "Draft Vouchers"}
+                      </label>
+                      <input
+                        type="number"
+                        value={r.vouchers || 0}
+                        onChange={e => updateReward(i, 'vouchers', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-[var(--text-main)] focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Price (Coins)</label>
+                      <input
+                        type="number"
+                        step="10000000"
+                        value={r.cost_coins || 0}
+                        onChange={e => updateReward(i, 'cost_coins', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-amber-300 font-bold focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
+
+        {/* Player Card Picker Modal */}
+        {pickerOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+            <div className="glass-card w-full max-w-3xl rounded-3xl border border-amber-500/40 p-6 space-y-5 bg-gradient-to-b from-neutral-900 to-black max-h-[85vh] flex flex-col">
+              <div className="flex items-center justify-between pb-3 border-b border-amber-500/20">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-amber-400" />
+                  <h3 className="text-base font-bold text-amber-300">Choose Player Card from Official Database</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setPickerOpen(false); setPickerRewardIndex(null); }}
+                  className="p-1 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800 transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Search bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Search player name (e.g. Messi, Ronaldo, Cruyff, Mbappe, Bellingham)..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              {/* Search results grid */}
+              <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                {searchLoading ? (
+                  <div className="py-16 text-center">
+                    <RefreshCw className="w-8 h-8 animate-spin text-amber-400 mx-auto" />
+                    <p className="text-xs text-neutral-400 mt-2">Searching RenderZ database...</p>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {searchResults.map((card) => {
+                      const ovr = card.rating || card.ovr;
+                      const name = card.cardName || card.lastName || card.player_name;
+                      return (
+                        <div
+                          key={card.id || card.assetId}
+                          onClick={() => selectCardForReward(card)}
+                          className="p-3 rounded-2xl bg-neutral-900/80 border border-neutral-800 hover:border-amber-400 hover:bg-amber-950/20 flex items-center gap-3 cursor-pointer transition-all group"
+                        >
+                          <div className="relative w-12 h-14 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-black border border-neutral-700 group-hover:border-amber-400">
+                            {card.images?.playerCardBackground && (
+                              <img
+                                src={getProxyUrl(card.images.playerCardBackground)}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                              />
+                            )}
+                            {card.images?.playerCardImage || card.images?.playerImage ? (
+                              <img
+                                src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
+                                alt=""
+                                className="relative z-10 w-10 h-10 object-contain group-hover:scale-110 transition-transform"
+                              />
+                            ) : (
+                              <User className="w-5 h-5 text-amber-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-black text-amber-400">{ovr} OVR</span>
+                              <span className="text-[10px] font-bold text-neutral-400">{card.position}</span>
+                            </div>
+                            <div className="text-xs font-bold text-white truncate">{name}</div>
+                            <div className="text-[10px] text-neutral-400 truncate">{card.club?.name || card.program?.name || 'Player'}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : searchQuery ? (
+                  <div className="py-16 text-center text-xs text-neutral-500">
+                    No players found matching "{searchQuery}". Try a different spelling or last name.
+                  </div>
+                ) : (
+                  <div className="py-16 text-center text-xs text-neutral-500">
+                    Type a player name above to search through thousands of official FC Mobile cards.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
