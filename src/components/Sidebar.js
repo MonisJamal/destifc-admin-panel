@@ -32,7 +32,8 @@ import {
   Radio,
   HeartHandshake,
   ShoppingBag,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Crown
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -87,6 +88,7 @@ export default function Sidebar() {
         { href: '/bot-config', label: 'Bot Status & Maint.', icon: Bot, perm: 'bot-config' },
         { href: '/drops', label: 'Loot Drops & Rains', icon: Radio, perm: 'drops' },
         { href: '/black-market', label: 'Black Market', icon: ShoppingBag, perm: 'black-market' },
+        { href: '/special-market', label: 'VIP Special Market', icon: Crown, perm: 'black-market' },
         { href: '/exchange-exclusive', label: 'Exchange Exclusives', icon: ArrowRightLeft, perm: 'exchange-exclusive' },
         { href: '/arcade', label: 'Arcade & Minigames', icon: Swords, perm: 'arcade' },
         { href: '/prices', label: 'Price Setter', icon: Coins, perm: 'prices' },
