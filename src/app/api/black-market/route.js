@@ -69,13 +69,25 @@ export async function POST(request) {
 
     if (action === 'reroll_schedule') {
       const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
-      // Random hour between 2 and 21 UTC, random minute 0-59
-      const randHour = Math.floor(Math.random() * 20) + 2;
+      const currentUtcHour = now.getUTCHours();
+      let schedDateStr = now.toISOString().split('T')[0];
+      let randHour;
+
+      // If there are still hours left today before 22:00 UTC, pick a time later today (at least 1 hour from now)
+      if (currentUtcHour < 21) {
+        const minHour = Math.max(2, currentUtcHour + 1);
+        randHour = Math.floor(Math.random() * (22 - minHour + 1)) + minHour;
+      } else {
+        // Otherwise schedule for tomorrow between 02:00 and 21:00 UTC
+        const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        schedDateStr = tomorrow.toISOString().split('T')[0];
+        randHour = Math.floor(Math.random() * 20) + 2;
+      }
+
       const randMin = Math.floor(Math.random() * 60);
 
       const newSched = {
-        date: todayStr,
+        date: schedDateStr,
         target_hour: randHour,
         target_min: randMin,
         executed: false
@@ -88,7 +100,7 @@ export async function POST(request) {
 
       return NextResponse.json({
         success: true,
-        message: `Rerolled spawn time to ${String(randHour).padStart(2, '0')}:${String(randMin).padStart(2, '0')} UTC today!`,
+        message: `Rerolled spawn time to ${schedDateStr} at ${String(randHour).padStart(2, '0')}:${String(randMin).padStart(2, '0')} UTC!`,
         schedule: newSched
       });
     }
