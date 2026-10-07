@@ -471,71 +471,26 @@ export default function BlackMarketAdminPage() {
           </div>
         </div>
 
-        {/* 2. 5 Random 120+ Player Deals (30%+ discount) */}
-        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-5">
+        {/* 2. Automated 120+ Superstar Deals Banner */}
+        <div className="glass-card p-6 rounded-3xl border border-[var(--border-glass)] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[var(--border-glass)]">
             <h2 className="text-base font-bold text-amber-300 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              ⭐ 5 Random 120+ Superstar Deals (30%+ Variable Discount)
+              ⭐ 5 Automated Superstar Deals (Guaranteed ≥3 Rating 122+)
             </h2>
-            <span className="text-xs font-mono text-[var(--text-muted)]">Auto-refreshed each 1-hr session</span>
+            <span className="text-xs font-mono text-[var(--text-muted)]">100% Automated by Bot</span>
           </div>
 
-          <p className="text-xs text-[var(--text-main)] opacity-70">
-            During each live session, the bot automatically selects 5 random 120+ icons and superstars and applies custom 30%–45% price discounts. You can also view or tweak them below:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {playerDeals.length > 0 ? (
-              playerDeals.map((pd, i) => (
-                <div key={pd.id || i} className="p-4 rounded-2xl bg-[var(--input-bg)] border border-amber-500/20 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-300">Slot #{i + 1} ({pd.ovr} OVR)</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      -{pd.discount_pct}% OFF
-                    </span>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Player Name</label>
-                    <input
-                      type="text"
-                      value={pd.name}
-                      onChange={e => updatePlayerDeal(i, 'name', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs text-[var(--text-main)] font-semibold focus:outline-none focus:border-amber-400"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Discount %</label>
-                      <input
-                        type="number"
-                        min="20"
-                        max="70"
-                        value={pd.discount_pct}
-                        onChange={e => updatePlayerDeal(i, 'discount_pct', parseInt(e.target.value) || 30)}
-                        className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-[var(--text-main)] focus:outline-none focus:border-amber-400"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Sale Price (Coins)</label>
-                      <input
-                        type="number"
-                        step="50000000"
-                        value={pd.discount_price}
-                        onChange={e => updatePlayerDeal(i, 'discount_price', parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 rounded-xl bg-[var(--card-bg)] border border-[var(--border-glass)] text-xs font-mono text-amber-300 font-bold focus:outline-none focus:border-amber-400"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full py-8 text-center text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-glass)] rounded-2xl">
-                Player deals are dynamically generated each 1-hour session. Click "Trigger 1-Hr Opening Now" to generate active deals!
-              </div>
-            )}
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-[var(--text-main)] space-y-2">
+            <p className="font-semibold text-amber-300">
+              ⚡ Player deals in the Black Market are now fully automated and do not require manual input.
+            </p>
+            <p className="opacity-80">
+              Whenever the Black Market triggers (either automatically or manually via the button above), the bot pulls 5 random high-tier cards directly from the database with 30%–45% discounts. <strong>At least 3 of the 5 cards are guaranteed to be 122+ OVR superstars.</strong>
+            </p>
+            <p className="text-[11px] opacity-60">
+              (To configure custom players or manual rewards for your exclusive market, use the <strong>VIP Special Market</strong> tab in the sidebar).
+            </p>
           </div>
         </div>
       </main>
