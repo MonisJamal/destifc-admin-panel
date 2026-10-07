@@ -1634,11 +1634,46 @@ export default function FormationsPage() {
   const [customPitchUrl, setCustomPitchUrl] = useState(null);
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  
+  // Professional Studio Tools State
+  const [showGrid, setShowGrid] = useState(true);
+  const [gridSize, setGridSize] = useState(0.02); // 2% grid interval
+  const [snapToGrid, setSnapToGrid] = useState(true);
+  const [snapToGuides, setSnapToGuides] = useState(true);
+  const [autoSymmetry, setAutoSymmetry] = useState(false); // Mirror horizontal adjustments across center line
+  const [showPitchGuides, setShowPitchGuides] = useState(true);
+  const [showCardOutlines, setShowCardOutlines] = useState(true);
+  const [activeGuideLines, setActiveGuideLines] = useState([]); // Alignment guide lines for snapping
+  const [overlapWarnings, setOverlapWarnings] = useState([]); // Node positions currently in collision/occlusion
+  
   const pitchRef = useRef(null);
 
   useEffect(() => {
     fetchFormation(selectedFormation);
   }, [selectedFormation]);
+
+  // Recalculate collision / overlap stoppers whenever positions change
+  useEffect(() => {
+    checkCollisions(positions);
+  }, [positions]);
+
+  const checkCollisions = (posObj) => {
+    const warnings = [];
+    const entries = Object.entries(posObj);
+    for (let i = 0; i < entries.length; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        const [p1, [x1, y1]] = entries[i];
+        const [p2, [x2, y2]] = entries[j];
+        const dx = Math.abs(x1 - x2);
+        const dy = Math.abs(y1 - y2);
+        // Overlap stopper warning threshold (approx card footprint in tactical space)
+        if (dx < 0.08 && dy < 0.09) {
+          warnings.push({ p1, p2, dx, dy });
+        }
+      }
+    }
+    setOverlapWarnings(warnings);
+  };
 
   const fetchFormation = async (name) => {
     try {
@@ -1687,20 +1722,88 @@ export default function FormationsPage() {
   const handlePointerMove = (e) => {
     if (!activeNode || !pitchRef.current) return;
     const rect = pitchRef.current.getBoundingClientRect();
-    let x = (e.clientX - rect.left) / rect.width;
-    let y = (e.clientY - rect.top) / rect.height;
+    let rawX = (e.clientX - rect.left) / rect.width;
+    let rawY = (e.clientY - rect.top) / rect.height;
 
-    x = Math.max(0.04, Math.min(0.96, parseFloat(x.toFixed(3))));
-    y = Math.max(0.08, Math.min(0.96, parseFloat(y.toFixed(3))));
+    // Hard Boundaries / Pitch Stopper limits
+    rawX = Math.max(0.05, Math.min(0.95, rawX));
+    rawY = Math.max(0.06, Math.min(0.96, rawY));
 
-    setPositions(prev => ({
-      ...prev,
-      [activeNode]: [x, y]
-    }));
+    let finalX = rawX;
+    let finalY = rawY;
+    const activeGuides = [];
+
+    // 1. Magnetic Snap to Pitch Center Guidelines
+    if (snapToGuides) {
+      const snapThresholdX = 0.015;
+      const snapThresholdY = 0.015;
+
+      // Center Line X=0.50
+      if (Math.abs(finalX - 0.50) < snapThresholdX) {
+        finalX = 0.50;
+        activeGuides.push({ type: 'x', pos: 0.50, label: 'Center Axis (50%)' });
+      }
+
+      // Check alignment with other player nodes (horizontal & vertical magnetic guides)
+      Object.entries(positions).forEach(([otherNode, [ox, oy]]) => {
+        if (otherNode === activeNode) return;
+
+        // Shared horizontal line (same depth)
+        if (Math.abs(finalY - oy) < snapThresholdY) {
+          finalY = oy;
+          activeGuides.push({ type: 'y', pos: oy, label: `${otherNode} Row` });
+        }
+
+        // Shared vertical line (same channel)
+        if (Math.abs(finalX - ox) < snapThresholdX) {
+          finalX = ox;
+          activeGuides.push({ type: 'x', pos: ox, label: `${otherNode} Channel` });
+        }
+      });
+    }
+
+    // 2. Grid Snapping
+    if (snapToGrid) {
+      finalX = Math.round(finalX / gridSize) * gridSize;
+      finalY = Math.round(finalY / gridSize) * gridSize;
+    }
+
+    finalX = parseFloat(Math.max(0.05, Math.min(0.95, finalX)).toFixed(3));
+    finalY = parseFloat(Math.max(0.06, Math.min(0.96, finalY)).toFixed(3));
+
+    setActiveGuideLines(activeGuides);
+
+    setPositions(prev => {
+      const updated = { ...prev, [activeNode]: [finalX, finalY] };
+
+      // 3. Auto-Symmetry (mirror partner across the center line X=0.50)
+      if (autoSymmetry) {
+        const partnerMap = {
+          'LW': 'RW', 'RW': 'LW',
+          'LM': 'RM', 'RM': 'LM',
+          'LB': 'RB', 'RB': 'LB',
+          'LWB': 'RWB', 'RWB': 'LWB',
+          'LF': 'RF', 'RF': 'LF',
+          'ST1': 'ST2', 'ST2': 'ST1',
+          'CM1': 'CM2', 'CM2': 'CM1',
+          'CDM1': 'CDM2', 'CDM2': 'CDM1',
+          'CAM1': 'CAM2', 'CAM2': 'CAM1',
+          'CB1': 'CB3', 'CB3': 'CB1',
+        };
+        const partner = partnerMap[activeNode];
+        if (partner && updated[partner]) {
+          const mirroredX = parseFloat((1.0 - finalX).toFixed(3));
+          updated[partner] = [mirroredX, finalY];
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handlePointerUp = () => {
     setActiveNode(null);
+    setActiveGuideLines([]);
   };
 
   const handleSave = async () => {
@@ -1745,24 +1848,35 @@ export default function FormationsPage() {
     setCustomPitchUrl(null);
   };
 
+  // Keyboard Nudge Controls
+  const nudgeActiveNode = (dx, dy) => {
+    if (!activeNode) return;
+    setPositions(prev => {
+      const current = prev[activeNode] || [0.5, 0.5];
+      const newX = parseFloat(Math.max(0.05, Math.min(0.95, current[0] + dx)).toFixed(3));
+      const newY = parseFloat(Math.max(0.06, Math.min(0.96, current[1] + dy)).toFixed(3));
+      return { ...prev, [activeNode]: [newX, newY] };
+    });
+  };
+
   const currentPitchImage = customPitchUrl || selectedTheme.image;
 
   return (
     <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl select-none">
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">3D Formation Studio</h1>
+                <h1 className="text-3xl font-black tracking-tight text-[var(--text-main)]">3D Tactical Studio</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-600 border border-[var(--border-glass)] flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Live Discord Sync
+                  <Sparkles className="w-3 h-3" /> Live Precision Sync
                 </span>
               </div>
-              <p className="text-sm text-[var(--text-main)] opacity-50 mt-1">
-                Customize, drag & drop, and map player nodes for all 30 tactical formations. Changes apply instantly to Discord <code className="bg-[var(--card-bg)]/80 px-1.5 py-0.5 rounded text-[var(--text-main)] opacity-90 font-mono font-bold">/squad view</code>.
+              <p className="text-sm text-[var(--text-main)] opacity-60 mt-1">
+                Precision alignment grid, collision stoppers, magnetic guide rails, and symmetric mirroring for all 34 formations.
               </p>
             </div>
 
@@ -1783,12 +1897,97 @@ export default function FormationsPage() {
             </div>
           </div>
 
+          {/* Professional Studio Toolbar */}
+          <div className="glass-card p-4 flex flex-wrap items-center justify-between gap-3 border border-white/10 shadow-lg">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-wider opacity-60 mr-1">Precision Controls:</span>
+              
+              {/* Grid Toggle */}
+              <button
+                onClick={() => setShowGrid(!showGrid)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  showGrid
+                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/40 shadow-sm'
+                    : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
+                }`}
+              >
+                <span>📐 Grid</span>
+                <span className="text-[10px] opacity-75">{showGrid ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Snap to Grid */}
+              <button
+                onClick={() => setSnapToGrid(!snapToGrid)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  snapToGrid
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-sm'
+                    : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
+                }`}
+              >
+                <span>🧲 Snap to Grid</span>
+                <span className="text-[10px] opacity-75">{snapToGrid ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Magnetic Guides */}
+              <button
+                onClick={() => setSnapToGuides(!snapToGuides)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  snapToGuides
+                    ? 'bg-purple-500/20 text-purple-400 border-purple-500/40 shadow-sm'
+                    : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
+                }`}
+              >
+                <span>✨ Magnetic Rails</span>
+                <span className="text-[10px] opacity-75">{snapToGuides ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Auto-Symmetry */}
+              <button
+                onClick={() => setAutoSymmetry(!autoSymmetry)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  autoSymmetry
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-sm'
+                    : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
+                }`}
+              >
+                <span>🪞 Auto-Mirror (Symmetry)</span>
+                <span className="text-[10px] opacity-75">{autoSymmetry ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Card Footprints */}
+              <button
+                onClick={() => setShowCardOutlines(!showCardOutlines)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                  showCardOutlines
+                    ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40 shadow-sm'
+                    : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
+                }`}
+              >
+                <span>🃏 3D Card Footprints</span>
+                <span className="text-[10px] opacity-75">{showCardOutlines ? 'ON' : 'OFF'}</span>
+              </button>
+            </div>
+
+            {/* Overlap Status Badge */}
+            <div className="flex items-center gap-2">
+              {overlapWarnings.length === 0 ? (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 0 Collisions (All Clean)
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 flex items-center gap-1 animate-pulse">
+                  ⚠️ {overlapWarnings.length} Card Collisions Detected
+                </span>
+              )}
+            </div>
+          </div>
+
           {/* Theme Selector & Custom Stadium Manager Bar */}
-          <div className="glass-card p-5 space-y-4">
+          <div className="glass-card p-4 space-y-3">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[var(--text-main)] opacity-50" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50">Official Stadium Themes:</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50">Stadium Themes (15 Total):</span>
               </div>
 
               {/* Custom Upload / Reset Button */}
@@ -1810,7 +2009,7 @@ export default function FormationsPage() {
             </div>
 
             {/* Stadium Theme Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 max-h-[85px] overflow-y-auto pr-1">
               {THEMES.map((theme) => {
                 const isActive = !customPitchUrl && selectedTheme.id === theme.id;
                 return (
@@ -1820,9 +2019,9 @@ export default function FormationsPage() {
                       setSelectedTheme(theme);
                       setCustomPitchUrl(null);
                     }}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-[var(--card-bg)] text-[var(--text-main)] shadow-md border-neutral-900'
+                        ? 'bg-[var(--card-bg)] text-[var(--text-main)] shadow-md border-neutral-900 ring-1 ring-white/30'
                         : 'bg-[var(--card-bg)]/60 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 border-[var(--border-glass)]'
                     }`}
                   >
@@ -1832,7 +2031,7 @@ export default function FormationsPage() {
                 );
               })}
               {customPitchUrl && (
-                <span className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/30 flex items-center gap-1.5">
+                <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/30 flex items-center gap-1.5">
                   <ImageIcon className="w-3.5 h-3.5" /> Custom Upload Active
                 </span>
               )}
@@ -1840,9 +2039,9 @@ export default function FormationsPage() {
           </div>
 
           {/* Main Grid: Sidebar Controls & Stadium Pitch Canvas */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Formation & Position Node Inspector */}
-            <div className="glass-card p-6 space-y-6 flex flex-col justify-between">
+            <div className="glass-card p-5 space-y-4 flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-2">Select Formation ({ALL_FORMATIONS.length} Available)</label>
@@ -1857,30 +2056,58 @@ export default function FormationsPage() {
                   </select>
                 </div>
 
+                {/* Selected Node Inspector & Precision Micro-Nudge */}
+                {activeNode && (
+                  <div className="p-3 rounded-2xl bg-white/5 border border-amber-400/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-amber-400">Selected: {activeNode}</span>
+                      <span className="text-[11px] font-mono opacity-80">
+                        X: {positions[activeNode]?.[0]} | Y: {positions[activeNode]?.[1]}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 text-center">
+                      <div></div>
+                      <button onClick={() => nudgeActiveNode(0, -0.01)} className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs font-bold cursor-pointer">▲</button>
+                      <div></div>
+                      <button onClick={() => nudgeActiveNode(-0.01, 0)} className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs font-bold cursor-pointer">◀</button>
+                      <button onClick={() => nudgeActiveNode(0, 0.01)} className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs font-bold cursor-pointer">▼</button>
+                      <button onClick={() => nudgeActiveNode(0.01, 0)} className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs font-bold cursor-pointer">▶</button>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] opacity-50 mb-2">Tactical Positions ({Object.keys(positions).length})</span>
-                  <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
-                    {Object.entries(positions).map(([pos, coords]) => (
-                      <div
-                        key={pos}
-                        onClick={() => setActiveNode(pos)}
-                        className={`flex items-center justify-between p-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
-                          activeNode === pos
-                            ? 'bg-[var(--card-bg)] text-amber-400 font-bold shadow-md'
-                            : 'bg-[var(--card-bg)]/50 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-[var(--border-glass)]'
-                        }`}
-                      >
-                        <span className="font-bold">{pos}</span>
-                        <span className="text-[11px] opacity-80">X: {coords[0]} | Y: {coords[1]}</span>
-                      </div>
-                    ))}
+                  <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
+                    {Object.entries(positions).map(([pos, coords]) => {
+                      const isColliding = overlapWarnings.some(w => w.p1 === pos || w.p2 === pos);
+                      return (
+                        <div
+                          key={pos}
+                          onClick={() => setActiveNode(pos)}
+                          className={`flex items-center justify-between p-2 rounded-xl text-xs font-mono transition-all cursor-pointer ${
+                            activeNode === pos
+                              ? 'bg-[var(--card-bg)] text-amber-400 font-bold shadow-md ring-1 ring-amber-400/50'
+                              : isColliding
+                              ? 'bg-red-500/10 text-red-400 border border-red-500/30'
+                              : 'bg-[var(--card-bg)]/50 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-[var(--border-glass)]'
+                          }`}
+                        >
+                          <span className="font-bold flex items-center gap-1.5">
+                            {isColliding && <span>⚠️</span>}
+                            <span>{pos}</span>
+                          </span>
+                          <span className="text-[11px] opacity-80">X: {coords[0]} | Y: {coords[1]}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[var(--card-bg)]/5 border border-[var(--border-glass)] text-[11px] text-[var(--text-main)] opacity-50 space-y-1">
-                <p className="font-bold text-neutral-800">💡 Pro Tip:</p>
-                <p>Click and drag any node on the pitch to adjust its 3D depth and wing spacing. Hit <strong>Save Layout</strong> when done!</p>
+              <div className="p-3.5 rounded-2xl bg-[var(--card-bg)]/5 border border-[var(--border-glass)] text-[11px] text-[var(--text-main)] opacity-60 space-y-1">
+                <p className="font-bold text-neutral-800">💡 Professional Tip:</p>
+                <p>Drag nodes to position. Magnetic rails will lock onto center alignment (50%) and teammate channels. Auto-Mirror will sync symmetric wings automatically.</p>
               </div>
             </div>
 
@@ -1898,20 +2125,83 @@ export default function FormationsPage() {
                 {/* Dark Gradient Overlay for 3D depth */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none"></div>
 
-                {/* Stadium Floodlights & Turf Marking Guidelines */}
+                {/* Professional Grid Lines Overlay */}
+                {showGrid && (
+                  <div className="absolute inset-0 pointer-events-none opacity-20">
+                    {/* Vertical grid lines */}
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={`vg-${i}`}
+                        className="absolute top-0 bottom-0 border-r border-cyan-400/30"
+                        style={{ left: `${(i + 1) * 5}%` }}
+                      />
+                    ))}
+                    {/* Horizontal grid lines */}
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={`hg-${i}`}
+                        className="absolute left-0 right-0 border-b border-cyan-400/30"
+                        style={{ top: `${(i + 1) * 5}%` }}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Pitch Stopper Bounds (Outer Safety Margins) */}
+                <div className="absolute inset-x-[5%] top-[6%] bottom-[4%] border border-dashed border-red-500/20 rounded-2xl pointer-events-none">
+                  <span className="absolute top-1 left-2 text-[8px] font-mono font-bold text-red-400/50 uppercase">Safety Playable Boundary</span>
+                </div>
+
+                {/* Stadium Center Line & Pitch Markings */}
                 <div className="absolute inset-x-12 top-6 bottom-6 border-2 border-white/20 rounded-2xl pointer-events-none">
+                  {/* Pitch Center Guide Axis */}
+                  <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-yellow-400/30 -translate-x-1/2"></div>
                   <div className="absolute top-1/2 inset-x-0 h-0.5 bg-[var(--card-bg)]/20 -translate-y-1/2"></div>
                   <div className="absolute top-1/2 left-1/2 w-44 h-44 rounded-full border-2 border-white/20 -translate-x-1/2 -translate-y-1/2"></div>
                   <div className="absolute top-0 left-1/2 w-80 h-28 border-2 border-white/20 border-t-0 -translate-x-1/2"></div>
                   <div className="absolute bottom-0 left-1/2 w-80 h-28 border-2 border-white/20 border-b-0 -translate-x-1/2"></div>
                 </div>
 
-                {/* Tactical Nodes with 3D Hologram Glow */}
+                {/* Dynamic Alignment Guide Lines (when dragging / snapping) */}
+                {activeGuideLines.map((guide, idx) => {
+                  if (guide.type === 'x') {
+                    return (
+                      <div
+                        key={`guide-x-${idx}`}
+                        className="absolute top-0 bottom-0 w-0.5 bg-amber-400 shadow-[0_0_8px_#fbbf24] z-10 pointer-events-none flex flex-col justify-start"
+                        style={{ left: `${guide.pos * 100}%` }}
+                      >
+                        <span className="bg-amber-400 text-black text-[9px] font-black px-1 rounded-sm ml-1 mt-2 whitespace-nowrap">
+                          {guide.label}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div
+                      key={`guide-y-${idx}`}
+                      className="absolute left-0 right-0 h-0.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee] z-10 pointer-events-none flex items-center justify-end"
+                      style={{ top: `${guide.pos * 100}%` }}
+                    >
+                      <span className="bg-cyan-400 text-black text-[9px] font-black px-1 rounded-sm mr-2 whitespace-nowrap">
+                        {guide.label}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {/* Tactical Nodes with 3D Hologram Glow & Card Footprints */}
                 {Object.entries(positions).map(([pos, coords]) => {
                   const xPercent = coords[0] * 100;
                   const yPercent = coords[1] * 100;
                   const isSelected = activeNode === pos;
                   const glowColor = selectedTheme.glow || '#00f0ff';
+                  const isColliding = overlapWarnings.some(w => w.p1 === pos || w.p2 === pos);
+
+                  // Calculate perspective scale for card footprint
+                  const cardScale = 0.85 + (coords[1] * 0.45);
+                  const footW = Math.round(56 * cardScale);
+                  const footH = Math.round(80 * cardScale);
 
                   return (
                     <div
@@ -1920,25 +2210,43 @@ export default function FormationsPage() {
                       style={{
                         left: `${xPercent}%`,
                         top: `${yPercent}%`,
-                        boxShadow: isSelected
+                        boxShadow: isColliding
+                          ? '0 0 25px #ef4444, 0 0 10px #ffffff'
+                          : isSelected
                           ? `0 0 25px ${glowColor}, 0 0 10px #ffffff`
                           : `0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${glowColor}66`,
                       }}
                       className={`absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-transform ${
                         isSelected
-                          ? 'bg-[var(--input-bg)] text-[var(--text-main)] scale-125 z-30 ring-2 ring-white'
+                          ? 'bg-[var(--input-bg)] text-[var(--text-main)] scale-125 z-30 ring-2 ring-white shadow-2xl'
+                          : isColliding
+                          ? 'bg-red-950/90 text-red-200 z-25 border border-red-500 animate-pulse'
                           : 'bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg)] text-[var(--text-main)] z-20 border border-white/30 hover:scale-110'
                       }`}
                     >
+                      {/* 3D Card Projected Footprint (Stoppers & Boundary visualizer) */}
+                      {showCardOutlines && (
+                        <div
+                          className="absolute pointer-events-none rounded-lg border border-dashed transition-all"
+                          style={{
+                            width: `${footW}px`,
+                            height: `${footH}px`,
+                            borderColor: isColliding ? '#ef4444' : `${glowColor}88`,
+                            backgroundColor: isColliding ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)',
+                            transform: 'translateY(-6px)',
+                          }}
+                        />
+                      )}
+
                       {/* Positional 3D Base Hologram Line */}
                       <div
                         className="absolute -bottom-2 w-10 h-1.5 rounded-full blur-[1px]"
-                        style={{ backgroundColor: glowColor }}
+                        style={{ backgroundColor: isColliding ? '#ef4444' : glowColor }}
                       ></div>
-                      <span className="text-xs font-black tracking-wider leading-none text-[var(--text-main)] drop-shadow">
+                      <span className="text-xs font-black tracking-wider leading-none drop-shadow">
                         {pos}
                       </span>
-                      <span className="text-[8px] font-bold text-[var(--text-main)] opacity-90 mt-0.5">
+                      <span className="text-[8px] font-bold opacity-90 mt-0.5">
                         {coords[0]},{coords[1]}
                       </span>
                     </div>
