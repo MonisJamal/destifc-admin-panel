@@ -33,6 +33,17 @@ export async function POST(request) {
       [formationName, posJson]
     );
 
+    // Also trigger bot cache reload signal in background
+    try {
+      await query(
+        `INSERT INTO portal_jobs (job_type, payload, status, created_at)
+         VALUES ('SIGNAL_RELOAD_COGS', $1, 'pending', NOW())`,
+        [JSON.stringify({ formation: formationName })]
+      );
+    } catch (e) {
+      // Non-blocking if table busy
+    }
+
     return NextResponse.json({ success: true, formationName });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
