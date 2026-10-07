@@ -100,7 +100,10 @@ export async function POST(request) {
 
       // Schedule portal job so bot instantly announces in Discord
       try {
-        await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('open_special_market', '{}', 'pending')");
+        await query(
+          "INSERT INTO portal_jobs (job_type, payload, status) VALUES ('open_special_market', $1::jsonb, 'pending')",
+          [JSON.stringify({ duration_minutes: durMins })]
+        );
       } catch (e) {}
 
       return NextResponse.json({ success: true, message: `VIP Special Market successfully opened for ${durMins} minutes live in Discord!` });
