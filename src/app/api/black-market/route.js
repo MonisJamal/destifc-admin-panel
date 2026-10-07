@@ -70,18 +70,18 @@ export async function POST(request) {
     if (action === 'reroll_schedule') {
       const now = new Date();
       const currentUtcHour = now.getUTCHours();
+      const forceTomorrow = Boolean(body.force_tomorrow);
       let schedDateStr = now.toISOString().split('T')[0];
       let randHour;
 
-      // If there are still hours left today before 22:00 UTC, pick a time later today (at least 1 hour from now)
-      if (currentUtcHour < 21) {
-        const minHour = Math.max(2, currentUtcHour + 1);
-        randHour = Math.floor(Math.random() * (22 - minHour + 1)) + minHour;
-      } else {
-        // Otherwise schedule for tomorrow between 02:00 and 21:00 UTC
+      // If forceTomorrow is true or after 21:00 UTC, schedule for tomorrow
+      if (forceTomorrow || currentUtcHour >= 21) {
         const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         schedDateStr = tomorrow.toISOString().split('T')[0];
         randHour = Math.floor(Math.random() * 20) + 2;
+      } else {
+        const minHour = Math.max(2, currentUtcHour + 1);
+        randHour = Math.floor(Math.random() * (22 - minHour + 1)) + minHour;
       }
 
       const randMin = Math.floor(Math.random() * 60);

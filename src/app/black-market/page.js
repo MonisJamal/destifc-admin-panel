@@ -143,15 +143,16 @@ export default function BlackMarketAdminPage() {
     }
   };
 
-  const handleRerollSchedule = async () => {
-    if (!confirm("Reroll today's random spawn time now? The bot will pick a new random time.")) return;
+  const handleRerollSchedule = async (forceTomorrow = false) => {
+    const promptMsg = forceTomorrow ? "Schedule the drop for tomorrow with a random time?" : "Reroll today's random spawn time now? The bot will pick a new random time.";
+    if (!confirm(promptMsg)) return;
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
       const res = await fetch('/api/black-market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reroll_schedule' })
+        body: JSON.stringify({ action: 'reroll_schedule', force_tomorrow: forceTomorrow })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -284,15 +285,24 @@ export default function BlackMarketAdminPage() {
                 Confidential Smuggler Schedule Radar (Owner-Only)
               </h3>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={handleRerollSchedule}
+                onClick={() => handleRerollSchedule(false)}
                 disabled={saving}
                 className="px-3 py-1.5 rounded-xl border border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1.5 transition-all"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${saving ? 'animate-spin' : ''}`} />
-                Reroll Today's Drop Time
+                Reroll Today
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRerollSchedule(true)}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-xl border border-purple-500/40 bg-purple-950/30 text-purple-300 hover:bg-purple-900/40 text-xs font-bold flex items-center gap-1.5 transition-all"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                Schedule for Tomorrow
               </button>
               <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold">
                 TOP SECRET
