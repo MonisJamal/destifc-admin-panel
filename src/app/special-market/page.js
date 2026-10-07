@@ -4,7 +4,8 @@ import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
 import { 
   Crown, Zap, Clock, Coins, Plus, Trash2, Save, AlertCircle, CheckCircle2, 
-  Shield, Radio, Sparkles, RefreshCw, Gift, UserPlus, Search, X, User
+  Shield, Radio, Sparkles, RefreshCw, Gift, UserPlus, Search, X, User,
+  Layers, Flame
 } from 'lucide-react';
 
 export default function SpecialMarketAdminPage() {
@@ -24,7 +25,7 @@ export default function SpecialMarketAdminPage() {
   const [rewards, setRewards] = useState([
     {
       id: "vip_1",
-      deal_type: "voucher", // "voucher" | "player" | "custom"
+      deal_type: "voucher", // "voucher" | "player" | "custom_card"
       title: "100x Mega Voucher Treasury",
       description: "100 Draft Vouchers + VIP Pass",
       cost_coins: 1000000000,
@@ -42,20 +43,43 @@ export default function SpecialMarketAdminPage() {
     }
   ]);
 
-  // Player search modal state
+  // Card search & picker modal state
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerRewardIndex, setPickerRewardIndex] = useState(null);
+  const [pickerTab, setPickerTab] = useState('custom'); // 'custom' | 'official'
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
+  // Catalog custom cards list
+  const [customDraftCards, setCustomDraftCards] = useState([]);
+  const [customSignatureCards, setCustomSignatureCards] = useState([]);
+  const [loadingCustom, setLoadingCustom] = useState(false);
+
   useEffect(() => {
     fetchMarketData();
+    fetchCustomCards();
   }, []);
 
-  // Card search debounce
+  const fetchCustomCards = async () => {
+    setLoadingCustom(true);
+    try {
+      const res = await fetch('/api/custom-cards');
+      const data = await res.json();
+      if (data.success) {
+        setCustomDraftCards(data.draftCards || data.cards || []);
+        setCustomSignatureCards(data.signatureCards || []);
+      }
+    } catch (e) {
+      console.error('Error fetching custom cards:', e);
+    } finally {
+      setLoadingCustom(false);
+    }
+  };
+
+  // Official card search debounce
   useEffect(() => {
-    if (!pickerOpen) return;
+    if (!pickerOpen || pickerTab !== 'official') return;
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
@@ -75,7 +99,7 @@ export default function SpecialMarketAdminPage() {
       }
     }, 350);
     return () => clearTimeout(timer);
-  }, [searchQuery, pickerOpen]);
+  }, [searchQuery, pickerOpen, pickerTab]);
 
   const fetchMarketData = async () => {
     setLoading(true);
@@ -205,7 +229,29 @@ export default function SpecialMarketAdminPage() {
     ]);
   };
 
-  const addPlayerReward = () => {
+  const addCustomCardReward = () => {
+    const newId = `vip_${Date.now()}`;
+    const newIndex = rewards.length;
+    setRewards([
+      ...rewards,
+      {
+        id: newId,
+        deal_type: "custom_card",
+        title: "✨ Special Custom Card Deal",
+        description: "Exclusive Custom Creation",
+        cost_coins: 2000000000,
+        vouchers: 0,
+        player_data: null
+      }
+    ]);
+    // Automatically open custom card tab in picker
+    setPickerRewardIndex(newIndex);
+    setPickerTab('custom');
+    setSearchQuery('');
+    setPickerOpen(true);
+  };
+
+  const addOfficialPlayerReward = () => {
     const newId = `vip_${Date.now()}`;
     const newIndex = rewards.length;
     setRewards([
@@ -214,44 +260,65 @@ export default function SpecialMarketAdminPage() {
         id: newId,
         deal_type: "player",
         title: "⭐ Superstar Player Deal",
-        description: "Exclusive High-OVR Card",
+        description: "Official High-OVR Card",
         cost_coins: 1000000000,
         vouchers: 0,
         player_data: null
       }
     ]);
-    // Automatically open card search for this slot
+    // Automatically open official card search for this slot
     setPickerRewardIndex(newIndex);
+    setPickerTab('official');
     setSearchQuery('');
     setSearchResults([]);
     setPickerOpen(true);
   };
 
-  const openPlayerPickerFor = (idx) => {
+  const openPlayerPickerFor = (idx, defaultTab = 'custom') => {
     setPickerRewardIndex(idx);
+    setPickerTab(defaultTab);
     setSearchQuery('');
     setSearchResults([]);
     setPickerOpen(true);
   };
 
-  const selectCardForReward = (card) => {
+  const selectCardForReward = (card, isCustom = false) => {
     if (pickerRewardIndex === null) return;
     const ovr = card.rating || card.ovr || 120;
-    const name = card.cardName || card.lastName || card.player_name || 'Superstar';
+    const name = card.cardName || card.lastName || card.player_name || card.card_name || 'Superstar';
     const pos = card.position || 'ST';
     
-    // Suggested pricing based on OVR
-    const baseCost = ovr >= 122 ? 3000000000 : (ovr >= 120 ? 1500000000 : 750000000);
+    // Suggested pricing based on OVR & custom status
+    let baseCost = 1500000000;
+    if (isCustom) {
+      baseCost = ovr >= 125 ? 5000000000 : (ovr >= 120 ? 3000000000 : 1500000000);
+    } else {
+      baseCost = ovr >= 122 ? 3000000000 : (ovr >= 120 ? 1500000000 : 750000000);
+    }
+
+    // Format normalized player_data payload for inventory insertion
+    const normalizedData = {
+      ...card,
+      id: card.id || card.custom_id || `custom_${Date.now()}`,
+      cardName: name,
+      lastName: name,
+      player_name: name,
+      rating: ovr,
+      ovr: ovr,
+      position: pos,
+      is_custom: Boolean(isCustom || card.is_custom),
+      performance_boost: card.performance_boost || card.matchBoost || 1.15
+    };
 
     const updated = [...rewards];
     updated[pickerRewardIndex] = {
       ...updated[pickerRewardIndex],
-      deal_type: "player",
-      title: `⭐ ${name} (${ovr} OVR, ${pos})`,
-      description: `${ovr} OVR ${pos} • ${card.club?.name || 'Club'} / ${card.nation?.name || 'Nation'}`,
+      deal_type: isCustom ? "custom_card" : "player",
+      title: `${isCustom ? '✨ [CUSTOM] ' : '⭐ '}${name} (${ovr} OVR, ${pos})`,
+      description: isCustom ? `Custom Master Card • ${pos} • ${ovr} OVR` : `${ovr} OVR ${pos} • ${card.club?.name || 'Club'} / ${card.nation?.name || 'Nation'}`,
       cost_coins: updated[pickerRewardIndex].cost_coins || baseCost,
       vouchers: 0,
-      player_data: card
+      player_data: normalizedData
     };
     setRewards(updated);
     setPickerOpen(false);
@@ -275,6 +342,15 @@ export default function SpecialMarketAdminPage() {
     if (url.startsWith('data:')) return url;
     return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
+
+  // Filtered custom cards based on search query
+  const filteredCustomCards = [...customDraftCards, ...customSignatureCards].filter(c => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const cName = (c.cardName || c.card_name || c.player_name || '').toLowerCase();
+    const cClub = (c.clubName || c.club?.name || '').toLowerCase();
+    return cName.includes(q) || cClub.includes(q);
+  });
 
   if (loading) {
     return (
@@ -307,7 +383,7 @@ export default function SpecialMarketAdminPage() {
               </h1>
             </div>
             <p className="text-xs text-[var(--text-main)] opacity-70">
-              Exclusive high-roller bazaar that <strong>never opens randomly</strong>. Only you can summon this market, customize duration, pick specific players, and define custom coin prices.
+              Exclusive high-roller bazaar that <strong>never opens randomly</strong>. You can summon this market, customize time, add <strong>Custom Cards</strong>, pick official players, and set custom coin prices.
             </p>
           </div>
 
@@ -493,16 +569,24 @@ export default function SpecialMarketAdminPage() {
                 <Gift className="w-4 h-4 text-yellow-400" />
                 VIP Rewards & Player Cards
               </h2>
-              <p className="text-xs text-[var(--text-muted)]">Configure exact coin prices, pick specific FC Mobile superstars from database, and set voucher packs</p>
+              <p className="text-xs text-[var(--text-muted)]">Configure deals with Custom Cards from your catalog, official FC Mobile cards, or vouchers</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={addPlayerReward}
+                onClick={addCustomCardReward}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-90 text-xs font-black flex items-center gap-1.5 shadow-md shadow-fuchsia-600/30 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+                + Add Custom Card Deal
+              </button>
+              <button
+                type="button"
+                onClick={addOfficialPlayerReward}
                 className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:opacity-90 text-xs font-black flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                + Add Player Deal
+                + Add Official Card
               </button>
               <button
                 type="button"
@@ -517,18 +601,31 @@ export default function SpecialMarketAdminPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {rewards.map((r, i) => {
-              const isPlayer = Boolean(r.player_data) || r.deal_type === 'player';
+              const isPlayer = Boolean(r.player_data) || r.deal_type === 'player' || r.deal_type === 'custom_card';
               const card = r.player_data;
+              const isCustom = r.deal_type === 'custom_card' || Boolean(card?.is_custom);
               const ovr = card ? (card.rating || card.ovr) : null;
 
               return (
                 <div key={r.id || i} className={`p-4 rounded-2xl bg-[var(--input-bg)] border space-y-3 relative group transition-all ${
-                  isPlayer ? 'border-amber-400/40 bg-gradient-to-b from-amber-950/20 to-[var(--input-bg)]' : 'border-amber-500/20'
+                  isCustom 
+                    ? 'border-fuchsia-500/40 bg-gradient-to-b from-fuchsia-950/20 to-[var(--input-bg)] shadow-md shadow-fuchsia-950/20' 
+                    : isPlayer 
+                      ? 'border-amber-400/40 bg-gradient-to-b from-amber-950/20 to-[var(--input-bg)]' 
+                      : 'border-amber-500/20'
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
-                      {isPlayer ? <Crown className="w-3.5 h-3.5 text-amber-400" /> : <Gift className="w-3.5 h-3.5 text-yellow-400" />}
-                      VIP Slot #{i + 1} {isPlayer && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">PLAYER CARD</span>}
+                      {isCustom ? (
+                        <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
+                      ) : isPlayer ? (
+                        <Crown className="w-3.5 h-3.5 text-amber-400" />
+                      ) : (
+                        <Gift className="w-3.5 h-3.5 text-yellow-400" />
+                      )}
+                      VIP Slot #{i + 1} 
+                      {isCustom && <span className="text-[10px] px-2 py-0.5 rounded-full bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 font-bold">✨ CUSTOM CARD</span>}
+                      {!isCustom && isPlayer && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">OFFICIAL PLAYER</span>}
                     </span>
                     <button
                       type="button"
@@ -541,53 +638,81 @@ export default function SpecialMarketAdminPage() {
 
                   {/* Player Card Preview & Selection */}
                   {isPlayer && (
-                    <div className="p-3 rounded-xl bg-black/40 border border-amber-500/30 flex items-center gap-3">
+                    <div className={`p-3 rounded-xl bg-black/40 border flex items-center gap-3 ${
+                      isCustom ? 'border-fuchsia-500/30' : 'border-amber-500/30'
+                    }`}>
                       {card ? (
                         <>
-                          <div className="relative w-14 h-16 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-neutral-900 border border-amber-500/40">
-                            {card.images?.playerCardBackground && (
+                          <div className={`relative w-14 h-16 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-neutral-900 border ${
+                            isCustom ? 'border-fuchsia-500/50' : 'border-amber-500/40'
+                          }`}>
+                            {card.imageUrl ? (
                               <img
-                                src={getProxyUrl(card.images.playerCardBackground)}
+                                src={getProxyUrl(card.imageUrl)}
                                 alt=""
-                                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                                className="w-full h-full object-contain"
                               />
-                            )}
-                            {card.images?.playerCardImage || card.images?.playerImage ? (
+                            ) : card.images?.playerCardBackground ? (
+                              <>
+                                <img
+                                  src={getProxyUrl(card.images.playerCardBackground)}
+                                  alt=""
+                                  className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                                />
+                                {card.images?.playerCardImage || card.images?.playerImage ? (
+                                  <img
+                                    src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
+                                    alt=""
+                                    className="relative z-10 w-12 h-12 object-contain"
+                                  />
+                                ) : (
+                                  <User className="w-6 h-6 text-amber-400" />
+                                )}
+                              </>
+                            ) : card.images?.playerCardImage || card.images?.playerImage ? (
                               <img
                                 src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
                                 alt=""
                                 className="relative z-10 w-12 h-12 object-contain"
                               />
                             ) : (
-                              <User className="w-6 h-6 text-amber-400" />
+                              <div className="w-full h-full bg-gradient-to-tr from-purple-900 to-pink-900 flex flex-col items-center justify-center text-white">
+                                <span className="text-[10px] font-black">{ovr}</span>
+                                <span className="text-[8px] opacity-75">{card.position || 'ST'}</span>
+                              </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-black text-amber-400">{ovr} OVR</span>
+                              <span className={`text-xs font-black ${isCustom ? 'text-fuchsia-400' : 'text-amber-400'}`}>{ovr} OVR</span>
                               <span className="text-[10px] font-bold text-neutral-400">{card.position || 'ST'}</span>
+                              {isCustom && <span className="text-[9px] font-mono text-fuchsia-300">Custom</span>}
                             </div>
                             <div className="text-xs font-bold text-[var(--text-main)] truncate">
-                              {card.cardName || card.lastName || card.player_name}
+                              {card.cardName || card.lastName || card.player_name || card.card_name}
                             </div>
                             <button
                               type="button"
-                              onClick={() => openPlayerPickerFor(i)}
-                              className="text-[10px] font-bold text-amber-400 hover:underline mt-1 cursor-pointer"
+                              onClick={() => openPlayerPickerFor(i, isCustom ? 'custom' : 'official')}
+                              className={`text-[10px] font-bold hover:underline mt-1 cursor-pointer ${
+                                isCustom ? 'text-fuchsia-400' : 'text-amber-400'
+                              }`}
                             >
-                              Change Player Card →
+                              Change Card Selection →
                             </button>
                           </div>
                         </>
                       ) : (
                         <div className="w-full flex items-center justify-between">
-                          <span className="text-xs text-neutral-400">No card selected</span>
+                          <span className="text-xs text-neutral-400">{isCustom ? 'No custom card chosen' : 'No card selected'}</span>
                           <button
                             type="button"
-                            onClick={() => openPlayerPickerFor(i)}
-                            className="px-2.5 py-1 rounded-lg bg-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/40 transition-all cursor-pointer"
+                            onClick={() => openPlayerPickerFor(i, isCustom ? 'custom' : 'official')}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              isCustom ? 'bg-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-500/40' : 'bg-amber-500/30 text-amber-300 hover:bg-amber-500/40'
+                            }`}
                           >
-                            Select Player
+                            Select Card
                           </button>
                         </div>
                       )}
@@ -643,14 +768,14 @@ export default function SpecialMarketAdminPage() {
           </div>
         </div>
 
-        {/* Player Card Picker Modal */}
+        {/* Unified Card Picker Modal (Tabs: Custom Cards vs Official Cards) */}
         {pickerOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
             <div className="glass-card w-full max-w-3xl rounded-3xl border border-amber-500/40 p-6 space-y-5 bg-gradient-to-b from-neutral-900 to-black max-h-[85vh] flex flex-col">
               <div className="flex items-center justify-between pb-3 border-b border-amber-500/20">
                 <div className="flex items-center gap-2">
                   <Crown className="w-5 h-5 text-amber-400" />
-                  <h3 className="text-base font-bold text-amber-300">Choose Player Card from Official Database</h3>
+                  <h3 className="text-base font-bold text-amber-300">Choose Card for VIP Special Market</h3>
                 </div>
                 <button
                   type="button"
@@ -661,74 +786,170 @@ export default function SpecialMarketAdminPage() {
                 </button>
               </div>
 
+              {/* Source Switcher: Custom Cards vs Official RenderZ */}
+              <div className="flex items-center gap-2 p-1 bg-neutral-950/80 rounded-2xl border border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => { setPickerTab('custom'); setSearchQuery(''); }}
+                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    pickerTab === 'custom'
+                      ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white shadow-md shadow-fuchsia-600/30'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Catalog Custom Cards ({customDraftCards.length + customSignatureCards.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setPickerTab('official'); setSearchQuery(''); }}
+                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    pickerTab === 'official'
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-md shadow-amber-500/20'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  Official FC Mobile Database
+                </button>
+              </div>
+
               {/* Search bar */}
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Search player name (e.g. Messi, Ronaldo, Cruyff, Mbappe, Bellingham)..."
+                  placeholder={
+                    pickerTab === 'custom'
+                      ? "Filter custom cards by name..."
+                      : "Search official player name (e.g. Messi, Ronaldo, Cruyff, Mbappe)..."
+                  }
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-amber-500/30 text-sm text-[var(--text-main)] focus:outline-none focus:border-amber-400"
                 />
               </div>
 
-              {/* Search results grid */}
-              <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                {searchLoading ? (
-                  <div className="py-16 text-center">
-                    <RefreshCw className="w-8 h-8 animate-spin text-amber-400 mx-auto" />
-                    <p className="text-xs text-neutral-400 mt-2">Searching RenderZ database...</p>
-                  </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {searchResults.map((card) => {
-                      const ovr = card.rating || card.ovr;
-                      const name = card.cardName || card.lastName || card.player_name;
-                      return (
-                        <div
-                          key={card.id || card.assetId}
-                          onClick={() => selectCardForReward(card)}
-                          className="p-3 rounded-2xl bg-neutral-900/80 border border-neutral-800 hover:border-amber-400 hover:bg-amber-950/20 flex items-center gap-3 cursor-pointer transition-all group"
-                        >
-                          <div className="relative w-12 h-14 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-black border border-neutral-700 group-hover:border-amber-400">
-                            {card.images?.playerCardBackground && (
-                              <img
-                                src={getProxyUrl(card.images.playerCardBackground)}
-                                alt=""
-                                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                              />
-                            )}
-                            {card.images?.playerCardImage || card.images?.playerImage ? (
-                              <img
-                                src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
-                                alt=""
-                                className="relative z-10 w-10 h-10 object-contain group-hover:scale-110 transition-transform"
-                              />
-                            ) : (
-                              <User className="w-5 h-5 text-amber-400" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-black text-amber-400">{ovr} OVR</span>
-                              <span className="text-[10px] font-bold text-neutral-400">{card.position}</span>
+              {/* Results Container */}
+              <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[300px]">
+                {/* 1. Custom Cards Tab */}
+                {pickerTab === 'custom' && (
+                  <div>
+                    {loadingCustom ? (
+                      <div className="py-16 text-center">
+                        <RefreshCw className="w-8 h-8 animate-spin text-fuchsia-400 mx-auto" />
+                        <p className="text-xs text-neutral-400 mt-2">Loading custom cards...</p>
+                      </div>
+                    ) : filteredCustomCards.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {filteredCustomCards.map((card, idx) => {
+                          const ovr = card.rating || card.ovr || 120;
+                          const name = card.cardName || card.card_name || card.player_name || 'Custom';
+                          const pos = card.position || 'ST';
+                          const isSig = card.type === 'signature_box_custom' || card.box_id;
+
+                          return (
+                            <div
+                              key={card.id || card.custom_id || idx}
+                              onClick={() => selectCardForReward(card, true)}
+                              className="p-3 rounded-2xl bg-gradient-to-br from-fuchsia-950/40 to-neutral-950 border border-fuchsia-500/30 hover:border-fuchsia-400 hover:scale-[1.02] flex items-center gap-3 cursor-pointer transition-all group"
+                            >
+                              <div className="relative w-12 h-14 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-black border border-fuchsia-500/40 group-hover:border-fuchsia-300">
+                                {card.imageUrl ? (
+                                  <img
+                                    src={getProxyUrl(card.imageUrl)}
+                                    alt=""
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-tr from-pink-600 to-purple-600 flex flex-col items-center justify-center text-white">
+                                    <span className="text-[10px] font-black">{ovr}</span>
+                                    <span className="text-[8px] opacity-80">{pos}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-black text-fuchsia-400">{ovr} OVR</span>
+                                  <span className="text-[10px] font-bold text-neutral-400">{pos}</span>
+                                  {isSig && <span className="text-[8px] px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-200">SIG</span>}
+                                </div>
+                                <div className="text-xs font-bold text-white truncate">{name}</div>
+                                <div className="text-[10px] text-fuchsia-300/80 truncate">
+                                  {card.clubName || card.club?.name || 'Custom Master'}
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-xs font-bold text-white truncate">{name}</div>
-                            <div className="text-[10px] text-neutral-400 truncate">{card.club?.name || card.program?.name || 'Player'}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="py-16 text-center text-xs text-neutral-500">
+                        {searchQuery ? `No custom cards matching "${searchQuery}"` : "No custom cards found in your catalog. Create one first in the Custom Cards tab!"}
+                      </div>
+                    )}
                   </div>
-                ) : searchQuery ? (
-                  <div className="py-16 text-center text-xs text-neutral-500">
-                    No players found matching "{searchQuery}". Try a different spelling or last name.
-                  </div>
-                ) : (
-                  <div className="py-16 text-center text-xs text-neutral-500">
-                    Type a player name above to search through thousands of official FC Mobile cards.
+                )}
+
+                {/* 2. Official FC Mobile Cards Tab */}
+                {pickerTab === 'official' && (
+                  <div>
+                    {searchLoading ? (
+                      <div className="py-16 text-center">
+                        <RefreshCw className="w-8 h-8 animate-spin text-amber-400 mx-auto" />
+                        <p className="text-xs text-neutral-400 mt-2">Searching RenderZ database...</p>
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {searchResults.map((card) => {
+                          const ovr = card.rating || card.ovr;
+                          const name = card.cardName || card.lastName || card.player_name;
+                          return (
+                            <div
+                              key={card.id || card.assetId}
+                              onClick={() => selectCardForReward(card, false)}
+                              className="p-3 rounded-2xl bg-neutral-900/80 border border-neutral-800 hover:border-amber-400 hover:bg-amber-950/20 flex items-center gap-3 cursor-pointer transition-all group"
+                            >
+                              <div className="relative w-12 h-14 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg bg-black border border-neutral-700 group-hover:border-amber-400">
+                                {card.images?.playerCardBackground && (
+                                  <img
+                                    src={getProxyUrl(card.images.playerCardBackground)}
+                                    alt=""
+                                    className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                                  />
+                                )}
+                                {card.images?.playerCardImage || card.images?.playerImage ? (
+                                  <img
+                                    src={getProxyUrl(card.images.playerCardImage || card.images.playerImage)}
+                                    alt=""
+                                    className="relative z-10 w-10 h-10 object-contain group-hover:scale-110 transition-transform"
+                                  />
+                                ) : (
+                                  <User className="w-5 h-5 text-amber-400" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-black text-amber-400">{ovr} OVR</span>
+                                  <span className="text-[10px] font-bold text-neutral-400">{card.position}</span>
+                                </div>
+                                <div className="text-xs font-bold text-white truncate">{name}</div>
+                                <div className="text-[10px] text-neutral-400 truncate">{card.club?.name || card.program?.name || 'Player'}</div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : searchQuery ? (
+                      <div className="py-16 text-center text-xs text-neutral-500">
+                        No players found matching "{searchQuery}". Try a different spelling or last name.
+                      </div>
+                    ) : (
+                      <div className="py-16 text-center text-xs text-neutral-500">
+                        Type a player name above to search through thousands of official FC Mobile cards.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
