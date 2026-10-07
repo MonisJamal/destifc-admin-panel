@@ -107,7 +107,7 @@ export async function POST(request) {
 
     if (action === 'trigger_now') {
       const now = new Date();
-      const close = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour
+      const close = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour full duration
 
       await query(`
         INSERT INTO black_market_config (id, is_active, opens_at, closes_at, voucher_packages, player_deals, channels, role_id, ping_type, updated_at)
@@ -132,12 +132,39 @@ export async function POST(request) {
         ping_type || 'none'
       ]);
 
+      // Automatically refresh the future drop schedule so the countdown/schedule rolls forward
+      try {
+        const currentUtcHour = now.getUTCHours();
+        let schedDateStr = now.toISOString().split('T')[0];
+        let randHour;
+        if (currentUtcHour < 20) {
+          randHour = Math.floor(Math.random() * (22 - (currentUtcHour + 2) + 1)) + (currentUtcHour + 2);
+        } else {
+          const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          schedDateStr = tomorrow.toISOString().split('T')[0];
+          randHour = Math.floor(Math.random() * 20) + 2;
+        }
+        const randMin = Math.floor(Math.random() * 60);
+        const newSched = {
+          date: schedDateStr,
+          target_hour: randHour,
+          target_min: randMin,
+          executed: false
+        };
+        await query(
+          "INSERT INTO system_settings (key, value) VALUES ('black_market_schedule', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+          [JSON.stringify(newSched)]
+        );
+      } catch (eSched) {
+        console.error('Error advancing schedule on trigger_now:', eSched);
+      }
+
       // Schedule portal job so bot instantly announces in Discord
       try {
         await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('open_black_market', '{}', 'pending')");
       } catch (e) {}
 
-      return NextResponse.json({ success: true, message: 'Black Market successfully opened for 1 hour live in Discord!' });
+      return NextResponse.json({ success: true, message: 'Black Market successfully opened for 1 hour live in Discord! Time and schedule have been refreshed.' });
     }
 
     if (action === 'close_now') {
