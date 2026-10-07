@@ -50,11 +50,12 @@ export async function POST(request) {
       const pid = playerData.assetId || playerData.id || `admin_card_${Date.now()}`;
       const pname = playerData.cardName || playerData.name || playerData.player_name || 'Admin Card';
       const ovr = parseInt(playerData.rating || playerData.ovr || 120, 10);
+      const pos = (playerData.position || playerData.pos || playerData.cardPosition || 'ST').toString().trim().toUpperCase();
 
       await query(`
-        INSERT INTO inventory (user_id, player_id, player_name, ovr, player_data)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [uid.toString(), pid.toString(), pname, ovr, JSON.stringify(playerData)]);
+        INSERT INTO inventory (user_id, player_id, player_name, ovr, position, player_data)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [uid.toString(), pid.toString(), pname, ovr, pos, JSON.stringify(playerData)]);
 
       return NextResponse.json({ success: true, message: `Successfully granted ${ovr} ${pname} to user ${uid}` });
     }

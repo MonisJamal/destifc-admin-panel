@@ -106,9 +106,10 @@ export async function POST(request) {
     // If target Discord User ID provided, grant immediately to inventory
     if (targetUserId && targetUserId.toString().trim()) {
       const cleanUid = targetUserId.toString().trim();
+      const posClean = (position || 'ST').toString().trim().toUpperCase();
       await query(
-        'INSERT INTO inventory (user_id, player_name, ovr, player_data) VALUES ($1, $2, $3, $4)',
-        [cleanUid, name, parseInt(ovr, 10), JSON.stringify(playerData)]
+        'INSERT INTO inventory (user_id, player_id, player_name, ovr, position, player_data) VALUES ($1, $2, $3, $4, $5, $6)',
+        [cleanUid, playerData.id, name, parseInt(ovr, 10), posClean, JSON.stringify(playerData)]
       );
     }
 
