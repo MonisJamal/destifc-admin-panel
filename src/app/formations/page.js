@@ -1640,19 +1640,48 @@ export default function FormationsPage() {
   const [gridSize, setGridSize] = useState(0.02); // 2% grid interval
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [snapToGuides, setSnapToGuides] = useState(true);
-  const [autoSymmetry, setAutoSymmetry] = useState(false); // Mirror horizontal adjustments across center line
-  const [showPitchGuides, setShowPitchGuides] = useState(true);
+  const [autoSymmetry, setAutoSymmetry] = useState(false);
   const [showCardOutlines, setShowCardOutlines] = useState(true);
-  const [activeGuideLines, setActiveGuideLines] = useState([]); // Alignment guide lines for snapping
-  const [overlapWarnings, setOverlapWarnings] = useState([]); // Node positions currently in collision/occlusion
+  const [activeGuideLines, setActiveGuideLines] = useState([]);
+  const [overlapWarnings, setOverlapWarnings] = useState([]);
   
   const pitchRef = useRef(null);
+
+  // Exact 3D Perspective Projection (identical to lineup_generator.py in Discord bot)
+  // Maps tactical coordinate [tx, ty] -> Screen Percentage [px, py]
+  const project3D = (tx, ty) => {
+    const yFactor = Math.pow(Math.max(0.0, Math.min(1.0, ty)), 0.88);
+    const screenY = 0.28 + (0.82 - 0.28) * yFactor;
+    const tyPow = Math.pow(ty, 0.90);
+    const leftX = 0.32 - (0.32 - 0.06) * tyPow;
+    const rightX = 0.68 + (0.94 - 0.68) * tyPow;
+    const screenX = leftX + Math.max(0.0, Math.min(1.0, tx)) * (rightX - leftX);
+    const cardSize = 96 + 46 * Math.pow(ty, 0.85);
+    return {
+      xPercent: screenX * 100,
+      yPercent: screenY * 100,
+      cardSize: Math.round(cardSize),
+    };
+  };
+
+  // Inverse 3D Projection: Converts screen click/drag [sx, sy] back to tactical [tx, ty]
+  const unproject3D = (sx, sy) => {
+    const yFactor = Math.max(0.0, Math.min(1.0, (sy - 0.28) / (0.82 - 0.28)));
+    const ty = Math.pow(yFactor, 1.0 / 0.88);
+    const tyPow = Math.pow(Math.max(0.001, ty), 0.90);
+    const leftX = 0.32 - (0.32 - 0.06) * tyPow;
+    const rightX = 0.68 + (0.94 - 0.68) * tyPow;
+    const tx = (sx - leftX) / Math.max(0.01, (rightX - leftX));
+    return {
+      tx: Math.max(0.05, Math.min(0.95, tx)),
+      ty: Math.max(0.06, Math.min(0.96, ty)),
+    };
+  };
 
   useEffect(() => {
     fetchFormation(selectedFormation);
   }, [selectedFormation]);
 
-  // Recalculate collision / overlap stoppers whenever positions change
   useEffect(() => {
     checkCollisions(positions);
   }, [positions]);
@@ -1664,10 +1693,15 @@ export default function FormationsPage() {
       for (let j = i + 1; j < entries.length; j++) {
         const [p1, [x1, y1]] = entries[i];
         const [p2, [x2, y2]] = entries[j];
-        const dx = Math.abs(x1 - x2);
-        const dy = Math.abs(y1 - y2);
-        // Overlap stopper warning threshold (approx card footprint in tactical space)
-        if (dx < 0.08 && dy < 0.09) {
+        
+        // Check true 3D screen pixel distance
+        const proj1 = project3D(x1, y1);
+        const proj2 = project3D(x2, y2);
+        const dx = Math.abs(proj1.xPercent - proj2.xPercent);
+        const dy = Math.abs(proj1.yPercent - proj2.yPercent);
+        
+        // If cards overlap on screen
+        if (dx < 5.5 && dy < 8.0) {
           warnings.push({ p1, p2, dx, dy });
         }
       }
@@ -1722,61 +1756,59 @@ export default function FormationsPage() {
   const handlePointerMove = (e) => {
     if (!activeNode || !pitchRef.current) return;
     const rect = pitchRef.current.getBoundingClientRect();
-    let rawX = (e.clientX - rect.left) / rect.width;
-    let rawY = (e.clientY - rect.top) / rect.height;
+    const screenXFrac = (e.clientX - rect.left) / rect.width;
+    const screenYFrac = (e.clientY - rect.top) / rect.height;
 
-    // Hard Boundaries / Pitch Stopper limits
-    rawX = Math.max(0.05, Math.min(0.95, rawX));
-    rawY = Math.max(0.06, Math.min(0.96, rawY));
+    // Convert screen coordinates to tactical coordinates via inverse 3D projection
+    const { tx: rawTx, ty: rawTy } = unproject3D(screenXFrac, screenYFrac);
 
-    let finalX = rawX;
-    let finalY = rawY;
+    let finalTx = rawTx;
+    let finalTy = rawTy;
     const activeGuides = [];
 
-    // 1. Magnetic Snap to Pitch Center Guidelines
+    // 1. Magnetic Snapping in Tactical Space
     if (snapToGuides) {
       const snapThresholdX = 0.015;
       const snapThresholdY = 0.015;
 
-      // Center Line X=0.50
-      if (Math.abs(finalX - 0.50) < snapThresholdX) {
-        finalX = 0.50;
-        activeGuides.push({ type: 'x', pos: 0.50, label: 'Center Axis (50%)' });
+      if (Math.abs(finalTx - 0.50) < snapThresholdX) {
+        finalTx = 0.50;
+        const projCenter = project3D(0.50, finalTy);
+        activeGuides.push({ type: 'x', pos: projCenter.xPercent / 100, label: 'Center Axis (50%)' });
       }
 
-      // Check alignment with other player nodes (horizontal & vertical magnetic guides)
       Object.entries(positions).forEach(([otherNode, [ox, oy]]) => {
         if (otherNode === activeNode) return;
 
-        // Shared horizontal line (same depth)
-        if (Math.abs(finalY - oy) < snapThresholdY) {
-          finalY = oy;
-          activeGuides.push({ type: 'y', pos: oy, label: `${otherNode} Row` });
+        if (Math.abs(finalTy - oy) < snapThresholdY) {
+          finalTy = oy;
+          const projLine = project3D(finalTx, oy);
+          activeGuides.push({ type: 'y', pos: projLine.yPercent / 100, label: `${otherNode} Depth` });
         }
 
-        // Shared vertical line (same channel)
-        if (Math.abs(finalX - ox) < snapThresholdX) {
-          finalX = ox;
-          activeGuides.push({ type: 'x', pos: ox, label: `${otherNode} Channel` });
+        if (Math.abs(finalTx - ox) < snapThresholdX) {
+          finalTx = ox;
+          const projCol = project3D(ox, finalTy);
+          activeGuides.push({ type: 'x', pos: projCol.xPercent / 100, label: `${otherNode} Channel` });
         }
       });
     }
 
     // 2. Grid Snapping
     if (snapToGrid) {
-      finalX = Math.round(finalX / gridSize) * gridSize;
-      finalY = Math.round(finalY / gridSize) * gridSize;
+      finalTx = Math.round(finalTx / gridSize) * gridSize;
+      finalTy = Math.round(finalTy / gridSize) * gridSize;
     }
 
-    finalX = parseFloat(Math.max(0.05, Math.min(0.95, finalX)).toFixed(3));
-    finalY = parseFloat(Math.max(0.06, Math.min(0.96, finalY)).toFixed(3));
+    finalTx = parseFloat(Math.max(0.05, Math.min(0.95, finalTx)).toFixed(3));
+    finalTy = parseFloat(Math.max(0.06, Math.min(0.96, finalTy)).toFixed(3));
 
     setActiveGuideLines(activeGuides);
 
     setPositions(prev => {
-      const updated = { ...prev, [activeNode]: [finalX, finalY] };
+      const updated = { ...prev, [activeNode]: [finalTx, finalTy] };
 
-      // 3. Auto-Symmetry (mirror partner across the center line X=0.50)
+      // 3. Auto-Symmetry (mirror horizontal wing partner across tactical center 0.50)
       if (autoSymmetry) {
         const partnerMap = {
           'LW': 'RW', 'RW': 'LW',
@@ -1792,8 +1824,8 @@ export default function FormationsPage() {
         };
         const partner = partnerMap[activeNode];
         if (partner && updated[partner]) {
-          const mirroredX = parseFloat((1.0 - finalX).toFixed(3));
-          updated[partner] = [mirroredX, finalY];
+          const mirroredX = parseFloat((1.0 - finalTx).toFixed(3));
+          updated[partner] = [mirroredX, finalTy];
         }
       }
 
@@ -1872,11 +1904,11 @@ export default function FormationsPage() {
               <div className="flex items-center gap-2">
                 <h1 className="text-3xl font-black tracking-tight text-[var(--text-main)]">3D Tactical Studio</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-600 border border-[var(--border-glass)] flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Live Precision Sync
+                  <Sparkles className="w-3 h-3" /> 1:1 Discord WYSIWYG
                 </span>
               </div>
               <p className="text-sm text-[var(--text-main)] opacity-60 mt-1">
-                Precision alignment grid, collision stoppers, magnetic guide rails, and symmetric mirroring for all 34 formations.
+                True 3D pitch perspective matching Discord <code className="bg-[var(--card-bg)]/80 px-1.5 py-0.5 rounded text-[var(--text-main)] opacity-90 font-mono font-bold">/squad view</code> exactly.
               </p>
             </div>
 
@@ -1900,7 +1932,7 @@ export default function FormationsPage() {
           {/* Professional Studio Toolbar */}
           <div className="glass-card p-4 flex flex-wrap items-center justify-between gap-3 border border-white/10 shadow-lg">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider opacity-60 mr-1">Precision Controls:</span>
+              <span className="text-xs font-black uppercase tracking-wider opacity-60 mr-1">Studio Tools:</span>
               
               {/* Grid Toggle */}
               <button
@@ -1950,7 +1982,7 @@ export default function FormationsPage() {
                     : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
                 }`}
               >
-                <span>🪞 Auto-Mirror (Symmetry)</span>
+                <span>🪞 Auto-Mirror</span>
                 <span className="text-[10px] opacity-75">{autoSymmetry ? 'ON' : 'OFF'}</span>
               </button>
 
@@ -1963,7 +1995,7 @@ export default function FormationsPage() {
                     : 'bg-[var(--card-bg)] opacity-60 border-[var(--border-glass)]'
                 }`}
               >
-                <span>🃏 3D Card Footprints</span>
+                <span>🃏 3D Cards</span>
                 <span className="text-[10px] opacity-75">{showCardOutlines ? 'ON' : 'OFF'}</span>
               </button>
             </div>
@@ -1972,7 +2004,7 @@ export default function FormationsPage() {
             <div className="flex items-center gap-2">
               {overlapWarnings.length === 0 ? (
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> 0 Collisions (All Clean)
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 0 Collisions (All 11 Clean)
                 </span>
               ) : (
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 flex items-center gap-1 animate-pulse">
@@ -2062,7 +2094,7 @@ export default function FormationsPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black text-amber-400">Selected: {activeNode}</span>
                       <span className="text-[11px] font-mono opacity-80">
-                        X: {positions[activeNode]?.[0]} | Y: {positions[activeNode]?.[1]}
+                        Tactical X: {positions[activeNode]?.[0]} | Y: {positions[activeNode]?.[1]}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-1 text-center">
@@ -2106,8 +2138,8 @@ export default function FormationsPage() {
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--card-bg)]/5 border border-[var(--border-glass)] text-[11px] text-[var(--text-main)] opacity-60 space-y-1">
-                <p className="font-bold text-neutral-800">💡 Professional Tip:</p>
-                <p>Drag nodes to position. Magnetic rails will lock onto center alignment (50%) and teammate channels. Auto-Mirror will sync symmetric wings automatically.</p>
+                <p className="font-bold text-neutral-800">💡 1:1 Perspective Match:</p>
+                <p>Nodes now display at their <strong>exact 3D screen positions</strong> as rendered in Discord! Move any node to live-reposition it on the stadium turf.</p>
               </div>
             </div>
 
@@ -2125,32 +2157,47 @@ export default function FormationsPage() {
                 {/* Dark Gradient Overlay for 3D depth */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none"></div>
 
-                {/* Professional Grid Lines Overlay */}
+                {/* Perspective Trapezoid Pitch Turf Visualizer */}
                 {showGrid && (
-                  <div className="absolute inset-0 pointer-events-none opacity-20">
-                    {/* Vertical grid lines */}
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={`vg-${i}`}
-                        className="absolute top-0 bottom-0 border-r border-cyan-400/30"
-                        style={{ left: `${(i + 1) * 5}%` }}
-                      />
-                    ))}
-                    {/* Horizontal grid lines */}
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={`hg-${i}`}
-                        className="absolute left-0 right-0 border-b border-cyan-400/30"
-                        style={{ top: `${(i + 1) * 5}%` }}
-                      />
-                    ))}
+                  <div className="absolute inset-0 pointer-events-none">
+                    {/* Perspective Depth Rails */}
+                    {[0.0, 0.25, 0.5, 0.75, 1.0].map((tX, idx) => {
+                      const topPt = project3D(tX, 0.06);
+                      const botPt = project3D(tX, 0.96);
+                      return (
+                        <svg key={`rail-${idx}`} className="absolute inset-0 w-full h-full pointer-events-none">
+                          <line
+                            x1={`${topPt.xPercent}%`}
+                            y1={`${topPt.yPercent}%`}
+                            x2={`${botPt.xPercent}%`}
+                            y2={`${botPt.yPercent}%`}
+                            stroke="rgba(0, 240, 255, 0.15)"
+                            strokeWidth="1"
+                            strokeDasharray="4 4"
+                          />
+                        </svg>
+                      );
+                    })}
+                    {/* Perspective Horizontal Depth Lines */}
+                    {[0.08, 0.25, 0.45, 0.65, 0.77, 0.95].map((tY, idx) => {
+                      const leftPt = project3D(0.05, tY);
+                      const rightPt = project3D(0.95, tY);
+                      return (
+                        <svg key={`depth-${idx}`} className="absolute inset-0 w-full h-full pointer-events-none">
+                          <line
+                            x1={`${leftPt.xPercent}%`}
+                            y1={`${leftPt.yPercent}%`}
+                            x2={`${rightPt.xPercent}%`}
+                            y2={`${rightPt.yPercent}%`}
+                            stroke="rgba(0, 240, 255, 0.15)"
+                            strokeWidth="1"
+                            strokeDasharray="4 4"
+                          />
+                        </svg>
+                      );
+                    })}
                   </div>
                 )}
-
-                {/* Pitch Stopper Bounds (Outer Safety Margins) */}
-                <div className="absolute inset-x-[5%] top-[6%] bottom-[4%] border border-dashed border-red-500/20 rounded-2xl pointer-events-none">
-                  <span className="absolute top-1 left-2 text-[8px] font-mono font-bold text-red-400/50 uppercase">Safety Playable Boundary</span>
-                </div>
 
                 {/* Stadium Center Line & Pitch Markings */}
                 <div className="absolute inset-x-12 top-6 bottom-6 border-2 border-white/20 rounded-2xl pointer-events-none">
@@ -2158,8 +2205,6 @@ export default function FormationsPage() {
                   <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-yellow-400/30 -translate-x-1/2"></div>
                   <div className="absolute top-1/2 inset-x-0 h-0.5 bg-[var(--card-bg)]/20 -translate-y-1/2"></div>
                   <div className="absolute top-1/2 left-1/2 w-44 h-44 rounded-full border-2 border-white/20 -translate-x-1/2 -translate-y-1/2"></div>
-                  <div className="absolute top-0 left-1/2 w-80 h-28 border-2 border-white/20 border-t-0 -translate-x-1/2"></div>
-                  <div className="absolute bottom-0 left-1/2 w-80 h-28 border-2 border-white/20 border-b-0 -translate-x-1/2"></div>
                 </div>
 
                 {/* Dynamic Alignment Guide Lines (when dragging / snapping) */}
@@ -2190,18 +2235,17 @@ export default function FormationsPage() {
                   );
                 })}
 
-                {/* Tactical Nodes with 3D Hologram Glow & Card Footprints */}
+                {/* Tactical Nodes with 3D Hologram Glow & WYSIWYG Card Footprints */}
                 {Object.entries(positions).map(([pos, coords]) => {
-                  const xPercent = coords[0] * 100;
-                  const yPercent = coords[1] * 100;
+                  // Map tactical coordinates to exact 3D projected screen coordinates
+                  const { xPercent, yPercent, cardSize } = project3D(coords[0], coords[1]);
                   const isSelected = activeNode === pos;
                   const glowColor = selectedTheme.glow || '#00f0ff';
                   const isColliding = overlapWarnings.some(w => w.p1 === pos || w.p2 === pos);
 
-                  // Calculate perspective scale for card footprint
-                  const cardScale = 0.85 + (coords[1] * 0.45);
-                  const footW = Math.round(56 * cardScale);
-                  const footH = Math.round(80 * cardScale);
+                  // Projected card dimensions: width = cardSize * 0.72, height = cardSize * 1.05
+                  const footW = Math.round(cardSize * 0.72);
+                  const footH = Math.round(cardSize * 1.05);
 
                   return (
                     <div
