@@ -19,6 +19,8 @@ export async function GET() {
         custom_id: data.id || `custom_${r.id}`,
         card_name: r.card_name || data.cardName,
         ovr: r.ovr || data.rating,
+        buffed_ovr: data.buffed_ovr || null,
+        perks: data.perks || { enabled: false },
         type: 'draft_custom'
       };
     });
@@ -39,6 +41,8 @@ export async function GET() {
           is_active: r.is_active,
           card_name: card.cardName || card.player_name,
           ovr: card.rating,
+          buffed_ovr: card.buffed_ovr || null,
+          perks: card.perks || { enabled: false },
           type: 'signature_box_custom'
         });
       }
@@ -71,12 +75,27 @@ export async function POST(request) {
       nationId = 1,
       clubId = 1,
       matchBoost = 1.15,
-      buffedOvr = null
+      buffedOvr = null,
+      perks = null
     } = body;
 
     if (!name || !ovr || !position) {
       return NextResponse.json({ success: false, error: 'Name, OVR, and Position are required.' }, { status: 400 });
     }
+
+    const defaultPerks = {
+      enabled: false,
+      clinical_finisher: false,
+      speed_demon: false,
+      playmaker: false,
+      iron_fortress: false,
+      the_wall: false,
+      clutch_performer: false,
+      sector_surge: 3,
+      aura_dominance: false
+    };
+
+    const finalPerks = perks && typeof perks === 'object' ? { ...defaultPerks, ...perks } : defaultPerks;
 
     const playerData = {
       id: `custom_${Date.now()}`,
@@ -96,6 +115,7 @@ export async function POST(request) {
       supply: quantity ? parseInt(quantity, 10) : null,
       performance_boost: parseFloat(matchBoost) || 1.15,
       buffed_ovr: buffedOvr ? parseInt(buffedOvr, 10) : null,
+      perks: finalPerks,
       created_at: new Date().toISOString(),
       is_custom: true,
     };
@@ -115,6 +135,11 @@ export async function POST(request) {
         [cleanUid, playerData.id, name, parseInt(ovr, 10), posClean, JSON.stringify(playerData)]
       );
     }
+
+    // Flush cache signal to bot
+    try {
+      await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('SIGNAL_FLUSH_CACHES', '{}', 'pending')");
+    } catch (e) {}
 
     return NextResponse.json({ 
       success: true, 
@@ -140,6 +165,10 @@ export async function DELETE(request) {
       await query('DELETE FROM custom_cards_catalog WHERE player_data::text LIKE $1', [`%${trimmedId}%`]);
     }
     
+    try {
+      await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('SIGNAL_FLUSH_CACHES', '{}', 'pending')");
+    } catch (e) {}
+
     return NextResponse.json({ success: true, message: `Custom card deleted from catalog.` });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -159,7 +188,8 @@ export async function PATCH(request) {
       imageUrl,
       clubName,
       nationName,
-      programName
+      programName,
+      perks
     } = body;
 
     if (!id) {
@@ -191,6 +221,9 @@ export async function PATCH(request) {
     pData.position = newPos;
     pData.buffed_ovr = newBuffedOvr;
     pData.performance_boost = newBoost;
+    if (perks !== undefined) {
+      pData.perks = perks;
+    }
     if (clubName) pData.club = { ...(pData.club || {}), name: clubName.trim() };
     if (nationName) pData.nation = { ...(pData.nation || {}), name: nationName.trim() };
     if (programName) pData.program = { ...(pData.program || {}), name: programName.trim() };
@@ -210,17 +243,21 @@ export async function PATCH(request) {
 
     // 3. Update all existing user inventories holding this card
     const cardIdStr = pData.id || `custom_${id}`;
+    const perksJson = JSON.stringify(pData.perks || { enabled: false });
     await query(
       `UPDATE inventory 
        SET player_name = $1, ovr = $2, position = $3, 
            player_data = jsonb_set(
              jsonb_set(
-               jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
-               '{performance_boost}', $5::jsonb
+               jsonb_set(
+                 jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
+                 '{performance_boost}', $5::jsonb
+               ),
+               '{rating}', $6::jsonb
              ),
-             '{rating}', $6::jsonb
+             '{perks}', $7::jsonb
            )
-       WHERE player_id = $7 OR player_name ILIKE $8`,
+       WHERE player_id = $8 OR player_name ILIKE $9`,
       [
         newName,
         newOvr,
@@ -228,15 +265,21 @@ export async function PATCH(request) {
         newBuffedOvr ? JSON.stringify(newBuffedOvr) : 'null',
         JSON.stringify(newBoost),
         JSON.stringify(newOvr),
+        perksJson,
         cardIdStr,
         `%${newName}%`
       ]
     );
 
+    // 4. Send real-time cache flush signal to Discord bot
+    try {
+      await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('SIGNAL_FLUSH_CACHES', '{}', 'pending')");
+    } catch (e) {}
+
     return NextResponse.json({ 
       success: true, 
       message: `Successfully updated ${newName} (Base: ${newOvr} OVR, Buffed In-Match: ${newBuffedOvr ? `${newBuffedOvr} OVR` : `${newBoost}x`})`,
-      card: { ...pData, id: parseInt(id, 10), card_name: newName, ovr: newOvr, buffed_ovr: newBuffedOvr, performance_boost: newBoost }
+      card: { ...pData, id: parseInt(id, 10), card_name: newName, ovr: newOvr, buffed_ovr: newBuffedOvr, performance_boost: newBoost, perks: pData.perks }
     });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

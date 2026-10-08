@@ -22,11 +22,13 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
+import PerksSection, { DEFAULT_PERKS } from '@/components/PerksSection';
 
 export default function CustomCardsPage() {
   const [name, setName] = useState('');
   const [ovr, setOvr] = useState(120);
   const [buffedOvr, setBuffedOvr] = useState('');
+  const [perks, setPerks] = useState(DEFAULT_PERKS);
   const [position, setPosition] = useState('ST');
   const [imageUrl, setImageUrl] = useState('');
   const [clubName, setClubName] = useState('Real Madrid');
@@ -42,6 +44,7 @@ export default function CustomCardsPage() {
   const [editName, setEditName] = useState('');
   const [editOvr, setEditOvr] = useState(120);
   const [editBuffedOvr, setEditBuffedOvr] = useState('');
+  const [editPerks, setEditPerks] = useState(DEFAULT_PERKS);
   const [editPosition, setEditPosition] = useState('ST');
   const [editClub, setEditClub] = useState('');
   const [editNation, setEditNation] = useState('');
@@ -86,6 +89,7 @@ export default function CustomCardsPage() {
           name,
           ovr,
           buffedOvr: buffedOvr ? parseInt(buffedOvr, 10) : null,
+          perks,
           position,
           imageUrl,
           clubName,
@@ -101,6 +105,7 @@ export default function CustomCardsPage() {
         setMessage({ type: 'success', text: `Successfully saved ${name} (${ovr} OVR) to Custom Catalog${grantNote}.` });
         setName('');
         setBuffedOvr('');
+        setPerks(DEFAULT_PERKS);
         setImageUrl('');
         setQuantity('');
         setTargetUserId('');
@@ -124,6 +129,18 @@ export default function CustomCardsPage() {
     setEditClub(card.club?.name || card.clubName || '');
     setEditNation(card.nation?.name || card.nationName || '');
     setEditImageUrl(card.images?.playerCardImage || card.imageUrl || '');
+    const cPerks = card.perks || {};
+    setEditPerks({
+      enabled: Boolean(cPerks.enabled),
+      clinical_finisher: Boolean(cPerks.clinical_finisher),
+      speed_demon: Boolean(cPerks.speed_demon),
+      playmaker: Boolean(cPerks.playmaker),
+      iron_fortress: Boolean(cPerks.iron_fortress),
+      the_wall: Boolean(cPerks.the_wall),
+      clutch_performer: Boolean(cPerks.clutch_performer),
+      sector_surge: cPerks.sector_surge !== undefined ? cPerks.sector_surge : 3,
+      aura_dominance: Boolean(cPerks.aura_dominance)
+    });
   };
 
   const handleSaveEdit = async (e) => {
@@ -140,6 +157,7 @@ export default function CustomCardsPage() {
           name: editName,
           ovr: parseInt(editOvr, 10),
           buffedOvr: editBuffedOvr ? parseInt(editBuffedOvr, 10) : null,
+          perks: editPerks,
           position: editPosition,
           clubName: editClub,
           nationName: editNation,
@@ -158,6 +176,38 @@ export default function CustomCardsPage() {
       setMessage({ type: 'error', text: 'Network error while updating custom card.' });
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  const handleQuickTogglePerks = async (card) => {
+    const cardId = card.id || card.db_id;
+    const currentPerks = card.perks || {};
+    const newEnabled = !currentPerks.enabled;
+    const updatedPerks = { ...DEFAULT_PERKS, ...currentPerks, enabled: newEnabled };
+
+    // Optimistic UI update
+    setDraftCards(prev => prev.map(c => (c.id === cardId || c.db_id === cardId) ? { ...c, perks: updatedPerks } : c));
+
+    try {
+      const res = await fetch('/api/custom-cards', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: cardId,
+          perks: updatedPerks
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: 'success', text: `Perks for ${card.cardName || card.player_name} toggled ${newEnabled ? 'ON' : 'OFF'}!` });
+        fetchCards();
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to update perks.' });
+        fetchCards();
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Network error toggling perks.' });
+      fetchCards();
     }
   };
 
@@ -387,6 +437,9 @@ export default function CustomCardsPage() {
                 />
               </div>
 
+              {/* Extra Perks Custom Match Powers */}
+              <PerksSection perks={perks} onChange={setPerks} />
+
               <div className="pt-2">
                 <LiquidButton
                   type="submit"
@@ -508,6 +561,35 @@ export default function CustomCardsPage() {
                             <span className="font-bold text-pink-300">
                               Performance: {card.buffed_ovr ? `${card.buffed_ovr} OVR` : `${card.rating || card.ovr} OVR`}
                             </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleQuickTogglePerks(card)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition flex items-center gap-1 shrink-0 ${
+                                card.perks?.enabled
+                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                                  : 'bg-white/5 text-[var(--text-main)] opacity-60 border-white/10 hover:opacity-100 hover:bg-white/10'
+                              }`}
+                              title="Toggle Extra Perks ON/OFF in real-time"
+                            >
+                              <Zap className="w-2.5 h-2.5" />
+                              {card.perks?.enabled ? 'Perks: ON' : 'Perks: OFF'}
+                            </button>
+                            {card.perks?.enabled && (
+                              <span className="text-[9px] text-amber-300/80 font-mono truncate max-w-[180px]">
+                                {[
+                                  card.perks.clinical_finisher && '🎯Finisher',
+                                  card.perks.speed_demon && '⚡Speed',
+                                  card.perks.playmaker && '🪄Maestro',
+                                  card.perks.iron_fortress && '🛡️Defense',
+                                  card.perks.the_wall && '🧤Wall',
+                                  card.perks.clutch_performer && '🔥Clutch',
+                                  card.perks.aura_dominance && '🚀Aura',
+                                  card.perks.sector_surge > 0 && `+${card.perks.sector_surge}Surge`
+                                ].filter(Boolean).join(' • ') || 'Active'}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -718,6 +800,9 @@ export default function CustomCardsPage() {
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500 font-mono text-xs"
                   />
                 </div>
+
+                {/* Extra Perks Custom Match Powers */}
+                <PerksSection perks={editPerks} onChange={setEditPerks} />
 
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border-glass)]">
                   <button
