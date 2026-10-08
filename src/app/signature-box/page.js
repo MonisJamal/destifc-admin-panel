@@ -5,6 +5,7 @@ import LiquidButton from '@/components/LiquidButton';
 import ImageUpload from '@/components/ImageUpload';
 import DateTimePicker from '@/components/DateTimePicker';
 import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info, Calendar, Zap } from 'lucide-react';
+import PerksSection, { DEFAULT_PERKS } from '@/components/PerksSection';
 
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ export default function SignatureBoxAdminPage() {
   const [cardBackgroundUrl, setCardBackgroundUrl] = useState('');
   const [cardBoost, setCardBoost] = useState(1.25);
   const [cardMatchPower, setCardMatchPower] = useState(155);
+  const [cardPerks, setCardPerks] = useState(DEFAULT_PERKS);
 
   const handleRatingChange = (val) => {
     setCardRating(val);
@@ -144,6 +146,7 @@ export default function SignatureBoxAdminPage() {
           source: 'SIGNATURE_BOX',
           is_signature_box: true,
           is_custom: true,
+          perks: cardPerks,
           performance_boost: parseFloat(cardBoost) || 1.25,
           custom_background_url: cardBackgroundUrl,
           images: {
@@ -500,6 +503,11 @@ export default function SignatureBoxAdminPage() {
                     +{Math.max(0, (cardMatchPower || cardRating) - (cardRating || 0))} OVR Match Boost
                   </span>
                 </div>
+              </div>
+
+              {/* Extra Perks */}
+              <div className="pt-2">
+                <PerksSection perks={cardPerks} onChange={setCardPerks} />
               </div>
 
               {/* Card Art / Player Render Upload */}

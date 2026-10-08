@@ -72,7 +72,21 @@ export async function POST(request) {
       JSON.stringify(draw_costs_json || [])
     ]);
 
-    return NextResponse.json({ success: true, message: 'Signature Box updated successfully!' });
+    // Retroactively update existing cards in player inventories
+    if (signature_card_data && signature_card_data.cardName) {
+      try {
+        await query(`
+          UPDATE inventory 
+          SET player_data = player_data || $1::jsonb
+          WHERE player_data->>'is_signature_box' = 'true' 
+            AND player_data->>'cardName' = $2
+        `, [JSON.stringify(signature_card_data), signature_card_data.cardName]);
+      } catch (err) {
+        console.error('Failed to retroactively update inventory:', err);
+      }
+    }
+
+    return NextResponse.json({ success: true, message: 'Signature Box updated successfully and retroactive changes applied!' });
   } catch (error) {
     console.error('Error updating signature box config:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
