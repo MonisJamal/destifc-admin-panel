@@ -99,6 +99,7 @@ export default function SignatureBoxAdminPage() {
         setCardBackgroundUrl(card.custom_background_url || card.images?.playerImage || '');
         setCardBoost(bBoost);
         setCardMatchPower(bPower);
+        setCardPerks(card.perks || DEFAULT_PERKS);
 
         setRewards(b.rewards_json || []);
         setDrawCosts(b.draw_costs_json || []);
