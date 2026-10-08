@@ -1,8 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
+import {
+useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { 
+import {
+usePathname, useRouter } from 'next/navigation';
+import {
+  TrophyIcon, 
   Megaphone,
   LayoutDashboard, 
   PlusCircle, 

@@ -16,9 +16,9 @@ export function getPool() {
       ssl: {
         rejectUnauthorized: false
       },
-      max: 3,
-      idleTimeoutMillis: 5000,
-      connectionTimeoutMillis: 10000,
+      max: 1, // Reduced to 1 to prevent Vercel from hogging Aiven's 20-connection limit
+      idleTimeoutMillis: 1000, // Drop idle connections almost immediately
+      connectionTimeoutMillis: 5000,
     });
   }
   return pool;
