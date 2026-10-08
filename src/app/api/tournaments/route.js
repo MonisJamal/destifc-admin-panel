@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const { name, channel_id } = await req.json();
+    const { name, channel_id, type, format } = await req.json();
     
     if (!name || !channel_id) {
       return NextResponse.json({ error: 'Name and channel_id are required' }, { status: 400 });
@@ -30,9 +30,9 @@ export async function POST(req) {
     // Create a new tournament
     const insertRes = await query(`
       INSERT INTO tournaments (name, type, channel_id, status, created_at)
-      VALUES ($1, 'KNOCKOUT', $2, 'PENDING', NOW())
+      VALUES ($1, $2, $3, 'PENDING', NOW())
       RETURNING *
-    `, [name, channel_id]);
+    `, [name, `${type} | ${format}`, channel_id]);
 
     const newTournament = insertRes.rows[0];
 
@@ -40,7 +40,9 @@ export async function POST(req) {
     const payload = JSON.stringify({ 
       tournament_id: newTournament.id, 
       name, 
-      channel_id 
+      channel_id,
+      type,
+      format
     });
 
     await query(`

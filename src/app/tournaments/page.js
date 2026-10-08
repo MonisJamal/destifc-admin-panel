@@ -10,6 +10,8 @@ export default function TournamentsPage() {
   
   const [name, setName] = useState('');
   const [channelId, setChannelId] = useState('');
+  const [tourneyType, setTourneyType] = useState('Knockout');
+  const [tourneyFormat, setTourneyFormat] = useState('Single Legged');
   const [creating, setCreating] = useState(false);
 
   const [matchState, setMatchState] = useState({});
