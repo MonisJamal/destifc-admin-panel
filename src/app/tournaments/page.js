@@ -13,6 +13,7 @@ export default function TournamentsPage() {
   const [tourneyType, setTourneyType] = useState('Knockout');
   const [tourneyFormat, setTourneyFormat] = useState('Single Legged');
   const [maxParticipants, setMaxParticipants] = useState(16);
+  const [announcementMsg, setAnnouncementMsg] = useState('');
   const [creating, setCreating] = useState(false);
 
   const [matchState, setMatchState] = useState({});

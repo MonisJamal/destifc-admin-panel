@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const { name, channel_id, type, format, max_participants } = await req.json();
+    const { name, channel_id, type, format, max_participants, announcement_msg } = await req.json();
     
     if (!name || !channel_id) {
       return NextResponse.json({ error: 'Name and channel_id are required' }, { status: 400 });
@@ -43,7 +43,8 @@ export async function POST(req) {
       channel_id,
       type,
       format,
-      max_participants
+      max_participants,
+      announcement_msg
     });
 
     await query(`
