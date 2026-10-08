@@ -64,6 +64,40 @@ export default function TournamentsPage() {
     }));
   };
 
+  const handleToggleRegistration = async (id) => {
+    try {
+      const res = await fetch('/api/tournaments/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_registration', tournament_id: id })
+      });
+      const data = await res.json();
+      if (data.success) fetchTournaments();
+    } catch (e) { console.error(e); }
+  };
+
+  const handleGenerateBracket = async (t) => {
+    let parts = [...(t.participants || [])].filter(p => p !== null);
+    if (parts.length < 2) return alert('Need at least 2 participants.');
+    parts.sort(() => Math.random() - 0.5);
+    let matches = [];
+    for (let i = 0; i < parts.length; i += 2) {
+      if (parts[i+1]) {
+        matches.push({ a: parts[i], b: parts[i+1], simulated: false });
+      } else {
+        matches.push({ a: parts[i], b: null, simulated: true, note: 'BYE' });
+      }
+    }
+    try {
+      await fetch('/api/tournaments/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save_brackets', tournament_id: t.id, matches_json: matches })
+      });
+      fetchTournaments();
+    } catch (e) { console.error(e); }
+  };
+
   const handleTriggerMatch = async (tournament) => {
     const state = matchState[tournament.id];
     if (!state?.player_a_id || !state?.player_b_id) {
@@ -134,15 +168,62 @@ export default function TournamentsPage() {
                   className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Tournament Type</label>
+                  <select
+                    value={tourneyType}
+                    onChange={(e) => setTourneyType(e.target.value)}
+                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                  >
+                    <option value="Knockout">Knockout</option>
+                    <option value="Round Robin">Round Robin</option>
+                    <option value="Group Stage">Group Stage + Knockout</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Match Format</label>
+                  <select
+                    value={tourneyFormat}
+                    onChange={(e) => setTourneyFormat(e.target.value)}
+                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                  >
+                    <option value="Single Legged">Single Legged</option>
+                    <option value="Double Legged (Home/Away)">Double Legged (Home/Away)</option>
+                    <option value="Best of 3">Best of 3</option>
+                    <option value="Best of 5">Best of 5</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Max Spots</label>
+                  <input
+                    type="number"
+                    value={maxParticipants}
+                    onChange={(e) => setMaxParticipants(e.target.value)}
+                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Channel ID</label>
+                  <input 
+                    type="text" 
+                    value={channelId}
+                    onChange={e => setChannelId(e.target.value)}
+                    placeholder="Discord Channel ID"
+                    required
+                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Channel ID</label>
-                <input 
-                  type="text" 
-                  value={channelId}
-                  onChange={e => setChannelId(e.target.value)}
-                  placeholder="Discord Channel ID"
-                  required
-                  className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Custom Announcement (Optional)</label>
+                <textarea
+                  value={announcementMsg}
+                  onChange={(e) => setAnnouncementMsg(e.target.value)}
+                  placeholder="e.g. Welcome to the Summer Cup! Winner gets Zizou!"
+                  className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors h-24 resize-none"
                 />
               </div>
               <button 
@@ -199,6 +280,42 @@ export default function TournamentsPage() {
                       <span className="text-sm font-semibold">{validParticipants.length}</span>
                     </div>
                   </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-purple-900/20 mt-2">
+                    <span className="text-xs text-neutral-400">Registration: {tournament.registration_open ? 'OPEN' : 'CLOSED'} ({validParticipants.length}/{tournament.max_participants || 16})</span>
+                    <button onClick={() => handleToggleRegistration(tournament.id)} className="px-3 py-1 bg-neutral-900 border border-purple-900/30 rounded-lg text-xs hover:bg-neutral-800">
+                      Toggle Lock
+                    </button>
+                  </div>
+                  
+                  {tournament.matches_json && tournament.matches_json.length > 0 ? (
+                    <div className="mt-2 border-t border-purple-900/20 pt-4">
+                      <h4 className="text-xs font-bold text-pink-400 uppercase mb-3">Generated Brackets</h4>
+                      <div className="space-y-2">
+                        {tournament.matches_json.map((m, idx) => (
+                           <div key={idx} className="flex justify-between items-center text-xs bg-neutral-950 p-3 rounded-xl border border-purple-900/30">
+                             <span className="text-white">{m.a} <span className="text-pink-500 font-bold mx-2">VS</span> {m.b || 'BYE'}</span>
+                             {!m.simulated && m.b && (
+                               <button 
+                                 onClick={() => {
+                                   setMatchState({ ...matchState, [`${tournament.id}`]: { ...matchState[tournament.id], player_a_id: m.a, player_b_id: m.b }});
+                                   // Just sets the state so they can click simulate below, or we just auto-trigger:
+                                   // Let's just set the dropdowns so the simulate button works.
+                                 }}
+                                 className="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-400 border border-fuchsia-500/30 rounded-lg hover:bg-fuchsia-600/40"
+                               >
+                                 Select Pair
+                               </button>
+                             )}
+                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleGenerateBracket(tournament)} className="mt-2 w-full py-2 bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-600/40">
+                      Generate Random Brackets
+                    </button>
+                  )}
 
                   <div className="mt-2 border-t border-purple-900/20 pt-4">
                     <h4 className="text-xs font-bold text-neutral-400 uppercase mb-3">Simulate Match</h4>
