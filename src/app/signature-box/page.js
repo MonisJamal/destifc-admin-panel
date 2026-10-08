@@ -4,7 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
 import ImageUpload from '@/components/ImageUpload';
 import DateTimePicker from '@/components/DateTimePicker';
-import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info, Calendar } from 'lucide-react';
+import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info, Calendar, Zap } from 'lucide-react';
 
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +27,36 @@ export default function SignatureBoxAdminPage() {
   const [cardNation, setCardNation] = useState('France');
   const [cardBackgroundUrl, setCardBackgroundUrl] = useState('');
   const [cardBoost, setCardBoost] = useState(1.25);
+  const [cardMatchPower, setCardMatchPower] = useState(155);
+
+  const handleRatingChange = (val) => {
+    setCardRating(val);
+    const numRating = parseFloat(val);
+    const numBoost = parseFloat(cardBoost);
+    if (!isNaN(numRating) && !isNaN(numBoost) && numRating > 0) {
+      setCardMatchPower(Math.round(numRating * numBoost));
+    }
+  };
+
+  const handleMatchPowerChange = (val) => {
+    setCardMatchPower(val);
+    const numPower = parseFloat(val);
+    const numRating = parseFloat(cardRating);
+    if (!isNaN(numPower) && !isNaN(numRating) && numRating > 0) {
+      const calcMultiplier = (numPower / numRating).toFixed(2);
+      setCardBoost(calcMultiplier);
+    }
+  };
+
+  const handleBoostChange = (val) => {
+    setCardBoost(val);
+    const numBoost = parseFloat(val);
+    const numRating = parseFloat(cardRating);
+    if (!isNaN(numBoost) && !isNaN(numRating) && numRating > 0) {
+      const calcPower = Math.round(numRating * numBoost);
+      setCardMatchPower(calcPower);
+    }
+  };
 
   // 10 Rewards
   const [rewards, setRewards] = useState([]);
@@ -53,13 +83,18 @@ export default function SignatureBoxAdminPage() {
         setExpiresAt(b.expires_at || null);
 
         const card = b.signature_card_data || {};
+        const bRating = card.rating || 124;
+        const bBoost = card.performance_boost !== undefined ? card.performance_boost : 1.25;
+        const bPower = card.buffed_ovr || Math.round(bRating * bBoost);
+
         setCardName(card.cardName || 'Zinedine Zidane');
-        setCardRating(card.rating || 124);
+        setCardRating(bRating);
         setCardPosition(card.position || 'CAM');
         setCardClub(card.club?.name || 'Real Madrid');
         setCardNation(card.nation?.name || 'France');
         setCardBackgroundUrl(card.custom_background_url || card.images?.playerImage || '');
-        setCardBoost(card.performance_boost || 1.25);
+        setCardBoost(bBoost);
+        setCardMatchPower(bPower);
 
         setRewards(b.rewards_json || []);
         setDrawCosts(b.draw_costs_json || []);
@@ -100,7 +135,9 @@ export default function SignatureBoxAdminPage() {
           id: `sig_${cardName.toLowerCase().replace(/\s+/g, '_')}_${cardRating}`,
           cardName,
           player_name: cardName,
-          rating: parseInt(cardRating, 10),
+          rating: parseInt(cardRating, 10) || 120,
+          ovr: parseInt(cardRating, 10) || 120,
+          buffed_ovr: cardMatchPower ? parseInt(cardMatchPower, 10) : Math.round((parseInt(cardRating, 10) || 120) * (parseFloat(cardBoost) || 1.25)),
           position: cardPosition,
           club: { name: cardClub },
           nation: { name: cardNation },
@@ -370,19 +407,6 @@ export default function SignatureBoxAdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">OVR Rating (120 - 125)</label>
-                  <input
-                    type="number"
-                    min="115"
-                    max="125"
-                    value={cardRating}
-                    onChange={(e) => setCardRating(parseInt(e.target.value, 10))}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-bold text-fuchsia-300"
-                    required
-                  />
-                </div>
-
-                <div>
                   <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Position</label>
                   <input
                     type="text"
@@ -391,20 +415,6 @@ export default function SignatureBoxAdminPage() {
                     className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
                     placeholder="CAM, ST, RW, CB..."
                     required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">In-Game Match Buff Multiplier</label>
-                  <input
-                    type="number"
-                    step="0.05"
-                    min="1.0"
-                    max="2.0"
-                    value={cardBoost}
-                    onChange={(e) => setCardBoost(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-300 font-semibold"
-                    placeholder="1.25 (+25% buff)"
                   />
                 </div>
 
@@ -429,16 +439,96 @@ export default function SignatureBoxAdminPage() {
                     placeholder="France, Argentina..."
                   />
                 </div>
+              </div>
 
-                {/* Card Art / Player Render Upload */}
-                <div className="md:col-span-2">
-                  <ImageUpload
-                    value={cardBackgroundUrl}
-                    onChange={setCardBackgroundUrl}
-                    label="Signature Card Image / Render (.png / .webp)"
-                    helperText="Upload transparent player cut-out or card graphic (.png or .webp)"
-                  />
+              {/* Match Power OVR & Multiplier Auto-Calculation Card */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-fuchsia-950/30 to-pink-950/20 border border-fuchsia-500/30 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-fuchsia-300 uppercase tracking-wider">
+                    <Zap className="w-4 h-4 text-pink-400" />
+                    Match Power OVR & Multiplier Auto-Calculation
+                  </div>
+                  <span className="text-[10px] font-mono text-fuchsia-300 bg-fuchsia-500/15 px-2.5 py-0.5 rounded-full border border-fuchsia-500/30">
+                    Two-Way Auto-Synced
+                  </span>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Base Card OVR */}
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-80 mb-1.5 uppercase tracking-wider">
+                      OVR Rating (Base)
+                    </label>
+                    <input
+                      type="number"
+                      min="100"
+                      max="150"
+                      value={cardRating}
+                      onChange={(e) => handleRatingChange(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none font-bold text-fuchsia-300 font-mono"
+                      required
+                    />
+                    <span className="text-[10px] text-[var(--text-main)] opacity-50 mt-1 block">Card face & profile display</span>
+                  </div>
+
+                  {/* Match Power OVR */}
+                  <div>
+                    <label className="block text-xs font-bold text-pink-400 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Match Power OVR
+                    </label>
+                    <input
+                      type="number"
+                      min="100"
+                      max="250"
+                      value={cardMatchPower}
+                      onChange={(e) => handleMatchPowerChange(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/60 focus:border-pink-400 text-sm focus:outline-none font-black text-pink-300 font-mono shadow-sm shadow-pink-500/20"
+                      placeholder="e.g. 153"
+                    />
+                    <span className="text-[10px] text-pink-300/80 mt-1 block">Effective rating in match physics</span>
+                  </div>
+
+                  {/* In-Game Match Buff Multiplier */}
+                  <div>
+                    <label className="block text-xs font-semibold text-fuchsia-300 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5" />
+                      Match Buff Multiplier
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1.0"
+                      max="3.0"
+                      value={cardBoost}
+                      onChange={(e) => handleBoostChange(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-200 font-semibold font-mono"
+                      placeholder="1.25"
+                    />
+                    <span className="text-[10px] text-fuchsia-300/80 mt-1 block">Auto-calculated from Match Power</span>
+                  </div>
+                </div>
+
+                {/* Real-time Math Summary Badge */}
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono bg-black/40 px-3 py-2 rounded-xl text-fuchsia-200/90 border border-fuchsia-500/20">
+                  <div className="flex items-center gap-2">
+                    <span className="text-pink-400 font-bold">⚡ Live Calculation:</span>
+                    <span>{cardRating || 0} Base OVR × {cardBoost || 1.0}x = <strong className="text-pink-300 font-bold">{cardMatchPower || cardRating} Match Power OVR</strong></span>
+                  </div>
+                  <span className="text-[11px] text-emerald-400 font-semibold">
+                    +{Math.max(0, Math.round(((parseFloat(cardBoost) || 1.0) - 1.0) * 100))}% Match Boost
+                  </span>
+                </div>
+              </div>
+
+              {/* Card Art / Player Render Upload */}
+              <div>
+                <ImageUpload
+                  value={cardBackgroundUrl}
+                  onChange={setCardBackgroundUrl}
+                  label="Signature Card Image / Render (.png / .webp)"
+                  helperText="Upload transparent player cut-out or card graphic (.png or .webp)"
+                />
               </div>
 
               <div className="p-3 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center gap-3 text-xs text-fuchsia-300">
