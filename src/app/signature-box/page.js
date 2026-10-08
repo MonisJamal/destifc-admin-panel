@@ -24,6 +24,7 @@ export default function SignatureBoxAdminPage() {
   const [cardName, setCardName] = useState('Zinedine Zidane');
   const [cardRating, setCardRating] = useState(124);
   const [cardPosition, setCardPosition] = useState('CAM');
+  const [cardAltPositions, setCardAltPositions] = useState('CM, CF');
   const [cardClub, setCardClub] = useState('Real Madrid');
   const [cardNation, setCardNation] = useState('France');
   const [cardBackgroundUrl, setCardBackgroundUrl] = useState('');
@@ -92,6 +93,7 @@ export default function SignatureBoxAdminPage() {
         setCardName(card.cardName || 'Zinedine Zidane');
         setCardRating(bRating);
         setCardPosition(card.position || 'CAM');
+        setCardAltPositions((card.potentialPositions || []).join(', '));
         setCardClub(card.club?.name || 'Real Madrid');
         setCardNation(card.nation?.name || 'France');
         setCardBackgroundUrl(card.custom_background_url || card.images?.playerImage || '');
@@ -141,6 +143,7 @@ export default function SignatureBoxAdminPage() {
           ovr: parseInt(cardRating, 10) || 120,
           buffed_ovr: cardMatchPower ? parseInt(cardMatchPower, 10) : Math.round((parseInt(cardRating, 10) || 120) * (parseFloat(cardBoost) || 1.25)),
           position: cardPosition,
+          potentialPositions: cardAltPositions.split(',').map(s => s.trim()).filter(Boolean),
           club: { name: cardClub },
           nation: { name: cardNation },
           source: 'SIGNATURE_BOX',

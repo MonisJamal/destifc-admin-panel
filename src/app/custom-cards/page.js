@@ -29,7 +29,9 @@ export default function CustomCardsPage() {
   const [ovr, setOvr] = useState(120);
   const [buffedOvr, setBuffedOvr] = useState('');
   const [perks, setPerks] = useState(DEFAULT_PERKS);
-  const [position, setPosition] = useState('ST');
+  const [position,
+          potentialPositions: altPositions.split(',').map(s => s.trim()).filter(Boolean), setPosition] = useState('ST');
+  const [altPositions, setAltPositions] = useState('CF, CAM');
   const [imageUrl, setImageUrl] = useState('');
   const [clubName, setClubName] = useState('Real Madrid');
   const [nationName, setNationName] = useState('Argentina');
@@ -46,6 +48,7 @@ export default function CustomCardsPage() {
   const [editBuffedOvr, setEditBuffedOvr] = useState('');
   const [editPerks, setEditPerks] = useState(DEFAULT_PERKS);
   const [editPosition, setEditPosition] = useState('ST');
+  const [editAltPositions, setEditAltPositions] = useState('');
   const [editClub, setEditClub] = useState('');
   const [editNation, setEditNation] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
@@ -91,6 +94,7 @@ export default function CustomCardsPage() {
           buffedOvr: buffedOvr ? parseInt(buffedOvr, 10) : null,
           perks,
           position,
+          potentialPositions: altPositions.split(',').map(s => s.trim()).filter(Boolean),
           imageUrl,
           clubName,
           nationName,
@@ -126,6 +130,7 @@ export default function CustomCardsPage() {
     setEditOvr(card.rating || card.ovr || 120);
     setEditBuffedOvr(card.buffed_ovr ? card.buffed_ovr.toString() : '');
     setEditPosition(card.position || 'ST');
+    setEditAltPositions((card.potentialPositions || []).join(', '));
     setEditClub(card.club?.name || card.clubName || '');
     setEditNation(card.nation?.name || card.nationName || '');
     setEditImageUrl(card.images?.playerCardImage || card.imageUrl || '');
@@ -159,6 +164,7 @@ export default function CustomCardsPage() {
           buffedOvr: editBuffedOvr ? parseInt(editBuffedOvr, 10) : null,
           perks: editPerks,
           position: editPosition,
+          potentialPositions: editAltPositions.split(',').map(s => s.trim()).filter(Boolean),
           clubName: editClub,
           nationName: editNation,
           imageUrl: editImageUrl

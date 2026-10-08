@@ -66,6 +66,7 @@ export async function POST(request) {
       name,
       ovr,
       position,
+      potentialPositions = [],
       imageUrl,
       targetUserId = null,
       nationName = 'World',
@@ -105,6 +106,7 @@ export async function POST(request) {
       rating: parseInt(ovr, 10),
       ovr: parseInt(ovr, 10),
       position: position.toUpperCase(),
+      potentialPositions: potentialPositions,
       images: {
         playerImage: imageUrl || null,
         playerCardImage: imageUrl || null,
@@ -185,6 +187,7 @@ export async function PATCH(request) {
       buffedOvr,
       matchBoost,
       position,
+      potentialPositions = [],
       imageUrl,
       clubName,
       nationName,
@@ -219,6 +222,7 @@ export async function PATCH(request) {
     pData.rating = newOvr;
     pData.ovr = newOvr;
     pData.position = newPos;
+    if (potentialPositions) pData.potentialPositions = potentialPositions;
     pData.buffed_ovr = newBuffedOvr;
     pData.performance_boost = newBoost;
     if (perks !== undefined) {
