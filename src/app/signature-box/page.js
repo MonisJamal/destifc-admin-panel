@@ -426,6 +426,17 @@ export default function SignatureBoxAdminPage() {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Alt Positions (Comma Separated)</label>
+                  <input
+                    type="text"
+                    value={cardAltPositions}
+                    onChange={(e) => setCardAltPositions(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none"
+                    placeholder="e.g. CF, RW"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 mb-1.5 uppercase tracking-wider">Club Name</label>
                   <input
                     type="text"
