@@ -441,23 +441,23 @@ export default function SignatureBoxAdminPage() {
                 </div>
               </div>
 
-              {/* Match Power OVR & Multiplier Auto-Calculation Card */}
+              {/* Match Performance OVR Card */}
               <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-fuchsia-950/30 to-pink-950/20 border border-fuchsia-500/30 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-fuchsia-300 uppercase tracking-wider">
-                    <Zap className="w-4 h-4 text-pink-400" />
-                    Match Power OVR & Multiplier Auto-Calculation
+                    <Sparkles className="w-4 h-4 text-pink-400" />
+                    Match Performance OVR Configuration
                   </div>
-                  <span className="text-[10px] font-mono text-fuchsia-300 bg-fuchsia-500/15 px-2.5 py-0.5 rounded-full border border-fuchsia-500/30">
-                    Two-Way Auto-Synced
+                  <span className="text-[10px] font-mono text-pink-300 bg-pink-500/15 px-2.5 py-0.5 rounded-full border border-pink-500/30 font-semibold">
+                    Direct Match Power
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Base Card OVR */}
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-main)] opacity-80 mb-1.5 uppercase tracking-wider">
-                      OVR Rating (Base)
+                      OVR Rating (Base Display)
                     </label>
                     <input
                       type="number"
@@ -471,11 +471,11 @@ export default function SignatureBoxAdminPage() {
                     <span className="text-[10px] text-[var(--text-main)] opacity-50 mt-1 block">Card face & profile display</span>
                   </div>
 
-                  {/* Match Power OVR */}
+                  {/* Performance Match Power OVR */}
                   <div>
                     <label className="block text-xs font-bold text-pink-400 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
-                      Match Power OVR
+                      Performance OVR (In-Match Power)
                     </label>
                     <input
                       type="number"
@@ -486,37 +486,18 @@ export default function SignatureBoxAdminPage() {
                       className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/60 focus:border-pink-400 text-sm focus:outline-none font-black text-pink-300 font-mono shadow-sm shadow-pink-500/20"
                       placeholder="e.g. 153"
                     />
-                    <span className="text-[10px] text-pink-300/80 mt-1 block">Effective rating in match physics</span>
-                  </div>
-
-                  {/* In-Game Match Buff Multiplier */}
-                  <div>
-                    <label className="block text-xs font-semibold text-fuchsia-300 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5" />
-                      Match Buff Multiplier
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="1.0"
-                      max="3.0"
-                      value={cardBoost}
-                      onChange={(e) => handleBoostChange(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm focus:outline-none text-fuchsia-200 font-semibold font-mono"
-                      placeholder="1.25"
-                    />
-                    <span className="text-[10px] text-fuchsia-300/80 mt-1 block">Auto-calculated from Match Power</span>
+                    <span className="text-[10px] text-pink-300/80 mt-1 block">Exact rating the player performs at in match physics</span>
                   </div>
                 </div>
 
-                {/* Real-time Math Summary Badge */}
+                {/* Real-time Summary Badge */}
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono bg-black/40 px-3 py-2 rounded-xl text-fuchsia-200/90 border border-fuchsia-500/20">
                   <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-bold">⚡ Live Calculation:</span>
-                    <span>{cardRating || 0} Base OVR × {cardBoost || 1.0}x = <strong className="text-pink-300 font-bold">{cardMatchPower || cardRating} Match Power OVR</strong></span>
+                    <span className="text-pink-400 font-bold">⚡ Match Engine:</span>
+                    <span>Card displays as <strong className="text-fuchsia-300">{cardRating || 0} OVR</strong>, performs as <strong className="text-pink-300">{cardMatchPower || cardRating} OVR</strong> in H2H</span>
                   </div>
                   <span className="text-[11px] text-emerald-400 font-semibold">
-                    +{Math.max(0, Math.round(((parseFloat(cardBoost) || 1.0) - 1.0) * 100))}% Match Boost
+                    +{Math.max(0, (cardMatchPower || cardRating) - (cardRating || 0))} OVR Match Boost
                   </span>
                 </div>
               </div>

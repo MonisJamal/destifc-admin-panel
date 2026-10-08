@@ -32,7 +32,6 @@ export default function CustomCardsPage() {
   const [clubName, setClubName] = useState('Real Madrid');
   const [nationName, setNationName] = useState('Argentina');
   const [programName, setProgramName] = useState('Custom Master');
-  const [matchBoost, setMatchBoost] = useState(1.15);
   const [quantity, setQuantity] = useState('');
   const [targetUserId, setTargetUserId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +42,6 @@ export default function CustomCardsPage() {
   const [editName, setEditName] = useState('');
   const [editOvr, setEditOvr] = useState(120);
   const [editBuffedOvr, setEditBuffedOvr] = useState('');
-  const [editMatchBoost, setEditMatchBoost] = useState(1.15);
   const [editPosition, setEditPosition] = useState('ST');
   const [editClub, setEditClub] = useState('');
   const [editNation, setEditNation] = useState('');
@@ -93,7 +91,6 @@ export default function CustomCardsPage() {
           clubName,
           nationName,
           programName,
-          matchBoost,
           quantity: quantity ? parseInt(quantity, 10) : null,
           targetUserId: targetUserId ? targetUserId.trim() : null
         }),
@@ -123,7 +120,6 @@ export default function CustomCardsPage() {
     setEditName(card.cardName || card.player_name || '');
     setEditOvr(card.rating || card.ovr || 120);
     setEditBuffedOvr(card.buffed_ovr ? card.buffed_ovr.toString() : '');
-    setEditMatchBoost(card.performance_boost || 1.15);
     setEditPosition(card.position || 'ST');
     setEditClub(card.club?.name || card.clubName || '');
     setEditNation(card.nation?.name || card.nationName || '');
@@ -144,7 +140,6 @@ export default function CustomCardsPage() {
           name: editName,
           ovr: parseInt(editOvr, 10),
           buffedOvr: editBuffedOvr ? parseInt(editBuffedOvr, 10) : null,
-          matchBoost: parseFloat(editMatchBoost) || 1.15,
           position: editPosition,
           clubName: editClub,
           nationName: editNation,
@@ -300,28 +295,23 @@ export default function CustomCardsPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase tracking-wider">Match Aura Boost</label>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-pink-400 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Performance OVR (In-Match Power)
+                  </label>
                   <input
                     type="number"
-                    step="0.05"
-                    min="1.0"
-                    max="3.0"
-                    value={matchBoost}
-                    onChange={(e) => setMatchBoost(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm font-semibold text-fuchsia-300 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-pink-400 mb-1.5 uppercase tracking-wider">Buffed In-Match OVR</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 135, 200, 130"
+                    placeholder="e.g. 135, 200, 130 (optional — leave blank to perform at Base OVR)"
                     value={buffedOvr}
                     onChange={(e) => setBuffedOvr(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/40 focus:border-pink-400 text-sm font-bold text-pink-300 font-mono focus:outline-none"
+                    min="100"
+                    max="250"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/50 focus:border-pink-400 text-sm font-bold text-pink-300 font-mono focus:outline-none"
                   />
+                  <span className="text-[10px] text-pink-300/70 mt-1 block">
+                    The card will perform directly at this rating in match physics, while displaying {ovr || 120} Base OVR on cards and profiles.
+                  </span>
                 </div>
 
                 <div>
@@ -450,8 +440,8 @@ export default function CustomCardsPage() {
                 <div className="text-[10px] text-fuchsia-400 font-bold tracking-widest uppercase mt-0.5">
                   {programName}
                 </div>
-                <div className="text-[9px] text-pink-300 font-mono mt-0.5">
-                  Boost: {matchBoost}x Match Power
+                <div className="text-[9px] text-pink-300 font-mono mt-0.5 font-bold">
+                  Performance: {buffedOvr ? `${buffedOvr} OVR` : `${ovr || 120} OVR`}
                 </div>
               </div>
             </div>
@@ -516,7 +506,7 @@ export default function CustomCardsPage() {
                             <span>Base: {card.rating || card.ovr} OVR</span>
                             <span>•</span>
                             <span className="font-bold text-pink-300">
-                              Match: {card.buffed_ovr ? `${card.buffed_ovr} OVR` : `${card.performance_boost || 1.15}x`}
+                              Performance: {card.buffed_ovr ? `${card.buffed_ovr} OVR` : `${card.rating || card.ovr} OVR`}
                             </span>
                           </div>
                         </div>
@@ -582,7 +572,7 @@ export default function CustomCardsPage() {
                             {card.club?.name || 'Club'} | {card.nation?.name || 'Nation'}
                           </div>
                           <div className="text-[10px] text-fuchsia-300 font-mono mt-0.5">
-                            Aura Boost: {card.performance_boost || 1.25}x (+{(((card.performance_boost || 1.25) - 1) * 100).toFixed(0)}%)
+                            Performance: <span className="font-bold text-pink-300">{card.buffed_ovr || card.rating || card.ovr} OVR</span>
                           </div>
                         </div>
                       </div>
@@ -664,7 +654,7 @@ export default function CustomCardsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Base OVR (Display)</label>
                     <input
@@ -676,10 +666,14 @@ export default function CustomCardsPage() {
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm font-bold font-mono text-fuchsia-300 focus:outline-none focus:border-pink-500"
                       required
                     />
+                    <span className="text-[10px] text-[var(--text-main)] opacity-50 mt-1 block">Displayed on card & stats</span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-pink-400 mb-1.5 uppercase">Buffed Match OVR</label>
+                    <label className="block text-xs font-bold text-pink-400 mb-1.5 uppercase flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Performance OVR (In-Match Power)
+                    </label>
                     <input
                       type="number"
                       placeholder="e.g. 135, 200, 130"
@@ -689,19 +683,7 @@ export default function CustomCardsPage() {
                       max="250"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/50 text-sm font-bold font-mono text-pink-300 focus:outline-none focus:border-pink-400"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Aura Multiplier</label>
-                    <input
-                      type="number"
-                      step="0.05"
-                      min="1.0"
-                      max="3.0"
-                      value={editMatchBoost}
-                      onChange={(e) => setEditMatchBoost(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm font-semibold text-fuchsia-300 focus:outline-none focus:border-pink-500"
-                    />
+                    <span className="text-[10px] text-pink-300/80 mt-1 block">Card performs directly at this rating in matches</span>
                   </div>
                 </div>
 
