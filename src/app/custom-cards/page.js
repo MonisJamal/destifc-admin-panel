@@ -29,8 +29,7 @@ export default function CustomCardsPage() {
   const [ovr, setOvr] = useState(120);
   const [buffedOvr, setBuffedOvr] = useState('');
   const [perks, setPerks] = useState(DEFAULT_PERKS);
-  const [position,
-          potentialPositions: altPositions.split(',').map(s => s.trim()).filter(Boolean), setPosition] = useState('ST');
+  const [position, setPosition] = useState('ST');
   const [altPositions, setAltPositions] = useState('CF, CAM');
   const [imageUrl, setImageUrl] = useState('');
   const [clubName, setClubName] = useState('Real Madrid');
