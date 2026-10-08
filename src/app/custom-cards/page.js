@@ -17,13 +17,16 @@ import {
   Plus,
   Zap,
   Globe,
-  Award
+  Award,
+  Edit2,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CustomCardsPage() {
   const [name, setName] = useState('');
   const [ovr, setOvr] = useState(120);
+  const [buffedOvr, setBuffedOvr] = useState('');
   const [position, setPosition] = useState('ST');
   const [imageUrl, setImageUrl] = useState('');
   const [clubName, setClubName] = useState('Real Madrid');
@@ -34,6 +37,18 @@ export default function CustomCardsPage() {
   const [targetUserId, setTargetUserId] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Edit Existing Custom Card Modal State
+  const [editingCard, setEditingCard] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editOvr, setEditOvr] = useState(120);
+  const [editBuffedOvr, setEditBuffedOvr] = useState('');
+  const [editMatchBoost, setEditMatchBoost] = useState(1.15);
+  const [editPosition, setEditPosition] = useState('ST');
+  const [editClub, setEditClub] = useState('');
+  const [editNation, setEditNation] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
   
   const [activeTab, setActiveTab] = useState('draft'); // 'draft' | 'signature'
   const [draftCards, setDraftCards] = useState([]);
@@ -72,6 +87,7 @@ export default function CustomCardsPage() {
         body: JSON.stringify({
           name,
           ovr,
+          buffedOvr: buffedOvr ? parseInt(buffedOvr, 10) : null,
           position,
           imageUrl,
           clubName,
@@ -87,6 +103,7 @@ export default function CustomCardsPage() {
         const grantNote = targetUserId ? ` and granted directly to Discord ID ${targetUserId.trim()}` : '';
         setMessage({ type: 'success', text: `Successfully saved ${name} (${ovr} OVR) to Custom Catalog${grantNote}.` });
         setName('');
+        setBuffedOvr('');
         setImageUrl('');
         setQuantity('');
         setTargetUserId('');
@@ -98,6 +115,54 @@ export default function CustomCardsPage() {
       setMessage({ type: 'error', text: 'Network connection error.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenEdit = (card) => {
+    setEditingCard(card);
+    setEditName(card.cardName || card.player_name || '');
+    setEditOvr(card.rating || card.ovr || 120);
+    setEditBuffedOvr(card.buffed_ovr ? card.buffed_ovr.toString() : '');
+    setEditMatchBoost(card.performance_boost || 1.15);
+    setEditPosition(card.position || 'ST');
+    setEditClub(card.club?.name || card.clubName || '');
+    setEditNation(card.nation?.name || card.nationName || '');
+    setEditImageUrl(card.images?.playerCardImage || card.imageUrl || '');
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editingCard) return;
+    setEditLoading(true);
+    try {
+      const cardId = editingCard.id || editingCard.db_id;
+      const res = await fetch('/api/custom-cards', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: cardId,
+          name: editName,
+          ovr: parseInt(editOvr, 10),
+          buffedOvr: editBuffedOvr ? parseInt(editBuffedOvr, 10) : null,
+          matchBoost: parseFloat(editMatchBoost) || 1.15,
+          position: editPosition,
+          clubName: editClub,
+          nationName: editNation,
+          imageUrl: editImageUrl
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message || `Successfully updated ${editName}!` });
+        setEditingCard(null);
+        fetchCards();
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to update custom card.' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Network error while updating custom card.' });
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -221,7 +286,7 @@ export default function CustomCardsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase tracking-wider">Position</label>
                   <select
@@ -236,15 +301,26 @@ export default function CustomCardsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase tracking-wider">Match Simulation Boost</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase tracking-wider">Match Aura Boost</label>
                   <input
                     type="number"
                     step="0.05"
                     min="1.0"
-                    max="2.0"
+                    max="3.0"
                     value={matchBoost}
                     onChange={(e) => setMatchBoost(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm font-semibold text-fuchsia-300 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-pink-400 mb-1.5 uppercase tracking-wider">Buffed In-Match OVR</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 135, 200, 130"
+                    value={buffedOvr}
+                    onChange={(e) => setBuffedOvr(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/40 focus:border-pink-400 text-sm font-bold text-pink-300 font-mono focus:outline-none"
                   />
                 </div>
 
@@ -436,13 +512,24 @@ export default function CustomCardsPage() {
                           <div className="text-xs text-[var(--text-main)] opacity-70 truncate">
                             {card.club?.name || 'Club'} | {card.nation?.name || 'Nation'}
                           </div>
-                          <div className="text-[10px] text-fuchsia-300 font-mono mt-0.5">
-                            Boost: {card.performance_boost || 1.15}x
+                          <div className="text-[10px] text-fuchsia-300 font-mono mt-0.5 flex items-center gap-2">
+                            <span>Base: {card.rating || card.ovr} OVR</span>
+                            <span>•</span>
+                            <span className="font-bold text-pink-300">
+                              Match: {card.buffed_ovr ? `${card.buffed_ovr} OVR` : `${card.performance_boost || 1.15}x`}
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleOpenEdit(card)}
+                          className="p-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-white border border-purple-500/30 transition-colors"
+                          title="Edit Card Stats & In-Match Buffed OVR"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => handleGiveCard(card)}
                           className="px-3 py-1.5 rounded-xl bg-fuchsia-500/15 hover:bg-fuchsia-500/25 text-fuchsia-300 font-semibold text-xs transition-colors flex items-center gap-1.5 border border-fuchsia-500/30"
@@ -526,6 +613,150 @@ export default function CustomCardsPage() {
             </div>
           )}
         </div>
+
+        {/* Edit Custom Card Modal */}
+        {editingCard && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="bg-[var(--card-bg)] border border-[var(--border-glass)] rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl relative space-y-6">
+              <div className="flex items-center justify-between border-b border-[var(--border-glass)] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">
+                    <Edit2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-[var(--text-main)]">Edit Custom Card</h3>
+                    <p className="text-xs text-[var(--text-main)] opacity-60">Update base stats, in-match buffed OVR, and appearance</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingCard(null)}
+                  className="p-2 rounded-xl text-[var(--text-main)] opacity-50 hover:text-white hover:bg-white/10 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEdit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Card / Player Name</label>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Position</label>
+                    <select
+                      value={editPosition}
+                      onChange={(e) => setEditPosition(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500"
+                    >
+                      {['ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'LB', 'CB', 'RB', 'LWB', 'RWB', 'GK'].map(pos => (
+                        <option key={pos} value={pos}>{pos}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Base OVR (Display)</label>
+                    <input
+                      type="number"
+                      value={editOvr}
+                      onChange={(e) => setEditOvr(e.target.value)}
+                      min="90"
+                      max="150"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm font-bold font-mono text-fuchsia-300 focus:outline-none focus:border-pink-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-pink-400 mb-1.5 uppercase">Buffed Match OVR</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 135, 200, 130"
+                      value={editBuffedOvr}
+                      onChange={(e) => setEditBuffedOvr(e.target.value)}
+                      min="100"
+                      max="250"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-pink-500/50 text-sm font-bold font-mono text-pink-300 focus:outline-none focus:border-pink-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Aura Multiplier</label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="1.0"
+                      max="3.0"
+                      value={editMatchBoost}
+                      onChange={(e) => setEditMatchBoost(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm font-semibold text-fuchsia-300 focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Club</label>
+                    <input
+                      type="text"
+                      value={editClub}
+                      onChange={(e) => setEditClub(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Nation</label>
+                    <input
+                      type="text"
+                      value={editNation}
+                      onChange={(e) => setEditNation(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Card Art Image URL</label>
+                  <input
+                    type="text"
+                    value={editImageUrl}
+                    onChange={(e) => setEditImageUrl(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500 font-mono text-xs"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border-glass)]">
+                  <button
+                    type="button"
+                    onClick={() => setEditingCard(null)}
+                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-semibold transition"
+                  >
+                    Cancel
+                  </button>
+                  <LiquidButton
+                    type="submit"
+                    disabled={editLoading}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold text-sm shadow-lg shadow-pink-600/30"
+                  >
+                    {editLoading ? 'Saving...' : 'Save Changes'}
+                  </LiquidButton>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

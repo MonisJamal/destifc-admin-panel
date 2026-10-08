@@ -70,7 +70,8 @@ export async function POST(request) {
       quantity = null,
       nationId = 1,
       clubId = 1,
-      matchBoost = 1.15
+      matchBoost = 1.15,
+      buffedOvr = null
     } = body;
 
     if (!name || !ovr || !position) {
@@ -83,6 +84,7 @@ export async function POST(request) {
       player_name: name,
       lastName: name,
       rating: parseInt(ovr, 10),
+      ovr: parseInt(ovr, 10),
       position: position.toUpperCase(),
       images: {
         playerImage: imageUrl || null,
@@ -93,6 +95,7 @@ export async function POST(request) {
       program: { name: programName || 'Admin Custom Release' },
       supply: quantity ? parseInt(quantity, 10) : null,
       performance_boost: parseFloat(matchBoost) || 1.15,
+      buffed_ovr: buffedOvr ? parseInt(buffedOvr, 10) : null,
       created_at: new Date().toISOString(),
       is_custom: true,
     };
@@ -142,3 +145,101 @@ export async function DELETE(request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(request) {
+  try {
+    const body = await request.json();
+    const {
+      id,
+      name,
+      ovr,
+      buffedOvr,
+      matchBoost,
+      position,
+      imageUrl,
+      clubName,
+      nationName,
+      programName
+    } = body;
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Card ID is required' }, { status: 400 });
+    }
+
+    // 1. Fetch existing card from catalog
+    const existing = await query('SELECT id, card_name, ovr, player_data FROM custom_cards_catalog WHERE id = $1', [parseInt(id, 10)]);
+    if (existing.rows.length === 0) {
+      return NextResponse.json({ success: false, error: 'Custom card not found in catalog' }, { status: 404 });
+    }
+
+    let pData = {};
+    try {
+      pData = typeof existing.rows[0].player_data === 'string' ? JSON.parse(existing.rows[0].player_data) : (existing.rows[0].player_data || {});
+    } catch (e) {}
+
+    const newName = name ? name.trim() : existing.rows[0].card_name;
+    const newOvr = ovr !== undefined && ovr !== '' ? parseInt(ovr, 10) : (existing.rows[0].ovr || pData.rating);
+    const newPos = (position || pData.position || 'ST').toString().trim().toUpperCase();
+    const newBuffedOvr = buffedOvr !== undefined && buffedOvr !== '' && buffedOvr !== null ? parseInt(buffedOvr, 10) : (pData.buffed_ovr || null);
+    const newBoost = matchBoost !== undefined && matchBoost !== '' ? parseFloat(matchBoost) : (pData.performance_boost || 1.15);
+
+    pData.cardName = newName;
+    pData.player_name = newName;
+    pData.lastName = newName;
+    pData.rating = newOvr;
+    pData.ovr = newOvr;
+    pData.position = newPos;
+    pData.buffed_ovr = newBuffedOvr;
+    pData.performance_boost = newBoost;
+    if (clubName) pData.club = { ...(pData.club || {}), name: clubName.trim() };
+    if (nationName) pData.nation = { ...(pData.nation || {}), name: nationName.trim() };
+    if (programName) pData.program = { ...(pData.program || {}), name: programName.trim() };
+    if (imageUrl) {
+      pData.images = {
+        ...(pData.images || {}),
+        playerImage: imageUrl.trim(),
+        playerCardImage: imageUrl.trim()
+      };
+    }
+
+    // 2. Update catalog row
+    await query(
+      'UPDATE custom_cards_catalog SET card_name = $1, ovr = $2, player_data = $3 WHERE id = $4',
+      [newName, newOvr, JSON.stringify(pData), parseInt(id, 10)]
+    );
+
+    // 3. Update all existing user inventories holding this card
+    const cardIdStr = pData.id || `custom_${id}`;
+    await query(
+      `UPDATE inventory 
+       SET player_name = $1, ovr = $2, position = $3, 
+           player_data = jsonb_set(
+             jsonb_set(
+               jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
+               '{performance_boost}', $5::jsonb
+             ),
+             '{rating}', $6::jsonb
+           )
+       WHERE player_id = $7 OR player_name ILIKE $8`,
+      [
+        newName,
+        newOvr,
+        newPos,
+        newBuffedOvr ? JSON.stringify(newBuffedOvr) : 'null',
+        JSON.stringify(newBoost),
+        JSON.stringify(newOvr),
+        cardIdStr,
+        `%${newName}%`
+      ]
+    );
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Successfully updated ${newName} (Base: ${newOvr} OVR, Buffed In-Match: ${newBuffedOvr ? `${newBuffedOvr} OVR` : `${newBoost}x`})`,
+      card: { ...pData, id: parseInt(id, 10), card_name: newName, ovr: newOvr, buffed_ovr: newBuffedOvr, performance_boost: newBoost }
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
