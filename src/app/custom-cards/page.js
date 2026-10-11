@@ -567,6 +567,11 @@ export default function CustomCardsPage() {
                               Performance: {card.buffed_ovr ? `${card.buffed_ovr} OVR` : `${card.rating || card.ovr} OVR`}
                             </span>
                           </div>
+                          {card.potentialPositions && card.potentialPositions.length > 0 && (
+                            <div className="text-[10px] text-purple-300 font-mono mt-0.5">
+                              Alt: <span className="text-white font-semibold">{card.potentialPositions.join(', ')}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                             <button
                               type="button"
@@ -661,10 +666,22 @@ export default function CustomCardsPage() {
                           <div className="text-[10px] text-fuchsia-300 font-mono mt-0.5">
                             Performance: <span className="font-bold text-pink-300">{card.buffed_ovr || card.rating || card.ovr} OVR</span>
                           </div>
+                          {card.potentialPositions && card.potentialPositions.length > 0 && (
+                            <div className="text-[10px] text-purple-300 font-mono mt-0.5">
+                              Alt: <span className="text-white font-semibold">{card.potentialPositions.join(', ')}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleOpenEdit(card)}
+                          className="p-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 hover:text-white border border-purple-500/30 transition-colors"
+                          title="Edit Card Stats & Alternate Positions"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => handleGiveCard(card)}
                           className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-[var(--text-main)] font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20"
@@ -702,7 +719,7 @@ export default function CustomCardsPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-[var(--text-main)]">Edit Custom Card</h3>
-                    <p className="text-xs text-[var(--text-main)] opacity-60">Update base stats, in-match buffed OVR, and appearance</p>
+                    <p className="text-xs text-[var(--text-main)] opacity-60">Update base stats, in-match buffed OVR, alternate positions, and appearance</p>
                   </div>
                 </div>
                 <button
@@ -728,7 +745,7 @@ export default function CustomCardsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Position</label>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Position (Main)</label>
                     <select
                       value={editPosition}
                       onChange={(e) => setEditPosition(e.target.value)}
@@ -739,6 +756,18 @@ export default function CustomCardsPage() {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-90 mb-1.5 uppercase">Alt Positions (Comma Separated)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. CF, RW, CAM"
+                    value={editAltPositions}
+                    onChange={(e) => setEditAltPositions(e.target.value.toUpperCase())}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500"
+                  />
+                  <span className="text-[10px] text-[var(--text-main)] opacity-50 mt-1 block">Secondary positions where player plays with 100% full OVR</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

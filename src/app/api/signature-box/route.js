@@ -8,6 +8,21 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'No signature box found' });
     }
     const row = res.rows[0];
+
+    // Also fetch presets history
+    let presets = [];
+    try {
+      const pRes = await query('SELECT * FROM signature_box_presets ORDER BY id ASC');
+      presets = pRes.rows.map(r => ({
+        ...r,
+        signature_card_data: typeof r.signature_card_data === 'string' ? JSON.parse(r.signature_card_data) : r.signature_card_data,
+        rewards_json: typeof r.rewards_json === 'string' ? JSON.parse(r.rewards_json) : r.rewards_json,
+        draw_costs_json: typeof r.draw_costs_json === 'string' ? JSON.parse(r.draw_costs_json) : r.draw_costs_json,
+      }));
+    } catch (pe) {
+      console.warn('Could not fetch signature_box_presets:', pe);
+    }
+
     return NextResponse.json({
       success: true,
       box: {
@@ -17,7 +32,8 @@ export async function GET() {
         signature_card_data: typeof row.signature_card_data === 'string' ? JSON.parse(row.signature_card_data) : row.signature_card_data,
         rewards_json: typeof row.rewards_json === 'string' ? JSON.parse(row.rewards_json) : row.rewards_json,
         draw_costs_json: typeof row.draw_costs_json === 'string' ? JSON.parse(row.draw_costs_json) : row.draw_costs_json,
-      }
+      },
+      presets
     });
   } catch (error) {
     console.error('Error fetching signature box config:', error);
@@ -83,6 +99,27 @@ export async function POST(request) {
         `, [JSON.stringify(signature_card_data), signature_card_data.cardName]);
       } catch (err) {
         console.error('Failed to retroactively update inventory:', err);
+      }
+    }
+
+    // Also archive to signature_box_presets
+    if (signature_card_data && signature_card_data.cardName) {
+      try {
+        const pName = `${signature_card_data.cardName} (${signature_card_data.rating || 120} OVR)`;
+        await query(`
+          INSERT INTO signature_box_presets (preset_name, title, subtitle, banner_url, signature_card_data, rewards_json, draw_costs_json)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (preset_name) DO UPDATE SET
+            title = EXCLUDED.title,
+            subtitle = EXCLUDED.subtitle,
+            banner_url = EXCLUDED.banner_url,
+            signature_card_data = EXCLUDED.signature_card_data,
+            rewards_json = EXCLUDED.rewards_json,
+            draw_costs_json = EXCLUDED.draw_costs_json,
+            updated_at = CURRENT_TIMESTAMP
+        `, [pName, title, subtitle, banner_url, JSON.stringify(signature_card_data), JSON.stringify(rewards_json), JSON.stringify(draw_costs_json)]);
+      } catch (perr) {
+        console.error('Failed to archive preset:', perr);
       }
     }
 

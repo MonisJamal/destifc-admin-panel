@@ -25,17 +25,22 @@ export async function GET() {
       };
     });
 
-    // 2. Fetch signature box card(s)
-    const resSig = await query('SELECT id, title, signature_card_data, is_active FROM signature_box_config ORDER BY id ASC');
+    // 2. Fetch signature box card(s) from active box and saved presets
     const signatureCards = [];
+    const seenCardNames = new Set();
+
+    const resSig = await query('SELECT id, title, signature_card_data, is_active FROM signature_box_config ORDER BY id ASC');
     resSig.rows.forEach(r => {
       let card = {};
       try {
         card = typeof r.signature_card_data === 'string' ? JSON.parse(r.signature_card_data) : r.signature_card_data;
       } catch (e) {}
       if (card && (card.cardName || card.rating)) {
+        const cName = (card.cardName || card.player_name || '').toLowerCase();
+        seenCardNames.add(cName);
         signatureCards.push({
           ...card,
+          id: card.id || `sig_box_${r.id}`,
           box_id: r.id,
           box_title: r.title,
           is_active: r.is_active,
@@ -47,6 +52,34 @@ export async function GET() {
         });
       }
     });
+
+    try {
+      const resPresets = await query('SELECT id, preset_name, title, signature_card_data FROM signature_box_presets ORDER BY id DESC');
+      resPresets.rows.forEach(r => {
+        let card = {};
+        try {
+          card = typeof r.signature_card_data === 'string' ? JSON.parse(r.signature_card_data) : r.signature_card_data;
+        } catch (e) {}
+        if (card && (card.cardName || card.rating)) {
+          const cName = (card.cardName || card.player_name || '').toLowerCase();
+          if (!seenCardNames.has(cName)) {
+            seenCardNames.add(cName);
+            signatureCards.push({
+              ...card,
+              id: card.id || `sig_preset_${r.id}`,
+              preset_id: r.id,
+              box_title: r.title,
+              is_active: false,
+              card_name: card.cardName || card.player_name,
+              ovr: card.rating,
+              buffed_ovr: card.buffed_ovr || null,
+              perks: card.perks || { enabled: false },
+              type: 'signature_box_custom'
+            });
+          }
+        }
+      });
+    } catch (pe) {}
 
     return NextResponse.json({ 
       success: true, 
@@ -199,93 +232,165 @@ export async function PATCH(request) {
       return NextResponse.json({ success: false, error: 'Card ID is required' }, { status: 400 });
     }
 
-    // 1. Fetch existing card from catalog
-    const existing = await query('SELECT id, card_name, ovr, player_data FROM custom_cards_catalog WHERE id = $1', [parseInt(id, 10)]);
-    if (existing.rows.length === 0) {
-      return NextResponse.json({ success: false, error: 'Custom card not found in catalog' }, { status: 404 });
+    const isNumericId = /^\d+$/.test(id.toString().trim());
+    let existingCatalogRow = null;
+
+    if (isNumericId) {
+      const existing = await query('SELECT id, card_name, ovr, player_data FROM custom_cards_catalog WHERE id = $1', [parseInt(id, 10)]);
+      if (existing.rows.length > 0) {
+        existingCatalogRow = existing.rows[0];
+      }
     }
 
-    let pData = {};
-    try {
-      pData = typeof existing.rows[0].player_data === 'string' ? JSON.parse(existing.rows[0].player_data) : (existing.rows[0].player_data || {});
-    } catch (e) {}
+    const newName = name ? name.trim() : 'Custom Player';
+    const newOvr = ovr !== undefined && ovr !== '' ? parseInt(ovr, 10) : 120;
+    const newPos = (position || 'ST').toString().trim().toUpperCase();
+    const newBuffedOvr = buffedOvr !== undefined && buffedOvr !== '' && buffedOvr !== null ? parseInt(buffedOvr, 10) : null;
+    const newBoost = matchBoost !== undefined && matchBoost !== '' ? parseFloat(matchBoost) : 1.15;
+    const potPositions = Array.isArray(potentialPositions) ? potentialPositions.map(p => p.toString().trim().toUpperCase()).filter(Boolean) : [];
+    const potPositionsJson = JSON.stringify(potPositions);
+    const perksJson = JSON.stringify(perks || { enabled: false });
 
-    const newName = name ? name.trim() : existing.rows[0].card_name;
-    const newOvr = ovr !== undefined && ovr !== '' ? parseInt(ovr, 10) : (existing.rows[0].ovr || pData.rating);
-    const newPos = (position || pData.position || 'ST').toString().trim().toUpperCase();
-    const newBuffedOvr = buffedOvr !== undefined && buffedOvr !== '' && buffedOvr !== null ? parseInt(buffedOvr, 10) : (pData.buffed_ovr || null);
-    const newBoost = matchBoost !== undefined && matchBoost !== '' ? parseFloat(matchBoost) : (pData.performance_boost || 1.15);
+    if (existingCatalogRow) {
+      // 1. Update Custom Cards Catalog
+      let pData = {};
+      try {
+        pData = typeof existingCatalogRow.player_data === 'string' ? JSON.parse(existingCatalogRow.player_data) : (existingCatalogRow.player_data || {});
+      } catch (e) {}
 
-    pData.cardName = newName;
-    pData.player_name = newName;
-    pData.lastName = newName;
-    pData.rating = newOvr;
-    pData.ovr = newOvr;
-    pData.position = newPos;
-    if (potentialPositions) pData.potentialPositions = potentialPositions;
-    pData.buffed_ovr = newBuffedOvr;
-    pData.performance_boost = newBoost;
-    if (perks !== undefined) {
-      pData.perks = perks;
-    }
-    if (clubName) pData.club = { ...(pData.club || {}), name: clubName.trim() };
-    if (nationName) pData.nation = { ...(pData.nation || {}), name: nationName.trim() };
-    if (programName) pData.program = { ...(pData.program || {}), name: programName.trim() };
-    if (imageUrl) {
-      pData.images = {
-        ...(pData.images || {}),
-        playerImage: imageUrl.trim(),
-        playerCardImage: imageUrl.trim()
-      };
-    }
+      pData.cardName = newName;
+      pData.player_name = newName;
+      pData.lastName = newName;
+      pData.rating = newOvr;
+      pData.ovr = newOvr;
+      pData.position = newPos;
+      pData.potentialPositions = potPositions;
+      pData.buffed_ovr = newBuffedOvr;
+      pData.performance_boost = newBoost;
+      if (perks !== undefined) {
+        pData.perks = perks;
+      }
+      if (clubName) pData.club = { ...(pData.club || {}), name: clubName.trim() };
+      if (nationName) pData.nation = { ...(pData.nation || {}), name: nationName.trim() };
+      if (programName) pData.program = { ...(pData.program || {}), name: programName.trim() };
+      if (imageUrl) {
+        pData.images = {
+          ...(pData.images || {}),
+          playerImage: imageUrl.trim(),
+          playerCardImage: imageUrl.trim()
+        };
+      }
 
-    // 2. Update catalog row
-    await query(
-      'UPDATE custom_cards_catalog SET card_name = $1, ovr = $2, player_data = $3 WHERE id = $4',
-      [newName, newOvr, JSON.stringify(pData), parseInt(id, 10)]
-    );
+      await query(
+        'UPDATE custom_cards_catalog SET card_name = $1, ovr = $2, player_data = $3 WHERE id = $4',
+        [newName, newOvr, JSON.stringify(pData), parseInt(id, 10)]
+      );
 
-    // 3. Update all existing user inventories holding this card
-    const cardIdStr = pData.id || `custom_${id}`;
-    const perksJson = JSON.stringify(pData.perks || { enabled: false });
-    await query(
-      `UPDATE inventory 
-       SET player_name = $1, ovr = $2, position = $3, 
-           player_data = jsonb_set(
-             jsonb_set(
+      const cardIdStr = pData.id || `custom_${id}`;
+      // Update inventory holding this catalog custom card
+      await query(
+        `UPDATE inventory 
+         SET player_name = $1, ovr = $2, position = $3, 
+             player_data = jsonb_set(
                jsonb_set(
-                 jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
-                 '{performance_boost}', $5::jsonb
+                 jsonb_set(
+                   jsonb_set(
+                     jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
+                     '{performance_boost}', $5::jsonb
+                   ),
+                   '{rating}', $6::jsonb
+                 ),
+                 '{perks}', $7::jsonb
                ),
-               '{rating}', $6::jsonb
-             ),
-             '{perks}', $7::jsonb
-           )
-       WHERE player_id = $8 OR player_name ILIKE $9`,
-      [
-        newName,
-        newOvr,
-        newPos,
-        newBuffedOvr ? JSON.stringify(newBuffedOvr) : 'null',
-        JSON.stringify(newBoost),
-        JSON.stringify(newOvr),
-        perksJson,
-        cardIdStr,
-        `%${newName}%`
-      ]
-    );
+               '{potentialPositions}', $8::jsonb
+             )
+         WHERE player_id = $9 OR player_name ILIKE $10 OR player_data->>'cardName' ILIKE $10`,
+        [
+          newName,
+          newOvr,
+          newPos,
+          newBuffedOvr ? JSON.stringify(newBuffedOvr) : 'null',
+          JSON.stringify(newBoost),
+          JSON.stringify(newOvr),
+          perksJson,
+          potPositionsJson,
+          cardIdStr,
+          `%${newName}%`
+        ]
+      );
+    } else {
+      // 2. Handle Signature Card Edit
+      const sigData = {
+        id: id.toString(),
+        cardName: newName,
+        player_name: newName,
+        lastName: newName,
+        rating: newOvr,
+        ovr: newOvr,
+        position: newPos,
+        potentialPositions: potPositions,
+        buffed_ovr: newBuffedOvr || Math.round(newOvr * newBoost),
+        performance_boost: newBoost,
+        perks: perks || { enabled: false },
+        club: { name: clubName || 'Icons' },
+        nation: { name: nationName || 'World' },
+        source: 'SIGNATURE_BOX',
+        is_signature_box: true,
+        is_custom: true,
+        custom_background_url: imageUrl || '',
+        images: {
+          playerImage: imageUrl || '',
+          playerCardImage: imageUrl || ''
+        }
+      };
 
-    // 4. Send real-time cache flush signal to Discord bot
+      // Update active signature_box_config if card matches
+      try {
+        await query(`
+          UPDATE signature_box_config
+          SET signature_card_data = $1::jsonb, updated_at = CURRENT_TIMESTAMP
+          WHERE id = 1 AND (signature_card_data->>'cardName' ILIKE $2 OR signature_card_data->>'id' = $3)
+        `, [JSON.stringify(sigData), newName, id.toString()]);
+      } catch (e) {}
+
+      // Update signature_box_presets if exists
+      try {
+        await query(`
+          UPDATE signature_box_presets
+          SET signature_card_data = $1::jsonb, updated_at = CURRENT_TIMESTAMP
+          WHERE signature_card_data->>'cardName' ILIKE $2 OR signature_card_data->>'id' = $3 OR preset_name ILIKE $4
+        `, [JSON.stringify(sigData), newName, id.toString(), `%${newName}%`]);
+      } catch (e) {}
+
+      // Update all inventories holding this signature card
+      await query(
+        `UPDATE inventory 
+         SET player_name = $1, ovr = $2, position = $3, 
+             player_data = player_data || $4::jsonb
+         WHERE player_data->>'is_signature_box' = 'true' 
+           AND (player_data->>'cardName' ILIKE $5 OR player_name ILIKE $5 OR player_id = $6)`,
+        [
+          newName,
+          newOvr,
+          newPos,
+          JSON.stringify(sigData),
+          newName,
+          id.toString()
+        ]
+      );
+    }
+
+    // Flush cache signal to Discord bot
     try {
       await query("INSERT INTO portal_jobs (job_type, payload, status) VALUES ('SIGNAL_FLUSH_CACHES', '{}', 'pending')");
     } catch (e) {}
 
     return NextResponse.json({ 
       success: true, 
-      message: `Successfully updated ${newName} (Base: ${newOvr} OVR, Buffed In-Match: ${newBuffedOvr ? `${newBuffedOvr} OVR` : `${newBoost}x`})`,
-      card: { ...pData, id: parseInt(id, 10), card_name: newName, ovr: newOvr, buffed_ovr: newBuffedOvr, performance_boost: newBoost, perks: pData.perks }
+      message: `Successfully updated ${newName} (Base: ${newOvr} OVR, Alt Positions: ${potPositions.join(', ') || 'None'})!`
     });
   } catch (error) {
+    console.error('Error updating custom card:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

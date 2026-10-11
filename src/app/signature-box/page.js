@@ -67,6 +67,10 @@ export default function SignatureBoxAdminPage() {
   // 10 Draw Costs
   const [drawCosts, setDrawCosts] = useState([]);
 
+  // Presets / Archive
+  const [presets, setPresets] = useState([]);
+  const [selectedPreset, setSelectedPreset] = useState('');
+
   useEffect(() => {
     fetchBox();
   }, []);
@@ -76,6 +80,9 @@ export default function SignatureBoxAdminPage() {
     try {
       const res = await fetch('/api/signature-box');
       const data = await res.json();
+      if (data.presets) {
+        setPresets(data.presets);
+      }
       if (data.success && data.box) {
         const b = data.box;
         setTitle(b.title || 'FC SIGNATURE BOX');
@@ -109,6 +116,35 @@ export default function SignatureBoxAdminPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadPreset = (presetName) => {
+    setSelectedPreset(presetName);
+    const p = presets.find(x => x.preset_name === presetName);
+    if (!p) return;
+    setTitle(p.title || 'FC SIGNATURE BOX');
+    setSubtitle(p.subtitle || '10 Exclusive Limited Time Rewards');
+    setBannerUrl(p.banner_url || '');
+
+    const card = p.signature_card_data || {};
+    const bRating = card.rating || 122;
+    const bBoost = card.performance_boost !== undefined ? card.performance_boost : 1.25;
+    const bPower = card.buffed_ovr || Math.round(bRating * bBoost);
+
+    setCardName(card.cardName || 'Lev Yashin');
+    setCardRating(bRating);
+    setCardPosition(card.position || 'GK');
+    setCardAltPositions((card.potentialPositions || []).join(', '));
+    setCardClub(card.club?.name || 'Icons');
+    setCardNation(card.nation?.name || 'Russia');
+    setCardBackgroundUrl(card.custom_background_url || card.images?.playerImage || '');
+    setCardBoost(bBoost);
+    setCardMatchPower(bPower);
+    setCardPerks(card.perks || DEFAULT_PERKS);
+
+    setRewards(p.rewards_json || []);
+    setDrawCosts(p.draw_costs_json || []);
+    setMessage({ type: 'success', text: `Loaded previous box preset: "${presetName}". Review settings and click "Save and Publish Live" to deploy to Discord.` });
   };
 
   const handleRewardChange = (index, field, value) => {
@@ -291,6 +327,33 @@ export default function SignatureBoxAdminPage() {
             {message.text}
           </div>
         )}
+
+        {/* Presets and Previous Boxes Quick Loader */}
+        <div className="bg-[var(--card-bg)]/60 border border-[var(--border-glass)] rounded-2xl p-4 mb-6 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <Box className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-main)]">Previous Boxes & Saved Presets</h3>
+              <p className="text-xs text-[var(--text-main)] opacity-60">Easily load previous signature boxes (like Lev Yashin) into the editor</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedPreset}
+              onChange={(e) => loadPreset(e.target.value)}
+              className="px-3.5 py-2 rounded-xl bg-[var(--input-bg)] border border-purple-900/50 text-sm focus:outline-none focus:border-pink-500 text-[var(--text-main)]"
+            >
+              <option value="">-- Select a Previous Box to Load --</option>
+              {presets.map((p) => (
+                <option key={p.id} value={p.preset_name}>
+                  {p.preset_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         <form onSubmit={handleSave} className="space-y-8">
           {/* Top Grid: General Settings + Exclusive Signature Card */}
