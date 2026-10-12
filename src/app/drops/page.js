@@ -65,7 +65,7 @@ export default function DropsConfigPage() {
     <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-glass)]">
         <div>
           <div className="flex items-center gap-3">
@@ -209,7 +209,7 @@ export default function DropsConfigPage() {
 
         {/* Rare Gift Drops (2x Daily at Random Times) */}
         <div className="glass-card p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-glass)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-glass)]">
             <div>
               <h2 className="text-base font-bold text-amber-300 flex items-center gap-2">
                 <span>🌟</span>
@@ -219,7 +219,7 @@ export default function DropsConfigPage() {
                 A massive jackpot gift crate dropped at 2 completely random times per day. Notifies @everyone.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={() => setConfig({ ...config, ping_everyone: !config.ping_everyone })}

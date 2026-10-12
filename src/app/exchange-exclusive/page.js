@@ -192,7 +192,7 @@ export default function ExchangeExclusivePage() {
                 <ArrowRightLeft className="w-7 h-7" />
               </div>
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] tracking-tight">
                     Exchange Exclusive Players
                   </h1>
@@ -206,7 +206,7 @@ export default function ExchangeExclusivePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <button
                 onClick={handleForceRefreshPool}
                 disabled={refreshingPool}

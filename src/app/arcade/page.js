@@ -68,13 +68,15 @@ export default function ArcadeConfigPage() {
       <Sidebar />
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 pb-6 border-b border-[var(--border-glass)]">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
-          <Gamepad2 className="w-5 h-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-[var(--text-main)]">Arcade & Minigames Suite</h1>
-          <p className="text-xs text-[var(--text-muted)] font-medium">Configure Pack Battles, Penalty Shootouts, Lucky Wheel & Draft Battles</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-glass)]">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 shrink-0">
+            <Gamepad2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-[var(--text-main)]">Arcade & Minigames Suite</h1>
+            <p className="text-xs text-[var(--text-muted)] font-medium">Configure Pack Battles, Penalty Shootouts, Lucky Wheel & Draft Battles</p>
+          </div>
         </div>
       </div>
 

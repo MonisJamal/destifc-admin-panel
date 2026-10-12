@@ -216,8 +216,8 @@ export default function DatabasePage() {
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">Cloud Database Explorer</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-main)]">Cloud Database Explorer</h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                   Max OVR: {maxDbOvr}+
                 </span>
@@ -393,7 +393,7 @@ export default function DatabasePage() {
 
           {/* Table Container */}
           <div className="glass-card overflow-hidden rounded-3xl border border-white/80 shadow-xl">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto mobile-table-scroll">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[var(--border-glass)] text-[11px] font-black text-[var(--text-main)] opacity-70 uppercase tracking-wider bg-[var(--card-bg)]/40">

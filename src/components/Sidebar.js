@@ -109,8 +109,7 @@ export default function Sidebar() {
       items: [
         { href: '/leaks', label: 'Leaks Drafts', icon: Flame, perm: 'leaks' },
         { href: '/cards', label: 'Card Database', icon: Sparkles, perm: 'cards' },
-        { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle,
-  Trophy, perm: 'custom-cards' },
+        { href: '/custom-cards', label: 'Custom Cards', icon: PlusCircle, perm: 'custom-cards' },
         { href: '/tournaments', label: 'Tournaments', icon: Trophy, perm: 'tournaments' },
         { href: '/formations', label: 'Formations 3D', icon: Network, perm: 'formations' },
         { href: '/admin-commands', label: 'Admin Commands', icon: Sliders, perm: 'admin-commands' },
@@ -231,34 +230,49 @@ export default function Sidebar() {
       )
     : [];
 
+  const currentItem = navSections.flatMap(s => s.items).find(i => i.href === pathname);
+  const currentPageTitle = currentItem?.label || 'Control Suite';
+
   return (
     <>
       {/* Mobile Header Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[var(--bg-surface)] border-b border-[var(--border-glass)] backdrop-blur-xl z-50 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-fuchsia-600/30">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[var(--bg-surface)]/95 border-b border-[var(--border-glass)] backdrop-blur-xl z-50 flex items-center justify-between px-3.5 shadow-sm">
+        <Link href="/" className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-600 via-fuchsia-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-fuchsia-600/30 shrink-0">
             <ShieldCheck className="w-4 h-4" />
           </div>
-          <div>
-            <h1 className="font-bold text-sm leading-none text-[var(--text-main)]">DestiFC</h1>
-            <span className="text-[9px] text-pink-400 font-semibold uppercase">Admin Suite</span>
+          <div className="min-w-0">
+            <h1 className="font-bold text-sm leading-none text-[var(--text-main)] truncate">DestiFC</h1>
+            <span className="text-[9px] text-pink-400 font-semibold uppercase tracking-wider block truncate mt-0.5">
+              {currentPageTitle}
+            </span>
           </div>
-        </div>
+        </Link>
 
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-[var(--text-main)] opacity-90 hover:text-[var(--text-main)]"
-          aria-label="Toggle Navigation Menu"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5 text-pink-400" />}
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-[var(--text-main)] hover:bg-pink-500/10 transition-colors"
+            aria-label="Toggle Theme"
+            title="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-purple-600" />}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 rounded-xl bg-[var(--input-bg)] border border-[var(--border-glass)] text-[var(--text-main)] hover:bg-pink-500/10 transition-colors"
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5 text-pink-400" /> : <Menu className="w-5 h-5 text-pink-400" />}
+          </button>
+        </div>
       </div>
 
       {/* Backdrop for Mobile */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 transition-opacity animate-fade-in"
+          className="lg:hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-40 transition-opacity animate-fade-in"
         />
       )}
 

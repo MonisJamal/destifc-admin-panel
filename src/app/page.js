@@ -45,7 +45,7 @@ export default function Dashboard() {
                   {stats.bot_online ? `Bot Online (${stats.bot_latency}ms)` : 'Bot Offline'}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-[var(--text-main)] opacity-70 mt-1">Live cloud telemetry connected to Supabase PostgreSQL and Discord Bot engine.</p>
+              <p className="text-xs sm:text-sm text-[var(--text-main)] opacity-70 mt-1">Live cloud telemetry connected to PostgreSQL database and Discord Bot engine.</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -128,6 +128,17 @@ export default function Dashboard() {
               Core Control Suites
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <Link href="/tournaments" className="glass-card p-6 group hover:border-pink-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-pink-500/15 text-pink-400 border border-pink-500/30">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[var(--text-main)] opacity-50 group-hover:text-pink-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                </div>
+                <h3 className="text-base font-bold text-[var(--text-main)] mb-1">Tournaments Organizer</h3>
+                <p className="text-xs text-[var(--text-main)] opacity-70 leading-relaxed">Host knockout tournaments, announce brackets in Discord channels, and trigger live match simulations.</p>
+              </Link>
+
               <Link href="/black-market" className="glass-card p-6 group hover:border-red-500/40 transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">

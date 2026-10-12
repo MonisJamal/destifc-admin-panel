@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
 import { PlusCircle, Trophy, Users, Play, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function TournamentsPage() {
@@ -131,50 +132,58 @@ export default function TournamentsPage() {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in mt-14 lg:mt-0">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-pink-400" />
-            Tournament Organizer
-          </h1>
-          <p className="text-neutral-400 mt-1">Manage tournaments, participants, and trigger live matches.</p>
+    <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans">
+      <Sidebar />
+      <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-[var(--border-glass)]">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-pink-500/15 text-pink-300 border border-pink-500/30 flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5" /> Knockout & Cups
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              Tournament Organizer
+            </h1>
+            <p className="text-xs sm:text-sm text-[var(--text-main)] opacity-70 mt-1">
+              Manage live Discord tournaments, brackets, registration status, and trigger match simulations.
+            </p>
+          </div>
+          <button 
+            onClick={fetchTournaments}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-glass)] text-[var(--text-main)] rounded-xl hover:bg-white/10 transition-colors text-xs font-semibold w-fit"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
-        <button 
-          onClick={fetchTournaments}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-neutral-900 border border-purple-900/40 text-neutral-300 rounded-xl hover:bg-neutral-800 transition-colors"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="glass-card p-6 border border-purple-900/30 rounded-2xl bg-[#0e0a17]/50">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-fuchsia-400" />
-              Create Tournament
-            </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 space-y-6">
+            <div className="glass-card p-6 border border-[var(--border-glass)] rounded-2xl bg-[var(--card-bg)]">
+              <h2 className="text-lg font-bold text-[var(--text-main)] mb-4 flex items-center gap-2">
+                <PlusCircle className="w-5 h-5 text-fuchsia-400" />
+                Create Tournament
+              </h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Tournament Name</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Tournament Name</label>
                 <input 
                   type="text" 
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Summer Cup"
+                  placeholder="e.g. Summer Champions Cup"
                   required
-                  className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                  className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Tournament Type</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Tournament Type</label>
                   <select
                     value={tourneyType}
                     onChange={(e) => setTourneyType(e.target.value)}
-                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors"
                   >
                     <option value="Knockout">Knockout</option>
                     <option value="Round Robin">Round Robin</option>
@@ -182,11 +191,11 @@ export default function TournamentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Match Format</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Match Format</label>
                   <select
                     value={tourneyFormat}
                     onChange={(e) => setTourneyFormat(e.target.value)}
-                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors"
                   >
                     <option value="Single Legged">Single Legged</option>
                     <option value="Double Legged (Home/Away)">Double Legged (Home/Away)</option>
@@ -195,35 +204,35 @@ export default function TournamentsPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Max Spots</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Max Spots</label>
                   <input
                     type="number"
                     value={maxParticipants}
                     onChange={(e) => setMaxParticipants(e.target.value)}
-                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Channel ID</label>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Channel ID</label>
                   <input 
                     type="text" 
                     value={channelId}
                     onChange={e => setChannelId(e.target.value)}
                     placeholder="Discord Channel ID"
                     required
-                    className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors font-mono"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Custom Announcement (Optional)</label>
+                <label className="block text-xs font-semibold text-[var(--text-main)] opacity-70 uppercase tracking-wider mb-2">Custom Announcement (Optional)</label>
                 <textarea
                   value={announcementMsg}
                   onChange={(e) => setAnnouncementMsg(e.target.value)}
                   placeholder="e.g. Welcome to the Summer Cup! Winner gets Zizou!"
-                  className="w-full bg-neutral-950 border border-purple-900/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 transition-colors h-24 resize-none"
+                  className="w-full bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-pink-500 transition-colors h-20 resize-none"
                 />
               </div>
               <button 
@@ -264,45 +273,48 @@ export default function TournamentsPage() {
               const state = matchState[tournament.id] || {};
 
               return (
-                <div key={tournament.id} className="glass-card p-6 border border-purple-900/30 rounded-2xl bg-[#0e0a17]/50 flex flex-col gap-4">
-                  <div className="flex items-start justify-between">
+                <div key={tournament.id} className="glass-card p-5 sm:p-6 border border-[var(--border-glass)] rounded-2xl bg-[var(--card-bg)] flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-xl font-bold text-white">{tournament.name}</h3>
+                        <h3 className="text-lg sm:text-xl font-bold text-[var(--text-main)]">{tournament.name}</h3>
                         <span className="px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 text-[10px] font-bold uppercase">
                           {tournament.status || 'PENDING'}
                         </span>
                       </div>
-                      <p className="text-xs text-neutral-400 font-mono">Channel: {tournament.channel_id}</p>
+                      <p className="text-xs text-[var(--text-main)] opacity-60 font-mono">Channel: {tournament.channel_id}</p>
                     </div>
-                    <div className="flex items-center gap-2 text-neutral-400 bg-neutral-950 px-3 py-1.5 rounded-lg border border-purple-900/30">
-                      <Users className="w-4 h-4" />
-                      <span className="text-sm font-semibold">{validParticipants.length}</span>
+                    <div className="flex items-center gap-2 text-[var(--text-main)] opacity-80 bg-[var(--input-bg)] px-3 py-1.5 rounded-xl border border-[var(--border-glass)] w-fit">
+                      <Users className="w-4 h-4 text-pink-400" />
+                      <span className="text-sm font-semibold">{validParticipants.length} Players</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-purple-900/20 mt-2">
-                    <span className="text-xs text-neutral-400">Registration: {tournament.registration_open ? 'OPEN' : 'CLOSED'} ({validParticipants.length}/{tournament.max_participants || 16})</span>
-                    <button onClick={() => handleToggleRegistration(tournament.id)} className="px-3 py-1 bg-neutral-900 border border-purple-900/30 rounded-lg text-xs hover:bg-neutral-800">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border-glass)] mt-1">
+                    <span className="text-xs text-[var(--text-main)] opacity-70">
+                      Registration: <strong className="text-pink-400">{tournament.registration_open ? 'OPEN' : 'CLOSED'}</strong> ({validParticipants.length}/{tournament.max_participants || 16})
+                    </span>
+                    <button 
+                      onClick={() => handleToggleRegistration(tournament.id)} 
+                      className="px-3 py-1 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl text-xs font-semibold hover:bg-white/10 text-[var(--text-main)] transition"
+                    >
                       Toggle Lock
                     </button>
                   </div>
                   
                   {tournament.matches_json && tournament.matches_json.length > 0 ? (
-                    <div className="mt-2 border-t border-purple-900/20 pt-4">
+                    <div className="mt-2 border-t border-[var(--border-glass)] pt-4">
                       <h4 className="text-xs font-bold text-pink-400 uppercase mb-3">Generated Brackets</h4>
                       <div className="space-y-2">
                         {tournament.matches_json.map((m, idx) => (
-                           <div key={idx} className="flex justify-between items-center text-xs bg-neutral-950 p-3 rounded-xl border border-purple-900/30">
-                             <span className="text-white">{m.a} <span className="text-pink-500 font-bold mx-2">VS</span> {m.b || 'BYE'}</span>
+                           <div key={idx} className="flex justify-between items-center text-xs bg-[var(--input-bg)] p-3 rounded-xl border border-[var(--border-glass)]">
+                             <span className="text-[var(--text-main)] font-semibold">{m.a} <span className="text-pink-400 font-bold mx-2">VS</span> {m.b || 'BYE'}</span>
                              {!m.simulated && m.b && (
                                <button 
                                  onClick={() => {
                                    setMatchState({ ...matchState, [`${tournament.id}`]: { ...matchState[tournament.id], player_a_id: m.a, player_b_id: m.b }});
-                                   // Just sets the state so they can click simulate below, or we just auto-trigger:
-                                   // Let's just set the dropdowns so the simulate button works.
                                  }}
-                                 className="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-400 border border-fuchsia-500/30 rounded-lg hover:bg-fuchsia-600/40"
+                                 className="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-300 border border-fuchsia-500/30 rounded-lg hover:bg-fuchsia-600/40 text-xs font-bold transition"
                                >
                                  Select Pair
                                </button>
@@ -312,16 +324,19 @@ export default function TournamentsPage() {
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => handleGenerateBracket(tournament)} className="mt-2 w-full py-2 bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-600/40">
+                    <button 
+                      onClick={() => handleGenerateBracket(tournament)} 
+                      className="mt-2 w-full py-2 bg-amber-600/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-600/30 transition"
+                    >
                       Generate Random Brackets
                     </button>
                   )}
 
-                  <div className="mt-2 border-t border-purple-900/20 pt-4">
-                    <h4 className="text-xs font-bold text-neutral-400 uppercase mb-3">Simulate Match</h4>
-                    <div className="flex flex-col md:flex-row gap-3">
+                  <div className="mt-2 border-t border-[var(--border-glass)] pt-4">
+                    <h4 className="text-xs font-bold text-[var(--text-main)] opacity-70 uppercase mb-3">Simulate Live Match</h4>
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <select 
-                        className="flex-1 bg-neutral-950 border border-purple-900/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500/50"
+                        className="flex-1 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-3 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500"
                         value={state.player_a_id || ''}
                         onChange={(e) => handleMatchSelect(tournament.id, 'player_a_id', e.target.value)}
                       >
@@ -331,10 +346,10 @@ export default function TournamentsPage() {
                         ))}
                       </select>
                       
-                      <div className="flex items-center justify-center font-bold text-pink-500 md:px-2">VS</div>
+                      <div className="flex items-center justify-center font-bold text-pink-400 sm:px-2">VS</div>
 
                       <select 
-                        className="flex-1 bg-neutral-950 border border-purple-900/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500/50"
+                        className="flex-1 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl px-3 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:border-pink-500"
                         value={state.player_b_id || ''}
                         onChange={(e) => handleMatchSelect(tournament.id, 'player_b_id', e.target.value)}
                       >
@@ -347,7 +362,7 @@ export default function TournamentsPage() {
                       <button
                         onClick={() => handleTriggerMatch(tournament)}
                         disabled={state.triggering || !state.player_a_id || !state.player_b_id || state.player_a_id === state.player_b_id}
-                        className="px-6 py-2 bg-pink-600 hover:bg-pink-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                        className="px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 disabled:opacity-40 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-sm shadow-md shadow-pink-600/20"
                       >
                         {state.triggering ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                         Simulate
@@ -361,8 +376,9 @@ export default function TournamentsPage() {
               );
             })
           )}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

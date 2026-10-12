@@ -262,7 +262,7 @@ export default function CustomCardsPage() {
 
       <main className="flex-1 lg:ml-72 ml-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8 max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-[var(--border-glass)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-[var(--border-glass)]">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1.5">
@@ -272,15 +272,15 @@ export default function CustomCardsPage() {
                 Live Server Generator
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
-              Custom Card Creator and Management
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+              Custom Card Creator & Management
             </h1>
-            <p className="text-sm text-[var(--text-main)] opacity-70 mt-1">
+            <p className="text-xs sm:text-sm text-[var(--text-main)] opacity-70 mt-1">
               Design new custom player cards with custom PNG/WebP art and manage active draft cards and exclusive Signature Box cards.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               onClick={fetchCards}
               className="px-4 py-2.5 rounded-xl text-sm font-medium bg-[var(--card-bg)]/80 hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-90 border border-purple-900/40 transition-colors flex items-center gap-2"
@@ -711,7 +711,7 @@ export default function CustomCardsPage() {
         {/* Edit Custom Card Modal */}
         {editingCard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md">
-            <div className="bg-[var(--card-bg)] border border-[var(--border-glass)] rounded-3xl max-w-2xl w-full shadow-2xl relative flex flex-col max-h-[92vh] overflow-hidden">
+            <div className="bg-[var(--card-bg)] border border-[var(--border-glass)] rounded-3xl max-w-2xl w-full shadow-2xl relative flex flex-col max-h-[85vh] sm:max-h-[90vh] overflow-hidden">
               {/* Pinned Modal Header */}
               <div className="flex items-center justify-between border-b border-[var(--border-glass)] p-5 sm:p-6 pb-4 shrink-0 bg-[var(--card-bg)]">
                 <div className="flex items-center gap-3">

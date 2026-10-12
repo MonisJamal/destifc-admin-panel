@@ -91,7 +91,7 @@ export default function CompensationConfig() {
             <Gift className="w-7 h-7" />
           </div>
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] tracking-tight">
                 Compensation Events
               </h2>
@@ -112,7 +112,7 @@ export default function CompensationConfig() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'Publishing...' : 'Save & Publish Event'}</span>
