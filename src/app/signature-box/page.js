@@ -7,29 +7,55 @@ import DateTimePicker from '@/components/DateTimePicker';
 import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save, CheckCircle2, AlertCircle, Trash2, Plus, Clock, Eye, Info, Calendar, Zap } from 'lucide-react';
 import PerksSection, { DEFAULT_PERKS } from '@/components/PerksSection';
 
+export const DEFAULT_REWARDS = [
+  { id: 1, icon: '🪙', name: '100,000,000 Coins', tier: 'bad', type: 'coins', amount: 100000000, base_weight: 46.7 },
+  { id: 2, icon: '🎟️', name: '50 Draft Vouchers', tier: 'bad', type: 'vouchers', amount: 50, base_weight: 28.0 },
+  { id: 3, icon: '💰', name: '350,000,000 Coins', tier: 'mid', type: 'coins', amount: 350000000, base_weight: 13.0 },
+  { id: 4, icon: '🎟️', name: '100 Draft Vouchers', tier: 'mid', type: 'vouchers', amount: 100, base_weight: 5.8 },
+  { id: 5, icon: '💎', name: '1,500,000,000 Coins', tier: 'mid', type: 'coins', amount: 1500000000, base_weight: 3.4 },
+  { id: 6, icon: '🎟️', name: '250 Draft Vouchers', tier: 'mid', type: 'vouchers', amount: 250, base_weight: 1.7 },
+  { id: 7, icon: '📦', name: '1x 117-121 Pack', tier: 'mid', type: 'pack', amount: 1, pack_rating_min: 117, pack_rating_max: 121, base_weight: 0.8 },
+  { id: 8, icon: '👑', name: '4,000,000,000 Coins', tier: 'good', type: 'coins', amount: 4000000000, base_weight: 0.4 },
+  { id: 9, icon: '🎟️', name: '500 Draft Vouchers', tier: 'good', type: 'vouchers', amount: 500, base_weight: 0.15 },
+  { id: 10, icon: '🌟', name: '🌟 122 OVR Signature Blank', tier: 'good', type: 'signature_card', amount: 1, base_weight: 0.05 }
+];
+
+export const DEFAULT_DRAW_COSTS = [
+  { draw: 1, currency: 'coins', amount: 50000000 },
+  { draw: 2, currency: 'coins', amount: 150000000 },
+  { draw: 3, currency: 'coins', amount: 300000000 },
+  { draw: 4, currency: 'coins', amount: 500000000 },
+  { draw: 5, currency: 'coins', amount: 1000000000 },
+  { draw: 6, currency: 'coins', amount: 3000000000 },
+  { draw: 7, currency: 'coins', amount: 5000000000 },
+  { draw: 8, currency: 'coins', amount: 10000000000 },
+  { draw: 9, currency: 'coins', amount: 20000000000 },
+  { draw: 10, currency: 'coins', amount: 35000000000 }
+];
+
 export default function SignatureBoxAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Main Box State
-  const [title, setTitle] = useState('FC SIGNATURE BOX');
-  const [subtitle, setSubtitle] = useState('Exclusive 10-Reward Limited Box Draw');
+  const [title, setTitle] = useState('122 OVR BLANK ADMIN BOX');
+  const [subtitle, setSubtitle] = useState('LIMITED TIME BLANK ADMIN BOX WITH BOOST');
   const [isActive, setIsActive] = useState(true);
   const [bannerUrl, setBannerUrl] = useState('');
   const [startsAt, setStartsAt] = useState(null);
   const [expiresAt, setExpiresAt] = useState(null);
 
   // Exclusive Signature Card
-  const [cardName, setCardName] = useState('Zinedine Zidane');
-  const [cardRating, setCardRating] = useState(124);
+  const [cardName, setCardName] = useState('Blank');
+  const [cardRating, setCardRating] = useState(122);
   const [cardPosition, setCardPosition] = useState('CAM');
   const [cardAltPositions, setCardAltPositions] = useState('CM, CF');
   const [cardClub, setCardClub] = useState('Real Madrid');
   const [cardNation, setCardNation] = useState('France');
   const [cardBackgroundUrl, setCardBackgroundUrl] = useState('');
   const [cardBoost, setCardBoost] = useState(1.25);
-  const [cardMatchPower, setCardMatchPower] = useState(155);
+  const [cardMatchPower, setCardMatchPower] = useState(153);
   const [cardPerks, setCardPerks] = useState(DEFAULT_PERKS);
 
   const handleRatingChange = (val) => {
@@ -62,10 +88,10 @@ export default function SignatureBoxAdminPage() {
   };
 
   // 10 Rewards
-  const [rewards, setRewards] = useState([]);
+  const [rewards, setRewards] = useState(DEFAULT_REWARDS);
 
-  // 10 Draw Costs
-  const [drawCosts, setDrawCosts] = useState([]);
+  // 10 Draw Costs (75B Total Clean Rounded Figures)
+  const [drawCosts, setDrawCosts] = useState(DEFAULT_DRAW_COSTS);
 
   // Presets / Archive
   const [presets, setPresets] = useState([]);
@@ -85,7 +111,7 @@ export default function SignatureBoxAdminPage() {
       }
       if (data.success && data.box) {
         const b = data.box;
-        setTitle(b.title || 'FC SIGNATURE BOX');
+        setTitle(b.title || '122 OVR BLANK ADMIN BOX');
         setSubtitle(b.subtitle || '10 Exclusive Limited Time Rewards');
         setIsActive(b.is_active !== undefined ? b.is_active : true);
         setBannerUrl(b.banner_url || '');
@@ -93,11 +119,11 @@ export default function SignatureBoxAdminPage() {
         setExpiresAt(b.expires_at || null);
 
         const card = b.signature_card_data || {};
-        const bRating = card.rating || 124;
+        const bRating = card.rating || 122;
         const bBoost = card.performance_boost !== undefined ? card.performance_boost : 1.25;
         const bPower = card.buffed_ovr || Math.round(bRating * bBoost);
 
-        setCardName(card.cardName || 'Zinedine Zidane');
+        setCardName(card.cardName || 'Blank');
         setCardRating(bRating);
         setCardPosition(card.position || 'CAM');
         setCardAltPositions((card.potentialPositions || []).join(', '));
@@ -108,8 +134,8 @@ export default function SignatureBoxAdminPage() {
         setCardMatchPower(bPower);
         setCardPerks(card.perks || DEFAULT_PERKS);
 
-        setRewards(b.rewards_json || []);
-        setDrawCosts(b.draw_costs_json || []);
+        setRewards(b.rewards_json && b.rewards_json.length > 0 ? b.rewards_json : DEFAULT_REWARDS);
+        setDrawCosts(b.draw_costs_json && b.draw_costs_json.length > 0 ? b.draw_costs_json : DEFAULT_DRAW_COSTS);
       }
     } catch (e) {
       console.error(e);
@@ -142,8 +168,8 @@ export default function SignatureBoxAdminPage() {
     setCardMatchPower(bPower);
     setCardPerks(card.perks || DEFAULT_PERKS);
 
-    setRewards(p.rewards_json || []);
-    setDrawCosts(p.draw_costs_json || []);
+    setRewards(p.rewards_json && p.rewards_json.length > 0 ? p.rewards_json : DEFAULT_REWARDS);
+    setDrawCosts(p.draw_costs_json && p.draw_costs_json.length > 0 ? p.draw_costs_json : DEFAULT_DRAW_COSTS);
     setMessage({ type: 'success', text: `Loaded previous box preset: "${presetName}". Review settings and click "Save and Publish Live" to deploy to Discord.` });
   };
 
@@ -717,13 +743,20 @@ export default function SignatureBoxAdminPage() {
 
           {/* 10-Step Draw Cost Manager */}
           <div className="bg-[var(--card-bg)]/50 border border-[var(--border-glass)] rounded-3xl p-6 backdrop-blur-xl">
-            <h2 className="text-lg font-bold mb-2 flex items-center gap-2 text-fuchsia-300">
-              <Coins className="w-5 h-5 text-fuchsia-400" />
-              10-Draw Step Cost Progression
-            </h2>
-            <p className="text-xs text-[var(--text-main)] opacity-70 mb-6">
-              Customize the currency and price required for each consecutive draw from Draw #1 to Draw #10.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2 text-fuchsia-300">
+                  <Coins className="w-5 h-5 text-fuchsia-400" />
+                  10-Draw Step Cost Progression
+                </h2>
+                <p className="text-xs text-[var(--text-main)] opacity-70 mt-1">
+                  Customize the currency and price required for each consecutive draw from Draw #1 to Draw #10.
+                </p>
+              </div>
+              <div className="px-4 py-2 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 text-xs font-mono font-bold text-fuchsia-200">
+                Total 10-Draw Cost: <span className="text-pink-400 font-extrabold text-sm">{drawCosts.reduce((acc, c) => acc + (parseInt(c.amount, 10) || 0), 0).toLocaleString()}</span> Coins
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {drawCosts.map((cost, idx) => (
