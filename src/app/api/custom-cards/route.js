@@ -81,11 +81,18 @@ export async function GET() {
       });
     } catch (pe) {}
 
+    let orderRequests = [];
+    try {
+      const resReq = await query('SELECT id, user_id, guild_id, player_name, rating, position, club, nation, image_url, notes, status, created_at FROM custom_card_requests ORDER BY id DESC LIMIT 50');
+      orderRequests = resReq.rows || [];
+    } catch (reqErr) {}
+
     return NextResponse.json({ 
       success: true, 
       cards: draftCards, // backwards compatibility
       draftCards,
-      signatureCards 
+      signatureCards,
+      orderRequests
     });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -188,9 +195,14 @@ export async function POST(request) {
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
+    const reqId = searchParams.get('request_id');
+    if (reqId) {
+      await query('DELETE FROM custom_card_requests WHERE id = $1', [parseInt(reqId, 10)]);
+      return NextResponse.json({ success: true, message: 'Custom card request deleted.' });
+    }
     const id = searchParams.get('id');
     if (!id) {
-      return NextResponse.json({ success: false, error: 'Card ID required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Card ID or request_id required' }, { status: 400 });
     }
     
     const trimmedId = id.trim();

@@ -53,9 +53,10 @@ export default function CustomCardsPage() {
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   
-  const [activeTab, setActiveTab] = useState('draft'); // 'draft' | 'signature'
+  const [activeTab, setActiveTab] = useState('draft'); // 'draft' | 'signature' | 'orders'
   const [draftCards, setDraftCards] = useState([]);
   const [signatureCards, setSignatureCards] = useState([]);
+  const [orderRequests, setOrderRequests] = useState([]);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -70,11 +71,40 @@ export default function CustomCardsPage() {
       if (data.success) {
         setDraftCards(data.draftCards || data.cards || []);
         setSignatureCards(data.signatureCards || []);
+        setOrderRequests(data.orderRequests || []);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setFetching(false);
+    }
+  };
+
+  const handleLoadRequest = (req) => {
+    setName(req.player_name || '');
+    setOvr(req.rating || 120);
+    setPosition(req.position || 'ST');
+    setClubName(req.club || 'Custom FC');
+    setNationName(req.nation || 'World');
+    setImageUrl(req.image_url || '');
+    setTargetUserId(req.user_id ? String(req.user_id) : '');
+    setMessage({ 
+      type: 'info', 
+      text: `Loaded order #${req.id} for "${req.player_name}" (User ID: ${req.user_id}). Adjust stats/perks above and click Create Card.` 
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteRequest = async (reqId) => {
+    if (!confirm(`Delete order #${reqId}?`)) return;
+    try {
+      const res = await fetch(`/api/custom-cards?request_id=${reqId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        fetchCards();
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -533,10 +563,22 @@ export default function CustomCardsPage() {
                 <Gift className="w-3.5 h-3.5 text-fuchsia-400" />
                 Exclusive Signature Box Cards ({signatureCards.length})
               </button>
+
+              <button
+                onClick={() => setActiveTab('orders')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'orders'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/10'
+                    : 'bg-[var(--input-bg)] text-[var(--text-main)] opacity-70 border border-[var(--border-glass)] hover:text-[var(--text-main)] opacity-90'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                Pending Orders ({orderRequests.length})
+              </button>
             </div>
 
             <span className="text-xs text-[var(--text-main)] opacity-50 font-mono">
-              {activeTab === 'draft' ? 'Cards appearing in custom draft pools & direct admin grants' : 'Special cards obtainable exclusively through the Signature Box'}
+              {activeTab === 'draft' ? 'Cards appearing in custom draft pools & direct admin grants' : activeTab === 'signature' ? 'Special cards obtainable exclusively through the Signature Box' : 'In-game orders submitted by players via /custom_order'}
             </span>
           </div>
 
@@ -702,6 +744,81 @@ export default function CustomCardsPage() {
               ) : (
                 <div className="text-center py-12 text-[var(--text-main)] opacity-50 text-sm">
                   No signature box custom cards found. Configure the Signature Box under <Link href="/signature-box" className="text-fuchsia-400 underline">Signature Box Manager</Link>.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Pending In-Game Orders Grid */}
+          {activeTab === 'orders' && (
+            <div>
+              {orderRequests.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {orderRequests.map((req) => (
+                    <div
+                      key={req.id}
+                      className="p-4 rounded-2xl bg-[var(--input-bg)]/80 border border-[var(--border-glass)] hover:border-amber-500/40 transition-all flex flex-col justify-between gap-3 shadow-md"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            Order #{req.id}
+                          </span>
+                          <span className="text-[10px] text-[var(--text-main)] opacity-50 font-mono">
+                            {req.created_at ? new Date(req.created_at).toLocaleDateString() : 'Recent'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-600 text-black font-black flex flex-col items-center justify-center text-xs shadow-md shrink-0 font-mono">
+                            <span>{req.rating || 120}</span>
+                            <span className="text-[9px] font-bold">{req.position || 'ST'}</span>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-sm text-[var(--text-main)] truncate">{req.player_name}</div>
+                            <div className="text-xs text-[var(--text-main)] opacity-70 truncate">
+                              {req.club || 'Club'} • {req.nation || 'Nation'}
+                            </div>
+                            <div className="text-[10px] text-amber-300 font-mono mt-0.5 truncate">
+                              User ID: <span className="text-white font-bold">{req.user_id}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {req.notes && (
+                          <div className="mt-2.5 text-xs text-[var(--text-main)] opacity-80 bg-black/20 p-2.5 rounded-xl font-mono text-[11px] leading-relaxed border border-white/5">
+                            <span className="text-amber-400 font-bold block mb-0.5">Notes & Perks:</span>
+                            {req.notes}
+                          </div>
+                        )}
+                        {req.image_url && (
+                          <div className="mt-2 text-[10px] text-purple-300 truncate font-mono">
+                            🖼️ Image: <a href={req.image_url} target="_blank" rel="noreferrer" className="underline hover:text-white">{req.image_url}</a>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-glass)]">
+                        <button
+                          type="button"
+                          onClick={() => handleLoadRequest(req)}
+                          className="flex-1 py-2 px-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold hover:bg-amber-500/30 transition flex items-center justify-center gap-1.5"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Load into Creator
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRequest(req.id)}
+                          className="p-2 rounded-xl text-red-400 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 transition shrink-0"
+                          title="Delete / Dismiss order"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-[var(--text-main)] opacity-50 text-sm">
+                  No pending card orders. Players and server owners can order directly in Discord using the <code className="text-amber-300 bg-black/30 px-1.5 py-0.5 rounded">/custom_order</code> command!
                 </div>
               )}
             </div>
