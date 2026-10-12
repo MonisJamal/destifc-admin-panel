@@ -8,16 +8,16 @@ import { Gift, Sparkles, Shield, Coins, Ticket, Gem, Users, Box, RefreshCw, Save
 import PerksSection, { DEFAULT_PERKS } from '@/components/PerksSection';
 
 export const DEFAULT_REWARDS = [
-  { id: 1, icon: '🪙', name: '100,000,000 Coins', tier: 'bad', type: 'coins', amount: 100000000, base_weight: 46.7 },
-  { id: 2, icon: '🎟️', name: '50 Draft Vouchers', tier: 'bad', type: 'vouchers', amount: 50, base_weight: 28.0 },
+  { id: 1, icon: '🪙', name: '100,000,000 Coins', tier: 'bad', type: 'coins', amount: 100000000, base_weight: 45.5 },
+  { id: 2, icon: '🎟️', name: '50 Draft Vouchers', tier: 'bad', type: 'vouchers', amount: 50, base_weight: 27.5 },
   { id: 3, icon: '💰', name: '350,000,000 Coins', tier: 'mid', type: 'coins', amount: 350000000, base_weight: 13.0 },
   { id: 4, icon: '🎟️', name: '100 Draft Vouchers', tier: 'mid', type: 'vouchers', amount: 100, base_weight: 5.8 },
   { id: 5, icon: '💎', name: '1,500,000,000 Coins', tier: 'mid', type: 'coins', amount: 1500000000, base_weight: 3.4 },
   { id: 6, icon: '🎟️', name: '250 Draft Vouchers', tier: 'mid', type: 'vouchers', amount: 250, base_weight: 1.7 },
-  { id: 7, icon: '📦', name: '1x 117-121 Pack', tier: 'mid', type: 'pack', amount: 1, pack_rating_min: 117, pack_rating_max: 121, base_weight: 0.8 },
-  { id: 8, icon: '👑', name: '4,000,000,000 Coins', tier: 'good', type: 'coins', amount: 4000000000, base_weight: 0.4 },
-  { id: 9, icon: '🎟️', name: '500 Draft Vouchers', tier: 'good', type: 'vouchers', amount: 500, base_weight: 0.15 },
-  { id: 10, icon: '🌟', name: '🌟 122 OVR Signature Blank', tier: 'good', type: 'signature_card', amount: 1, base_weight: 0.05 }
+  { id: 7, icon: '📦', name: '1x 117-121 Pack', tier: 'mid', type: 'pack', amount: 1, pack_rating_min: 117, pack_rating_max: 121, base_weight: 1.0 },
+  { id: 8, icon: '👑', name: '4,000,000,000 Coins', tier: 'good', type: 'coins', amount: 4000000000, base_weight: 0.5 },
+  { id: 9, icon: '🎟️', name: '500 Draft Vouchers', tier: 'good', type: 'vouchers', amount: 500, base_weight: 1.55 },
+  { id: 10, icon: '🌟', name: '🌟 124 OVR Signature Sergio Busquets', tier: 'good', type: 'signature_card', amount: 1, base_weight: 0.05 }
 ];
 
 export const DEFAULT_DRAW_COSTS = [
