@@ -27,19 +27,21 @@ import {
 } from 'lucide-react';
 
 const DEFAULT_TIERS = [
-  { id: 1, name: 'Amateur III', min_fans: 0, badge: '🥉', win_reward_coins: 10000000, win_reward_vouchers: 1 },
-  { id: 2, name: 'Amateur II', min_fans: 10000, badge: '🥉', win_reward_coins: 12000000, win_reward_vouchers: 1 },
-  { id: 3, name: 'Amateur I', min_fans: 20000, badge: '🥉', win_reward_coins: 15000000, win_reward_vouchers: 1 },
-  { id: 4, name: 'Pro III', min_fans: 30000, badge: '🥈', win_reward_coins: 18000000, win_reward_vouchers: 2 },
-  { id: 5, name: 'Pro II', min_fans: 50000, badge: '🥈', win_reward_coins: 20000000, win_reward_vouchers: 2 },
-  { id: 6, name: 'Pro I', min_fans: 70000, badge: '🥈', win_reward_coins: 25000000, win_reward_vouchers: 2 },
-  { id: 7, name: 'World Class III', min_fans: 100000, badge: '🥇', win_reward_coins: 30000000, win_reward_vouchers: 3 },
-  { id: 8, name: 'World Class II', min_fans: 200000, badge: '🥇', win_reward_coins: 35000000, win_reward_vouchers: 3 },
-  { id: 9, name: 'World Class I', min_fans: 300000, badge: '🥇', win_reward_coins: 40000000, win_reward_vouchers: 3 },
-  { id: 10, name: 'Legendary III', min_fans: 400000, badge: '💎', win_reward_coins: 50000000, win_reward_vouchers: 4 },
-  { id: 11, name: 'Legendary II', min_fans: 600000, badge: '💎', win_reward_coins: 65000000, win_reward_vouchers: 4 },
-  { id: 12, name: 'Legendary I', min_fans: 800000, badge: '💎', win_reward_coins: 80000000, win_reward_vouchers: 5 },
-  { id: 13, name: 'FC Champion', min_fans: 1000000, badge: '🏆', win_reward_coins: 100000000, win_reward_vouchers: 6 }
+  { id: 1, name: 'Amateur III', min_fans: 0, badge: '🥉', win_reward_coins: 30000000, win_reward_vouchers: 2 },
+  { id: 2, name: 'Amateur II', min_fans: 10000, badge: '🥉', win_reward_coins: 35000000, win_reward_vouchers: 2 },
+  { id: 3, name: 'Amateur I', min_fans: 20000, badge: '🥉', win_reward_coins: 40000000, win_reward_vouchers: 2 },
+  { id: 4, name: 'Pro III', min_fans: 30000, badge: '🥈', win_reward_coins: 50000000, win_reward_vouchers: 3 },
+  { id: 5, name: 'Pro II', min_fans: 50000, badge: '🥈', win_reward_coins: 60000000, win_reward_vouchers: 3 },
+  { id: 6, name: 'Pro I', min_fans: 70000, badge: '🥈', win_reward_coins: 75000000, win_reward_vouchers: 3 },
+  { id: 7, name: 'World Class III', min_fans: 100000, badge: '🥇', win_reward_coins: 100000000, win_reward_vouchers: 4 },
+  { id: 8, name: 'World Class II', min_fans: 200000, badge: '🥇', win_reward_coins: 125000000, win_reward_vouchers: 4 },
+  { id: 9, name: 'World Class I', min_fans: 300000, badge: '🥇', win_reward_coins: 150000000, win_reward_vouchers: 5 },
+  { id: 10, name: 'Legendary III', min_fans: 400000, badge: '💎', win_reward_coins: 200000000, win_reward_vouchers: 6 },
+  { id: 11, name: 'Legendary II', min_fans: 600000, badge: '💎', win_reward_coins: 250000000, win_reward_vouchers: 7 },
+  { id: 12, name: 'Legendary I', min_fans: 800000, badge: '💎', win_reward_coins: 350000000, win_reward_vouchers: 8 },
+  { id: 13, name: 'FC Champion III', min_fans: 1000000, badge: '🏆', win_reward_coins: 500000000, win_reward_vouchers: 10 },
+  { id: 14, name: 'FC Champion II', min_fans: 1200000, badge: '🏆', win_reward_coins: 750000000, win_reward_vouchers: 15 },
+  { id: 15, name: 'FC Champion I', min_fans: 1500000, badge: '👑', win_reward_coins: 1000000000, win_reward_vouchers: 25 }
 ];
 
 function formatShortPrice(val) {
@@ -62,15 +64,15 @@ export default function GameplayConfigAdminPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Match Simulation Payouts
-  const [matchWinCoins, setMatchWinCoins] = useState(25000000);
-  const [matchDrawCoins, setMatchDrawCoins] = useState(10000000);
-  const [matchLossCoins, setMatchLossCoins] = useState(5000000);
+  const [matchWinCoins, setMatchWinCoins] = useState(100000000);
+  const [matchDrawCoins, setMatchDrawCoins] = useState(40000000);
+  const [matchLossCoins, setMatchLossCoins] = useState(20000000);
 
   // H2H Fans Ranking & XP
-  const [matchWinFans, setMatchWinFans] = useState(25);
-  const [matchDrawFans, setMatchDrawFans] = useState(0);
-  const [matchLossFans, setMatchLossFans] = useState(-15);
-  const [matchWinXp, setMatchWinXp] = useState(75);
+  const [matchWinFans, setMatchWinFans] = useState(12000);
+  const [matchDrawFans, setMatchDrawFans] = useState(3000);
+  const [matchLossFans, setMatchLossFans] = useState(-6000);
+  const [matchWinXp, setMatchWinXp] = useState(150);
 
   // Match Timings Settings
   const [matchChallengeTimeoutSecs, setMatchChallengeTimeoutSecs] = useState(60);
@@ -79,7 +81,7 @@ export default function GameplayConfigAdminPage() {
 
   // Draft Battle Arena
   const [draftBattleEntryFee, setDraftBattleEntryFee] = useState(0);
-  const [draftBattleWinnerCoins, setDraftBattleWinnerCoins] = useState(50000000);
+  const [draftBattleWinnerCoins, setDraftBattleWinnerCoins] = useState(100000000);
   const [draftBattleWinnerVouchers, setDraftBattleWinnerVouchers] = useState(5);
   const [penaltyShootoutEnabled, setPenaltyShootoutEnabled] = useState(true);
 
@@ -164,7 +166,7 @@ export default function GameplayConfigAdminPage() {
   };
 
   const handleResetTiers = () => {
-    if (confirm('Reset division tiers back to default 13 FC Mobile tiers?')) {
+    if (confirm('Reset division tiers back to default 15 FC Mobile tiers?')) {
       setDivisionTiers(DEFAULT_TIERS);
     }
   };
@@ -644,7 +646,7 @@ export default function GameplayConfigAdminPage() {
                 onClick={handleResetTiers}
                 className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--input-bg)] hover:bg-[var(--card-bg)] text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90 border border-purple-900/40 transition-colors flex items-center gap-1.5"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> Reset 13 Tiers
+                <RefreshCw className="w-3.5 h-3.5" /> Reset 15 Tiers
               </button>
               <button
                 type="button"
