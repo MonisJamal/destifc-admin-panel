@@ -85,6 +85,24 @@ export default function TournamentsPage() {
     } catch (e) { console.error(e); }
   };
 
+  const handleAnnounce = async (id) => {
+    try {
+      const res = await fetch('/api/tournaments/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'announce', tournament_id: id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Tournament announcement dispatched to Discord!');
+      } else {
+        alert(data.error || 'Failed to dispatch announcement');
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   const handleGenerateBracket = async (t) => {
     let parts = [...(t.participants || [])].filter(p => p !== null);
     if (parts.length < 2) return alert('Need at least 2 participants.');
@@ -302,12 +320,20 @@ export default function TournamentsPage() {
                     <span className="text-xs text-[var(--text-main)] opacity-70">
                       Registration: <strong className="text-pink-400">{tournament.registration_open ? 'OPEN' : 'CLOSED'}</strong> ({validParticipants.length}/{tournament.max_participants || 16})
                     </span>
-                    <button 
-                      onClick={() => handleToggleRegistration(tournament.id)} 
-                      className="px-3 py-1 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl text-xs font-semibold hover:bg-white/10 text-[var(--text-main)] transition"
-                    >
-                      Toggle Lock
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleAnnounce(tournament.id)} 
+                        className="px-3 py-1 bg-pink-600/20 text-pink-300 border border-pink-500/30 rounded-xl text-xs font-semibold hover:bg-pink-600/30 transition flex items-center gap-1.5"
+                      >
+                        📢 Announce in Discord
+                      </button>
+                      <button 
+                        onClick={() => handleToggleRegistration(tournament.id)} 
+                        className="px-3 py-1 bg-[var(--input-bg)] border border-[var(--border-glass)] rounded-xl text-xs font-semibold hover:bg-white/10 text-[var(--text-main)] transition"
+                      >
+                        Toggle Lock
+                      </button>
+                    </div>
                   </div>
                   
                   {tournament.matches_json && tournament.matches_json.length > 0 ? (
