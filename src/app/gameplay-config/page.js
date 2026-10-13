@@ -27,21 +27,21 @@ import {
 } from 'lucide-react';
 
 const DEFAULT_TIERS = [
-  { id: 1, name: 'Amateur III', min_fans: 0, badge: '🥉', win_reward_coins: 30000000, win_reward_vouchers: 2 },
-  { id: 2, name: 'Amateur II', min_fans: 10000, badge: '🥉', win_reward_coins: 35000000, win_reward_vouchers: 2 },
-  { id: 3, name: 'Amateur I', min_fans: 20000, badge: '🥉', win_reward_coins: 40000000, win_reward_vouchers: 2 },
-  { id: 4, name: 'Pro III', min_fans: 30000, badge: '🥈', win_reward_coins: 50000000, win_reward_vouchers: 3 },
-  { id: 5, name: 'Pro II', min_fans: 50000, badge: '🥈', win_reward_coins: 60000000, win_reward_vouchers: 3 },
-  { id: 6, name: 'Pro I', min_fans: 70000, badge: '🥈', win_reward_coins: 75000000, win_reward_vouchers: 3 },
-  { id: 7, name: 'World Class III', min_fans: 100000, badge: '🥇', win_reward_coins: 100000000, win_reward_vouchers: 4 },
-  { id: 8, name: 'World Class II', min_fans: 200000, badge: '🥇', win_reward_coins: 125000000, win_reward_vouchers: 4 },
-  { id: 9, name: 'World Class I', min_fans: 300000, badge: '🥇', win_reward_coins: 150000000, win_reward_vouchers: 5 },
-  { id: 10, name: 'Legendary III', min_fans: 400000, badge: '💎', win_reward_coins: 200000000, win_reward_vouchers: 6 },
-  { id: 11, name: 'Legendary II', min_fans: 600000, badge: '💎', win_reward_coins: 250000000, win_reward_vouchers: 7 },
-  { id: 12, name: 'Legendary I', min_fans: 800000, badge: '💎', win_reward_coins: 350000000, win_reward_vouchers: 8 },
-  { id: 13, name: 'FC Champion III', min_fans: 1000000, badge: '🏆', win_reward_coins: 500000000, win_reward_vouchers: 10 },
-  { id: 14, name: 'FC Champion II', min_fans: 1200000, badge: '🏆', win_reward_coins: 750000000, win_reward_vouchers: 15 },
-  { id: 15, name: 'FC Champion I', min_fans: 1500000, badge: '👑', win_reward_coins: 1000000000, win_reward_vouchers: 25 }
+  { id: 1, name: 'Amateur III', min_fans: 0, badge: '🥉', win_reward_coins: 10000000, win_reward_vouchers: 1 },
+  { id: 2, name: 'Amateur II', min_fans: 10000, badge: '🥉', win_reward_coins: 12000000, win_reward_vouchers: 1 },
+  { id: 3, name: 'Amateur I', min_fans: 20000, badge: '🥉', win_reward_coins: 15000000, win_reward_vouchers: 1 },
+  { id: 4, name: 'Pro III', min_fans: 30000, badge: '🥈', win_reward_coins: 18000000, win_reward_vouchers: 2 },
+  { id: 5, name: 'Pro II', min_fans: 50000, badge: '🥈', win_reward_coins: 20000000, win_reward_vouchers: 2 },
+  { id: 6, name: 'Pro I', min_fans: 70000, badge: '🥈', win_reward_coins: 25000000, win_reward_vouchers: 2 },
+  { id: 7, name: 'World Class III', min_fans: 100000, badge: '🥇', win_reward_coins: 30000000, win_reward_vouchers: 3 },
+  { id: 8, name: 'World Class II', min_fans: 200000, badge: '🥇', win_reward_coins: 35000000, win_reward_vouchers: 3 },
+  { id: 9, name: 'World Class I', min_fans: 300000, badge: '🥇', win_reward_coins: 40000000, win_reward_vouchers: 3 },
+  { id: 10, name: 'Legendary III', min_fans: 400000, badge: '💎', win_reward_coins: 50000000, win_reward_vouchers: 4 },
+  { id: 11, name: 'Legendary II', min_fans: 600000, badge: '💎', win_reward_coins: 65000000, win_reward_vouchers: 4 },
+  { id: 12, name: 'Legendary I', min_fans: 800000, badge: '💎', win_reward_coins: 80000000, win_reward_vouchers: 5 },
+  { id: 13, name: 'FC Champion III', min_fans: 1000000, badge: '🏆', win_reward_coins: 100000000, win_reward_vouchers: 6 },
+  { id: 14, name: 'FC Champion II', min_fans: 1200000, badge: '🏆', win_reward_coins: 200000000, win_reward_vouchers: 10 },
+  { id: 15, name: 'FC Champion I', min_fans: 1500000, badge: '👑', win_reward_coins: 300000000, win_reward_vouchers: 15 }
 ];
 
 function formatShortPrice(val) {
@@ -64,9 +64,9 @@ export default function GameplayConfigAdminPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Match Simulation Payouts
-  const [matchWinCoins, setMatchWinCoins] = useState(100000000);
-  const [matchDrawCoins, setMatchDrawCoins] = useState(40000000);
-  const [matchLossCoins, setMatchLossCoins] = useState(20000000);
+  const [matchWinCoins, setMatchWinCoins] = useState(10000000);
+  const [matchDrawCoins, setMatchDrawCoins] = useState(5000000);
+  const [matchLossCoins, setMatchLossCoins] = useState(2000000);
 
   // H2H Fans Ranking & XP
   const [matchWinFans, setMatchWinFans] = useState(12000);
@@ -105,14 +105,14 @@ export default function GameplayConfigAdminPage() {
       const data = await res.json();
       if (data.success && data.config) {
         const c = data.config;
-        setMatchWinCoins(c.match_win_coins ?? 25000000);
-        setMatchDrawCoins(c.match_draw_coins ?? 10000000);
-        setMatchLossCoins(c.match_loss_coins ?? 5000000);
+        setMatchWinCoins(c.match_win_coins ?? 10000000);
+        setMatchDrawCoins(c.match_draw_coins ?? 5000000);
+        setMatchLossCoins(c.match_loss_coins ?? 2000000);
 
-        setMatchWinFans(c.match_win_fans ?? 25);
-        setMatchDrawFans(c.match_draw_fans ?? 0);
-        setMatchLossFans(c.match_loss_fans ?? -15);
-        setMatchWinXp(c.match_win_xp ?? 75);
+        setMatchWinFans(c.match_win_fans ?? 12000);
+        setMatchDrawFans(c.match_draw_fans ?? 3000);
+        setMatchLossFans(c.match_loss_fans ?? -6000);
+        setMatchWinXp(c.match_win_xp ?? 150);
 
         setMatchChallengeTimeoutSecs(c.match_challenge_timeout_secs ?? 60);
         setMatchCooldownMins(c.match_cooldown_mins ?? 0);
@@ -176,13 +176,13 @@ export default function GameplayConfigAdminPage() {
     setMessage({ type: '', text: '' });
 
     const payload = {
-      match_win_coins: parseInt(matchWinCoins, 10) || 25000000,
-      match_draw_coins: parseInt(matchDrawCoins, 10) || 10000000,
-      match_loss_coins: parseInt(matchLossCoins, 10) || 5000000,
-      match_win_fans: parseInt(matchWinFans, 10) || 25,
-      match_draw_fans: parseInt(matchDrawFans, 10) || 0,
-      match_loss_fans: parseInt(matchLossFans, 10) || -15,
-      match_win_xp: parseInt(matchWinXp, 10) || 75,
+      match_win_coins: parseInt(matchWinCoins, 10) || 10000000,
+      match_draw_coins: parseInt(matchDrawCoins, 10) || 5000000,
+      match_loss_coins: parseInt(matchLossCoins, 10) || 2000000,
+      match_win_fans: parseInt(matchWinFans, 10) || 12000,
+      match_draw_fans: parseInt(matchDrawFans, 10) || 3000,
+      match_loss_fans: parseInt(matchLossFans, 10) || -6000,
+      match_win_xp: parseInt(matchWinXp, 10) || 150,
       match_challenge_timeout_secs: parseInt(matchChallengeTimeoutSecs, 10) || 60,
       match_cooldown_mins: parseInt(matchCooldownMins, 10) || 0,
       match_sim_step_delay_secs: parseInt(matchSimStepDelaySecs, 10) || 0,
