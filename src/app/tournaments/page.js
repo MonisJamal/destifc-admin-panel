@@ -44,12 +44,20 @@ export default function TournamentsPage() {
       const res = await fetch('/api/tournaments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, channel_id: channelId })
+        body: JSON.stringify({ 
+          name, 
+          channel_id: channelId,
+          type: tourneyType,
+          format: tourneyFormat,
+          max_participants: maxParticipants,
+          announcement_msg: announcementMsg
+        })
       });
       if (!res.ok) throw new Error('Failed to create tournament');
       
       setName('');
       setChannelId('');
+      setAnnouncementMsg('');
       fetchTournaments();
     } catch (err) {
       alert(err.message);
