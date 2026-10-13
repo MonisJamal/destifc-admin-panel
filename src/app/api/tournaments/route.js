@@ -5,7 +5,11 @@ export async function GET() {
   try {
     const tournamentsRes = await query(`
       SELECT t.*, 
-             (SELECT json_agg(tp.user_id) 
+             (SELECT json_agg(json_build_object(
+                 'user_id', tp.user_id,
+                 'username', tp.username,
+                 'display_name', tp.display_name
+              ) ORDER BY tp.joined_at ASC) 
               FROM tournament_participants tp 
               WHERE tp.tournament_id = t.id) as participants
       FROM tournaments t

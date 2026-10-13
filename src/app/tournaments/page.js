@@ -103,6 +103,27 @@ export default function TournamentsPage() {
     }
   };
 
+  const getPlayerDisplay = (player, tournamentParticipants = []) => {
+    if (!player) return 'BYE';
+    if (typeof player === 'object') {
+      const name = player.display_name || player.username;
+      const id = player.user_id;
+      return name ? `${name} (${id})` : String(id);
+    }
+    const found = tournamentParticipants.find(p => p && (p.user_id === player || String(p.user_id) === String(player)));
+    if (found) {
+      const name = found.display_name || found.username;
+      return name ? `${name} (${found.user_id})` : String(found.user_id);
+    }
+    return String(player);
+  };
+
+  const getPlayerId = (player) => {
+    if (!player) return '';
+    if (typeof player === 'object') return player.user_id;
+    return String(player);
+  };
+
   const handleGenerateBracket = async (t) => {
     let parts = [...(t.participants || [])].filter(p => p !== null);
     if (parts.length < 2) return alert('Need at least 2 participants.');
@@ -335,26 +356,52 @@ export default function TournamentsPage() {
                       </button>
                     </div>
                   </div>
+
+                  {validParticipants.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {validParticipants.map((p, idx) => (
+                        <span key={idx} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[var(--text-main)] flex items-center gap-1.5">
+                          <span className="text-pink-400">👤</span> {getPlayerDisplay(p, validParticipants)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   
                   {tournament.matches_json && tournament.matches_json.length > 0 ? (
                     <div className="mt-2 border-t border-[var(--border-glass)] pt-4">
-                      <h4 className="text-xs font-bold text-pink-400 uppercase mb-3">Generated Brackets</h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs font-bold text-pink-400 uppercase">Generated Brackets</h4>
+                        <button 
+                          onClick={() => handleGenerateBracket(tournament)} 
+                          className="px-2.5 py-1 bg-amber-600/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-bold hover:bg-amber-600/30 transition"
+                        >
+                          Re-Shuffle Brackets
+                        </button>
+                      </div>
                       <div className="space-y-2">
-                        {tournament.matches_json.map((m, idx) => (
-                           <div key={idx} className="flex justify-between items-center text-xs bg-[var(--input-bg)] p-3 rounded-xl border border-[var(--border-glass)]">
-                             <span className="text-[var(--text-main)] font-semibold">{m.a} <span className="text-pink-400 font-bold mx-2">VS</span> {m.b || 'BYE'}</span>
-                             {!m.simulated && m.b && (
-                               <button 
-                                 onClick={() => {
-                                   setMatchState({ ...matchState, [`${tournament.id}`]: { ...matchState[tournament.id], player_a_id: m.a, player_b_id: m.b }});
-                                 }}
-                                 className="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-300 border border-fuchsia-500/30 rounded-lg hover:bg-fuchsia-600/40 text-xs font-bold transition"
-                               >
-                                 Select Pair
-                               </button>
-                             )}
-                           </div>
-                        ))}
+                        {tournament.matches_json.map((m, idx) => {
+                          const labelA = getPlayerDisplay(m.a, validParticipants);
+                          const labelB = getPlayerDisplay(m.b, validParticipants);
+                          const idA = getPlayerId(m.a);
+                          const idB = getPlayerId(m.b);
+                          return (
+                            <div key={idx} className="flex justify-between items-center text-xs bg-[var(--input-bg)] p-3 rounded-xl border border-[var(--border-glass)]">
+                              <span className="text-[var(--text-main)] font-semibold">
+                                {labelA} <span className="text-pink-400 font-bold mx-2">VS</span> {labelB}
+                              </span>
+                              {!m.simulated && m.b && (
+                                <button 
+                                  onClick={() => {
+                                    setMatchState({ ...matchState, [`${tournament.id}`]: { ...matchState[tournament.id], player_a_id: idA, player_b_id: idB }});
+                                  }}
+                                  className="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-300 border border-fuchsia-500/30 rounded-lg hover:bg-fuchsia-600/40 text-xs font-bold transition"
+                                >
+                                  Select Pair
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ) : (
@@ -375,9 +422,13 @@ export default function TournamentsPage() {
                         onChange={(e) => handleMatchSelect(tournament.id, 'player_a_id', e.target.value)}
                       >
                         <option value="">Select Player A</option>
-                        {validParticipants.map((p, i) => (
-                          <option key={`a-${i}-${p}`} value={p}>{p}</option>
-                        ))}
+                        {validParticipants.map((p, i) => {
+                          const id = getPlayerId(p);
+                          const label = getPlayerDisplay(p, validParticipants);
+                          return (
+                            <option key={`a-${i}-${id}`} value={id}>{label}</option>
+                          );
+                        })}
                       </select>
                       
                       <div className="flex items-center justify-center font-bold text-pink-400 sm:px-2">VS</div>
@@ -388,9 +439,13 @@ export default function TournamentsPage() {
                         onChange={(e) => handleMatchSelect(tournament.id, 'player_b_id', e.target.value)}
                       >
                         <option value="">Select Player B</option>
-                        {validParticipants.map((p, i) => (
-                          <option key={`b-${i}-${p}`} value={p}>{p}</option>
-                        ))}
+                        {validParticipants.map((p, i) => {
+                          const id = getPlayerId(p);
+                          const label = getPlayerDisplay(p, validParticipants);
+                          return (
+                            <option key={`b-${i}-${id}`} value={id}>{label}</option>
+                          );
+                        })}
                       </select>
 
                       <button
