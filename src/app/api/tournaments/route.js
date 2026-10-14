@@ -8,9 +8,15 @@ export async function GET() {
              (SELECT json_agg(json_build_object(
                  'user_id', tp.user_id,
                  'username', tp.username,
-                 'display_name', tp.display_name
+                 'display_name', tp.display_name,
+                 'squad_count', COALESCE((
+                     SELECT count(*)
+                     FROM jsonb_each(COALESCE(s.active_squad->'players', '{}'::jsonb))
+                     WHERE value IS NOT NULL AND value != 'null'::jsonb AND value != '{}'::jsonb
+                 ), 0)
               ) ORDER BY tp.joined_at ASC) 
               FROM tournament_participants tp 
+              LEFT JOIN squads s ON s.user_id = tp.user_id
               WHERE tp.tournament_id = t.id) as participants
       FROM tournaments t
       ORDER BY t.created_at DESC

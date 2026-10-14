@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
-import { PlusCircle, Trophy, Users, Play, RefreshCw, AlertCircle } from 'lucide-react';
+import { PlusCircle, Trophy, Users, Play, RefreshCw, AlertCircle, UserX } from 'lucide-react';
 
 export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState([]);
@@ -97,6 +97,45 @@ export default function TournamentsPage() {
         alert('Tournament announcement dispatched to Discord!');
       } else {
         alert(data.error || 'Failed to dispatch announcement');
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handleRemoveParticipant = async (tournamentId, userId, name) => {
+    if (!confirm(`Are you sure you want to remove ${name || userId} from this tournament?`)) return;
+    try {
+      const res = await fetch('/api/tournaments/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'remove_participant', tournament_id: tournamentId, user_id: userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTournaments();
+      } else {
+        alert(data.error || 'Failed to remove participant');
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handleRemoveIncompleteSquads = async (tournamentId) => {
+    if (!confirm('Are you sure you want to kick all participants who do not have a complete 11-player squad?')) return;
+    try {
+      const res = await fetch('/api/tournaments/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'remove_incomplete_squads', tournament_id: tournamentId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Kicked ${data.removedCount} participant(s) with incomplete squads!`);
+        fetchTournaments();
+      } else {
+        alert(data.error || 'Failed to kick incomplete squads');
       }
     } catch (e) {
       alert(e.message);
@@ -341,7 +380,14 @@ export default function TournamentsPage() {
                     <span className="text-xs text-[var(--text-main)] opacity-70">
                       Registration: <strong className="text-pink-400">{tournament.registration_open ? 'OPEN' : 'CLOSED'}</strong> ({validParticipants.length}/{tournament.max_participants || 16})
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button 
+                        onClick={() => handleRemoveIncompleteSquads(tournament.id)} 
+                        className="px-2.5 py-1 bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold hover:bg-amber-500/25 transition flex items-center gap-1.5"
+                        title="Remove entrants with fewer than 11 squad players"
+                      >
+                        <UserX className="w-3.5 h-3.5" /> Kick Incomplete (&lt;11)
+                      </button>
                       <button 
                         onClick={() => handleAnnounce(tournament.id)} 
                         className="px-3 py-1 bg-pink-600/20 text-pink-300 border border-pink-500/30 rounded-xl text-xs font-semibold hover:bg-pink-600/30 transition flex items-center gap-1.5"
@@ -358,12 +404,42 @@ export default function TournamentsPage() {
                   </div>
 
                   {validParticipants.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {validParticipants.map((p, idx) => (
-                        <span key={idx} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[var(--text-main)] flex items-center gap-1.5">
-                          <span className="text-pink-400">👤</span> {getPlayerDisplay(p, validParticipants)}
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {validParticipants.map((p, idx) => {
+                        const sqCount = p?.squad_count !== undefined && p?.squad_count !== null ? Number(p.squad_count) : null;
+                        const isComplete = sqCount !== null && sqCount >= 11;
+                        const uId = getPlayerId(p);
+                        return (
+                          <span 
+                            key={idx} 
+                            className={`px-3 py-1.5 rounded-xl text-xs font-mono text-[var(--text-main)] flex items-center gap-2 border transition ${
+                              isComplete 
+                                ? 'bg-white/5 border-white/10' 
+                                : 'bg-amber-500/10 border-amber-500/30'
+                            }`}
+                          >
+                            <span className="text-pink-400">👤</span>
+                            <span>{getPlayerDisplay(p, validParticipants)}</span>
+                            {sqCount !== null && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${
+                                isComplete 
+                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' 
+                                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              }`}>
+                                {isComplete ? '11/11 ✅' : `${sqCount}/11 ⚠️ Incomplete`}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveParticipant(tournament.id, uId, p.display_name || p.username)}
+                              title="Kick participant from tournament"
+                              className="text-red-400 hover:text-red-200 hover:bg-red-500/20 p-1 rounded-md transition"
+                            >
+                              <UserX className="w-3.5 h-3.5" />
+                            </button>
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                   
