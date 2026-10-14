@@ -48,6 +48,10 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
+    if (body.action === 'sync_all_roles') {
+      await query("INSERT INTO portal_jobs (job_type, payload) VALUES ('SYNC_ALL_MEMBERS_ROLE', '{}')");
+      return NextResponse.json({ success: true, message: 'Mass role sync background task queued successfully!' });
+    }
     const config = body.config || body;
     const merged = { ...DEFAULT_BOT_CONFIG, ...config };
 

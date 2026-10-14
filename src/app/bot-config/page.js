@@ -59,6 +59,29 @@ export default function BotConfigAdminPage() {
   // Auto-Role on Bot Interaction State
   const [autoRoleEnabled, setAutoRoleEnabled] = useState(false);
   const [autoRoleId, setAutoRoleId] = useState('');
+  const [syncingRoles, setSyncingRoles] = useState(false);
+
+  const handleSyncAllRoles = async () => {
+    if (!confirm('Are you sure you want to start mass role sync for all members in BeastlyFC? The bot will assign the role to all existing members in the background.')) return;
+    setSyncingRoles(true);
+    try {
+      const res = await fetch('/api/bot-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_all_roles' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('⚡ Mass role sync initiated! The bot is now assigning the role to all existing server members in the background.');
+      } else {
+        alert(data.error || 'Failed to trigger mass role sync.');
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSyncingRoles(false);
+    }
+  };
 
   useEffect(() => {
     fetchConfig();
@@ -331,22 +354,34 @@ export default function BotConfigAdminPage() {
                   <UserCheck className="w-5 h-5 text-pink-400" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[var(--text-main)]">Auto-Role on Bot Usage</h2>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">Auto-Role (Server Join & Bot Usage)</h2>
                   <p className="text-xs text-[var(--text-main)] opacity-70">
-                    Automatically grants a specific Discord role to any member who executes any command
+                    Automatically grants this role to new members when they join, and whenever members execute commands
                   </p>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setAutoRoleEnabled(!autoRoleEnabled)}
-                className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-200 cursor-pointer ${
-                  autoRoleEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-[var(--card-bg)] justify-start'
-                }`}
-              >
-                <div className="w-5 h-5 rounded-full bg-[var(--card-bg)] shadow-md" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={syncingRoles}
+                  onClick={handleSyncAllRoles}
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-pink-600/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {syncingRoles ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UserCheck className="w-3.5 h-3.5" />}
+                  {syncingRoles ? 'Starting...' : '⚡ Sync to All Existing Members'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAutoRoleEnabled(!autoRoleEnabled)}
+                  className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-200 cursor-pointer ${
+                    autoRoleEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-600 justify-end' : 'bg-[var(--card-bg)] justify-start'
+                  }`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-[var(--card-bg)] shadow-md" />
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
