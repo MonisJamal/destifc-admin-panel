@@ -126,9 +126,11 @@ export async function GET(request) {
           raw: source
         },
         club: {
+          id: p.club?.id || null,
           name: clubName
         },
         nation: {
+          id: p.nation?.id || null,
           name: nationName
         },
         images: {
@@ -136,8 +138,10 @@ export async function GET(request) {
           playerCardImage: playerImg,
           playerCardBackground: bgImg,
           flagImage: flagImg,
-          clubImage: clubImg
+          clubImage: clubImg,
+          leagueImage: p.images?.leagueImage || null
         },
+        animation: p.animation || null,
         stats: p.stats || null,
         added: p.added || null,
         revealOn: p.revealOn || null,

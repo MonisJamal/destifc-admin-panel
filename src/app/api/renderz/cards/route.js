@@ -92,8 +92,12 @@ export async function GET(request) {
             images: {
               playerImage: playerImg,
               playerCardImage: playerImg,
-              playerCardBackground: bgImg
+              playerCardBackground: bgImg,
+              flagImage: p.images?.flagImage || null,
+              clubImage: p.images?.clubImage || null,
+              leagueImage: p.images?.leagueImage || null
             },
+            animation: p.animation || null,
             stats: p.stats || null,
             skillMoves: p.skillMoves || null,
             weakFoot: p.weakFoot || null
@@ -195,8 +199,12 @@ export async function GET(request) {
         images: {
           playerImage: playerImg,
           playerCardImage: playerImg,
-          playerCardBackground: bgImg
+          playerCardBackground: bgImg,
+          flagImage: p.images?.flagImage || null,
+          clubImage: p.images?.clubImage || null,
+          leagueImage: p.images?.leagueImage || null
         },
+        animation: p.animation || null,
         stats: p.stats || null,
         skillMoves: p.skillMoves || null,
         weakFoot: p.weakFoot || null
