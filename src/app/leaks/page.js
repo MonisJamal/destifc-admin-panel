@@ -72,6 +72,31 @@ export default function LeaksDraftsPage() {
     }
   };
 
+  const [insertingPools, setInsertingPools] = useState(false);
+
+  const handleInsertLeaksToBotPools = async () => {
+    if (!cards || cards.length === 0) return alert('No data-mined cards loaded to insert!');
+    if (!confirm(`Are you sure you want to insert all ${cards.length} data-mined cards into the official database & live Discord bot pools?`)) return;
+    setInsertingPools(true);
+    try {
+      const res = await fetch('/api/renderz/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'insert_cards', cards })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || `Successfully inserted ${data.insertedCount} cards into official_cards and refreshed live bot pools!`);
+      } else {
+        alert(data.error || 'Failed to insert cards into bot pools');
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setInsertingPools(false);
+    }
+  };
+
   const getProxyUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('data:')) return url;
@@ -304,6 +329,16 @@ export default function LeaksDraftsPage() {
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
                 <span className="hidden sm:inline">Sync Leaks</span>
+              </button>
+
+              <button
+                onClick={handleInsertLeaksToBotPools}
+                disabled={insertingPools || cards.length === 0}
+                className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition"
+                title="Insert all mined leaked cards into official database and Discord bot pools"
+              >
+                <Sparkles className={`w-4 h-4 ${insertingPools ? 'animate-spin' : ''}`} />
+                <span>{insertingPools ? 'Inserting...' : '⛏️ Insert to Bot Pools'}</span>
               </button>
 
               <div className="relative w-full md:w-72">

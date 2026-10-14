@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Sidebar from '@/components/Sidebar';
 import LiquidButton from '@/components/LiquidButton';
-import { Search, ChevronLeft, ChevronRight, Gift, Sparkles, Filter, X, CheckCircle2, AlertCircle, Shield, Globe } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Gift, Sparkles, Filter, X, CheckCircle2, AlertCircle, Shield, Globe, Zap } from 'lucide-react';
 
 export default function RenderZDatabasePage() {
   const [query, setQuery] = useState('');
@@ -62,6 +62,54 @@ export default function RenderZDatabasePage() {
       setCards([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [syncingRenderz, setSyncingRenderz] = useState(false);
+  const [insertingPools, setInsertingPools] = useState(false);
+
+  const handleSyncRenderz = async () => {
+    if (!confirm('Start full RenderZ background synchronization? This will scrape all high-OVR cards and unreleased cards into the database and update bot pools.')) return;
+    setSyncingRenderz(true);
+    try {
+      const res = await fetch('/api/renderz/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_all' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || '⚡ Sync job dispatched to the bot background worker!');
+      } else {
+        alert(data.error || 'Failed to dispatch sync');
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSyncingRenderz(false);
+    }
+  };
+
+  const handleInsertToPools = async () => {
+    if (!cards || cards.length === 0) return alert('No cards displayed to insert!');
+    if (!confirm(`Insert all ${cards.length} displayed cards into the official database and live Discord bot pools?`)) return;
+    setInsertingPools(true);
+    try {
+      const res = await fetch('/api/renderz/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'insert_cards', cards })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || `Successfully inserted ${data.insertedCount} cards into official_cards and refreshed live bot pools!`);
+      } else {
+        alert(data.error || 'Failed to insert cards into bot pools');
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setInsertingPools(false);
     }
   };
 
@@ -138,24 +186,48 @@ export default function RenderZDatabasePage() {
               </p>
             </div>
 
-            {/* Search Bar */}
-            <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-[var(--text-main)] opacity-70 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search player name (e.g. Messi, Ronaldo, Pelé)..."
-                className="apple-input pl-10 text-sm"
-              />
-              {query && (
-                <button
-                  onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+            {/* Actions & Search */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handleSyncRenderz}
+                disabled={syncingRenderz}
+                className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition"
+                title="Trigger automated RenderZ sync on bot VPS"
+              >
+                <Zap className={`w-4 h-4 ${syncingRenderz ? 'animate-spin' : ''}`} />
+                <span>{syncingRenderz ? 'Queueing Sync...' : '⚡ Sync Latest Cards'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleInsertToPools}
+                disabled={insertingPools || cards.length === 0}
+                className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition"
+                title="Insert currently displayed cards into official database and bot pools"
+              >
+                <Sparkles className={`w-4 h-4 ${insertingPools ? 'animate-spin' : ''}`} />
+                <span>{insertingPools ? 'Inserting...' : '📥 Insert to Pools'}</span>
+              </button>
+
+              <div className="relative w-full md:w-72">
+                <Search className="w-4 h-4 text-[var(--text-main)] opacity-70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search player name (e.g. Messi, Pelé)..."
+                  className="apple-input pl-10 text-sm"
+                />
+                {query && (
+                  <button
+                    onClick={() => setQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-main)] opacity-70 hover:text-[var(--text-main)] opacity-90"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

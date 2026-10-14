@@ -17,7 +17,8 @@ import {
   Maximize2,
   Lock,
   Filter,
-  ArrowUpDown
+  ArrowUpDown,
+  Zap
 } from 'lucide-react';
 
 export default function DatabasePage() {
@@ -78,6 +79,31 @@ export default function DatabasePage() {
     } catch (e) {}
     finally {
       setLoading(false);
+    }
+  };
+
+  const [syncingRenderz, setSyncingRenderz] = useState(false);
+
+  const handleSyncRenderz = async () => {
+    if (!confirm('Start full RenderZ background synchronization? This will scrape all high-OVR cards and unreleased cards into the database and update bot pools.')) return;
+    setSyncingRenderz(true);
+    try {
+      const res = await fetch('/api/renderz/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_all' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || '⚡ Sync job dispatched to the bot background worker!');
+        setTimeout(() => fetchData(), 2000);
+      } else {
+        alert(data.error || 'Failed to dispatch sync');
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSyncingRenderz(false);
     }
   };
 
@@ -250,40 +276,55 @@ export default function DatabasePage() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl glass-card w-fit border border-white/60">
-            <button
-              onClick={() => handleTabChange('official')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'official' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
-              }`}
-            >
-              <Database className="w-4 h-4" /> Official Cards Pool ({total.toLocaleString()})
-            </button>
-            <button
-              onClick={() => handleTabChange('inventory')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'inventory' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
-              }`}
-            >
-              <CreditCard className="w-4 h-4" /> Card Inventory
-            </button>
-            <button
-              onClick={() => handleTabChange('market')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'market' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
-              }`}
-            >
-              <ShoppingBag className="w-4 h-4" /> Market Listings
-            </button>
-            <button
-              onClick={() => handleTabChange('users')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                tab === 'users' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
-              }`}
-            >
-              <User className="w-4 h-4" /> Users & Balances
-            </button>
+          {/* Navigation Tabs & Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl glass-card w-fit border border-white/60">
+              <button
+                onClick={() => handleTabChange('official')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                  tab === 'official' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
+                }`}
+              >
+                <Database className="w-4 h-4" /> Official Cards Pool ({total.toLocaleString()})
+              </button>
+              <button
+                onClick={() => handleTabChange('inventory')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                  tab === 'inventory' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
+                }`}
+              >
+                <CreditCard className="w-4 h-4" /> Card Inventory
+              </button>
+              <button
+                onClick={() => handleTabChange('market')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                  tab === 'market' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
+                }`}
+              >
+                <ShoppingBag className="w-4 h-4" /> Market Listings
+              </button>
+              <button
+                onClick={() => handleTabChange('users')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                  tab === 'users' ? 'bg-[var(--card-bg)] text-amber-400 shadow-md' : 'text-[var(--text-main)] opacity-50 hover:text-[var(--text-main)]'
+                }`}
+              >
+                <User className="w-4 h-4" /> Users & Balances
+              </button>
+            </div>
+
+            {tab === 'official' && (
+              <button
+                type="button"
+                onClick={handleSyncRenderz}
+                disabled={syncingRenderz}
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition w-fit"
+                title="Trigger automated RenderZ sync into official_cards"
+              >
+                <Zap className={`w-4 h-4 ${syncingRenderz ? 'animate-spin' : ''}`} />
+                <span>{syncingRenderz ? 'Queueing Sync...' : '⚡ Sync RenderZ Cards'}</span>
+              </button>
+            )}
           </div>
 
           {/* Exact Filter Controls (for official, inventory, and market tabs) */}
