@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { buildFullStats } from '@/lib/statGenerator';
+import { buildFullStats, calculateDefaultStats } from '@/lib/statGenerator';
 
 export const dynamic = 'force-dynamic';
 
@@ -146,14 +146,7 @@ export async function POST(request) {
 
     // Build or generate full RenderZ avgStats and stats
     const { avgStats: finalAvg, stats: finalStats } = buildFullStats(
-      stats || avgStats || {
-        avg1: cleanBuffedOvr || cleanOvr,
-        avg2: cleanBuffedOvr || cleanOvr,
-        avg3: cleanBuffedOvr || cleanOvr,
-        avg4: cleanBuffedOvr || cleanOvr,
-        avg5: cleanBuffedOvr || cleanOvr,
-        avg6: cleanBuffedOvr || cleanOvr
-      },
+      stats || avgStats || calculateDefaultStats(cleanOvr, cleanBuffedOvr, cleanPos),
       cleanPos
     );
 
@@ -343,14 +336,7 @@ export async function PATCH(request) {
     } else {
       // 2. Handle Signature Card Edit
       const { avgStats: sigAvg, stats: sigStats } = buildFullStats(
-        stats || avgStats || {
-          avg1: newBuffedOvr || newOvr,
-          avg2: newBuffedOvr || newOvr,
-          avg3: newBuffedOvr || newOvr,
-          avg4: newBuffedOvr || newOvr,
-          avg5: newBuffedOvr || newOvr,
-          avg6: newBuffedOvr || newOvr
-        },
+        stats || avgStats || calculateDefaultStats(newOvr, newBuffedOvr, newPos),
         newPos
       );
 
