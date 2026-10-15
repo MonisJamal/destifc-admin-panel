@@ -9,36 +9,40 @@ export function calculateDefaultStats(ovr, buffedOvr, position) {
   if (pos === 'GK') {
     return {
       is_gk: true,
-      avg1: baseRating + 4, // DIV
-      avg2: baseRating + 3, // POS
-      avg3: baseRating + 2, // HAN
-      avg4: baseRating + 5, // REF
-      avg5: Math.max(50, baseRating - 4), // KIC
-      avg6: baseRating + 1, // PHY
+      avg1: baseRating + 29, // DIV (average +29 over OVR on RenderZ)
+      avg2: baseRating + 28, // POS (+28)
+      avg3: baseRating + 28, // HAN (+28)
+      avg4: baseRating + 30, // REF (+30)
+      avg5: Math.max(50, baseRating + 24), // KIC (+24)
+      avg6: baseRating + 3,  // PHY (+3)
       labels: ['DIV', 'POS', 'HAN', 'REF', 'KIC', 'PHY'],
       names: ['Diving', 'Positioning', 'Handling', 'Reflexes', 'Kicking', 'Physical']
     };
   }
 
-  // Outfield positions
-  let deltas = { avg1: 2, avg2: 5, avg3: -8, avg4: 2, avg5: -45, avg6: 1 }; // Default ST
+  // Exact empirical RenderZ average attribute deltas from over 1,800 official cards:
+  let deltas = { avg1: 23, avg2: 24, avg3: -3, avg4: 17, avg5: -47, avg6: 5 }; // Default ST
 
   if (['ST', 'CF'].includes(pos)) {
-    deltas = { avg1: 2, avg2: 5, avg3: -8, avg4: 2, avg5: -45, avg6: 1 };
-  } else if (['LW', 'RW', 'LF', 'RF'].includes(pos)) {
-    deltas = { avg1: 6, avg2: 2, avg3: -2, avg4: 6, avg5: -45, avg6: -6 };
+    deltas = { avg1: 23, avg2: 24, avg3: -3, avg4: 17, avg5: -47, avg6: 5 };
+  } else if (['LW', 'LF'].includes(pos)) {
+    deltas = { avg1: 30, avg2: 17, avg3: 11, avg4: 27, avg5: -47, avg6: -8 };
+  } else if (['RW', 'RF'].includes(pos)) {
+    deltas = { avg1: 28, avg2: 16, avg3: 11, avg4: 26, avg5: -48, avg6: -11 };
   } else if (pos === 'CAM') {
-    deltas = { avg1: -1, avg2: 2, avg3: 5, avg4: 5, avg5: -35, avg6: -4 };
+    deltas = { avg1: 19, avg2: 17, avg3: 15, avg4: 24, avg5: -33, avg6: -14 };
   } else if (pos === 'CM') {
-    deltas = { avg1: -2, avg2: 0, avg3: 4, avg4: 2, avg5: -1, avg6: 1 };
+    deltas = { avg1: 11, avg2: 5, avg3: 19, avg4: 17, avg5: 1, avg6: 0 };
   } else if (['LM', 'RM'].includes(pos)) {
-    deltas = { avg1: 5, avg2: -1, avg3: 3, avg4: 5, avg5: -20, avg6: -3 };
+    deltas = { avg1: 25, avg2: 10, avg3: 14, avg4: 22, avg5: -25, avg6: -6 };
   } else if (pos === 'CDM') {
-    deltas = { avg1: -4, avg2: -12, avg3: 2, avg4: 0, avg5: 5, avg6: 5 };
+    deltas = { avg1: 6, avg2: -13, avg3: 6, avg4: 11, avg5: 19, avg6: 16 };
   } else if (pos === 'CB') {
-    deltas = { avg1: -4, avg2: -50, avg3: -14, avg4: -10, avg5: 6, avg6: 6 };
-  } else if (['LB', 'RB', 'LWB', 'RWB'].includes(pos)) {
-    deltas = { avg1: 5, avg2: -25, avg3: 0, avg4: 1, avg5: 3, avg6: 2 };
+    deltas = { avg1: 8, avg2: -29, avg3: -9, avg4: 1, avg5: 28, avg6: 23 };
+  } else if (['LB', 'LWB'].includes(pos)) {
+    deltas = { avg1: 21, avg2: -17, avg3: 7, avg4: 13, avg5: 17, avg6: 10 };
+  } else if (['RB', 'RWB'].includes(pos)) {
+    deltas = { avg1: 18, avg2: -25, avg3: -1, avg4: 8, avg5: 19, avg6: 12 };
   }
 
   return {
