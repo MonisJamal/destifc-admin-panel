@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { buildFullStats } from '@/lib/statGenerator';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,7 +118,9 @@ export async function POST(request) {
       clubId = 1,
       matchBoost = 1.15,
       buffedOvr = null,
-      perks = null
+      perks = null,
+      stats = null,
+      avgStats = null
     } = body;
 
     if (!name || !ovr || !position) {
@@ -137,16 +140,34 @@ export async function POST(request) {
     };
 
     const finalPerks = perks && typeof perks === 'object' ? { ...defaultPerks, ...perks } : defaultPerks;
+    const cleanOvr = parseInt(ovr, 10);
+    const cleanBuffedOvr = buffedOvr ? parseInt(buffedOvr, 10) : null;
+    const cleanPos = position.toUpperCase();
+
+    // Build or generate full RenderZ avgStats and stats
+    const { avgStats: finalAvg, stats: finalStats } = buildFullStats(
+      stats || avgStats || {
+        avg1: cleanBuffedOvr || cleanOvr,
+        avg2: cleanBuffedOvr || cleanOvr,
+        avg3: cleanBuffedOvr || cleanOvr,
+        avg4: cleanBuffedOvr || cleanOvr,
+        avg5: cleanBuffedOvr || cleanOvr,
+        avg6: cleanBuffedOvr || cleanOvr
+      },
+      cleanPos
+    );
 
     const playerData = {
       id: `custom_${Date.now()}`,
       cardName: name,
       player_name: name,
       lastName: name,
-      rating: parseInt(ovr, 10),
-      ovr: parseInt(ovr, 10),
-      position: position.toUpperCase(),
+      rating: cleanOvr,
+      ovr: cleanOvr,
+      position: cleanPos,
       potentialPositions: potentialPositions,
+      avgStats: finalAvg,
+      stats: finalStats,
       images: {
         playerImage: imageUrl || null,
         playerCardImage: imageUrl || null,
@@ -156,7 +177,7 @@ export async function POST(request) {
       program: { name: programName || 'Admin Custom Release' },
       supply: quantity ? parseInt(quantity, 10) : null,
       performance_boost: parseFloat(matchBoost) || 1.15,
-      buffed_ovr: buffedOvr ? parseInt(buffedOvr, 10) : null,
+      buffed_ovr: cleanBuffedOvr,
       perks: finalPerks,
       created_at: new Date().toISOString(),
       is_custom: true,
@@ -165,7 +186,7 @@ export async function POST(request) {
     // Save to permanent Admin Custom Cards Catalog
     const insertRes = await query(
       'INSERT INTO custom_cards_catalog (card_name, ovr, player_data) VALUES ($1, $2, $3) RETURNING id',
-      [name, parseInt(ovr, 10), JSON.stringify(playerData)]
+      [name, cleanOvr, JSON.stringify(playerData)]
     );
 
     // If target Discord User ID provided, grant immediately to inventory
@@ -237,7 +258,9 @@ export async function PATCH(request) {
       clubName,
       nationName,
       programName,
-      perks
+      perks,
+      stats,
+      avgStats
     } = body;
 
     if (!id) {
@@ -260,8 +283,6 @@ export async function PATCH(request) {
     const newBuffedOvr = buffedOvr !== undefined && buffedOvr !== '' && buffedOvr !== null ? parseInt(buffedOvr, 10) : null;
     const newBoost = matchBoost !== undefined && matchBoost !== '' ? parseFloat(matchBoost) : 1.15;
     const potPositions = Array.isArray(potentialPositions) ? potentialPositions.map(p => p.toString().trim().toUpperCase()).filter(Boolean) : [];
-    const potPositionsJson = JSON.stringify(potPositions);
-    const perksJson = JSON.stringify(perks || { enabled: false });
 
     if (existingCatalogRow) {
       // 1. Update Custom Cards Catalog
@@ -282,6 +303,11 @@ export async function PATCH(request) {
       if (perks !== undefined) {
         pData.perks = perks;
       }
+      if (stats || avgStats) {
+        const { avgStats: updatedAvg, stats: updatedStats } = buildFullStats(stats || avgStats, newPos);
+        pData.avgStats = updatedAvg;
+        pData.stats = updatedStats;
+      }
       if (clubName) pData.club = { ...(pData.club || {}), name: clubName.trim() };
       if (nationName) pData.nation = { ...(pData.nation || {}), name: nationName.trim() };
       if (programName) pData.program = { ...(pData.program || {}), name: programName.trim() };
@@ -299,39 +325,35 @@ export async function PATCH(request) {
       );
 
       const cardIdStr = pData.id || `custom_${id}`;
-      // Update inventory holding this catalog custom card
+      // Update inventory holding this catalog custom card atomically using jsonb merge
       await query(
         `UPDATE inventory 
          SET player_name = $1, ovr = $2, position = $3, 
-             player_data = jsonb_set(
-               jsonb_set(
-                 jsonb_set(
-                   jsonb_set(
-                     jsonb_set(COALESCE(player_data, '{}'::jsonb), '{buffed_ovr}', $4::jsonb),
-                     '{performance_boost}', $5::jsonb
-                   ),
-                   '{rating}', $6::jsonb
-                 ),
-                 '{perks}', $7::jsonb
-               ),
-               '{potentialPositions}', $8::jsonb
-             )
-         WHERE player_id = $9 OR player_name ILIKE $10 OR player_data->>'cardName' ILIKE $10`,
+             player_data = COALESCE(player_data, '{}'::jsonb) || $4::jsonb
+         WHERE player_id = $5 OR player_name ILIKE $6 OR player_data->>'cardName' ILIKE $6`,
         [
           newName,
           newOvr,
           newPos,
-          newBuffedOvr ? JSON.stringify(newBuffedOvr) : 'null',
-          JSON.stringify(newBoost),
-          JSON.stringify(newOvr),
-          perksJson,
-          potPositionsJson,
+          JSON.stringify(pData),
           cardIdStr,
           `%${newName}%`
         ]
       );
     } else {
       // 2. Handle Signature Card Edit
+      const { avgStats: sigAvg, stats: sigStats } = buildFullStats(
+        stats || avgStats || {
+          avg1: newBuffedOvr || newOvr,
+          avg2: newBuffedOvr || newOvr,
+          avg3: newBuffedOvr || newOvr,
+          avg4: newBuffedOvr || newOvr,
+          avg5: newBuffedOvr || newOvr,
+          avg6: newBuffedOvr || newOvr
+        },
+        newPos
+      );
+
       const sigData = {
         id: id.toString(),
         cardName: newName,
@@ -341,6 +363,8 @@ export async function PATCH(request) {
         ovr: newOvr,
         position: newPos,
         potentialPositions: potPositions,
+        avgStats: sigAvg,
+        stats: sigStats,
         buffed_ovr: newBuffedOvr || Math.round(newOvr * newBoost),
         performance_boost: newBoost,
         perks: perks || { enabled: false },

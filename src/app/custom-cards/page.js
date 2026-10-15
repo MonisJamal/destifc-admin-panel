@@ -23,12 +23,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import PerksSection, { DEFAULT_PERKS } from '@/components/PerksSection';
+import StatsSection, { calculateDefaultStats } from '@/components/StatsSection';
 
 export default function CustomCardsPage() {
   const [name, setName] = useState('');
   const [ovr, setOvr] = useState(120);
   const [buffedOvr, setBuffedOvr] = useState('');
   const [perks, setPerks] = useState(DEFAULT_PERKS);
+  const [stats, setStats] = useState(null);
   const [position, setPosition] = useState('ST');
   const [altPositions, setAltPositions] = useState('CF, CAM');
   const [imageUrl, setImageUrl] = useState('');
@@ -46,6 +48,7 @@ export default function CustomCardsPage() {
   const [editOvr, setEditOvr] = useState(120);
   const [editBuffedOvr, setEditBuffedOvr] = useState('');
   const [editPerks, setEditPerks] = useState(DEFAULT_PERKS);
+  const [editStats, setEditStats] = useState(null);
   const [editPosition, setEditPosition] = useState('ST');
   const [editAltPositions, setEditAltPositions] = useState('');
   const [editClub, setEditClub] = useState('');
@@ -122,6 +125,7 @@ export default function CustomCardsPage() {
           ovr,
           buffedOvr: buffedOvr ? parseInt(buffedOvr, 10) : null,
           perks,
+          stats,
           position,
           potentialPositions: altPositions.split(',').map(s => s.trim()).filter(Boolean),
           imageUrl,
@@ -139,6 +143,7 @@ export default function CustomCardsPage() {
         setName('');
         setBuffedOvr('');
         setPerks(DEFAULT_PERKS);
+        setStats(null);
         setImageUrl('');
         setQuantity('');
         setTargetUserId('');
@@ -163,6 +168,8 @@ export default function CustomCardsPage() {
     setEditClub(card.club?.name || card.clubName || '');
     setEditNation(card.nation?.name || card.nationName || '');
     setEditImageUrl(card.images?.playerCardImage || card.imageUrl || '');
+    const cStats = card.avgStats || calculateDefaultStats(card.rating || card.ovr || 120, card.buffed_ovr, card.position || 'ST');
+    setEditStats(cStats);
     const cPerks = card.perks || {};
     setEditPerks({
       enabled: Boolean(cPerks.enabled),
@@ -192,6 +199,7 @@ export default function CustomCardsPage() {
           ovr: parseInt(editOvr, 10),
           buffedOvr: editBuffedOvr ? parseInt(editBuffedOvr, 10) : null,
           perks: editPerks,
+          stats: editStats,
           position: editPosition,
           potentialPositions: editAltPositions.split(',').map(s => s.trim()).filter(Boolean),
           clubName: editClub,
@@ -471,6 +479,15 @@ export default function CustomCardsPage() {
                   className="w-full px-4 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 focus:border-pink-500 text-sm font-mono focus:outline-none"
                 />
               </div>
+
+              {/* RenderZ Stats Section */}
+              <StatsSection
+                ovr={ovr}
+                buffedOvr={buffedOvr}
+                position={position}
+                stats={stats}
+                onChange={setStats}
+              />
 
               {/* Extra Perks Custom Match Powers */}
               <PerksSection perks={perks} onChange={setPerks} />
@@ -955,6 +972,15 @@ export default function CustomCardsPage() {
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--input-bg)] border border-purple-900/40 text-sm focus:outline-none focus:border-pink-500 font-mono text-xs"
                     />
                   </div>
+
+                  {/* RenderZ Stats Section */}
+                  <StatsSection
+                    ovr={editOvr}
+                    buffedOvr={editBuffedOvr}
+                    position={editPosition}
+                    stats={editStats}
+                    onChange={setEditStats}
+                  />
 
                   {/* Extra Perks Custom Match Powers */}
                   <PerksSection perks={editPerks} onChange={setEditPerks} />
