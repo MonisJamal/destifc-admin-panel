@@ -1,6 +1,6 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Sparkles, RefreshCw, Zap, Shield, Flame, Check, Search, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, Sparkles, RefreshCw, Check } from 'lucide-react';
 
 export function calculateDefaultStats(ovr, buffedOvr, position) {
   const baseRating = parseInt(buffedOvr, 10) > 0 ? parseInt(buffedOvr, 10) : parseInt(ovr || 120, 10);
@@ -20,7 +20,7 @@ export function calculateDefaultStats(ovr, buffedOvr, position) {
     };
   }
 
-  // Exact empirical RenderZ average attribute deltas from over 1,800 official cards:
+  // Exact empirical RenderZ average attribute deltas from official cards:
   let deltas = { avg1: 23, avg2: 24, avg3: -3, avg4: 17, avg5: -47, avg6: 5 }; // Default ST
 
   if (['ST', 'CF'].includes(pos)) {
@@ -58,123 +58,19 @@ export function calculateDefaultStats(ovr, buffedOvr, position) {
   };
 }
 
-export function calculatePlayerSpecificStats(matchedCard, ovr, buffedOvr, targetPosition) {
-  const effectiveBase = parseInt(buffedOvr, 10) > 0 ? parseInt(buffedOvr, 10) : parseInt(ovr || 120, 10);
-  const pos = (targetPosition || matchedCard.position || 'ST').toUpperCase();
-  const isGK = pos === 'GK';
-
-  // For goalkeepers, prefer authentic avgGkStats from RenderZ
-  const rzStats = isGK ? (matchedCard.avgGkStats || matchedCard.avgStats) : (matchedCard.avgStats || matchedCard.avgGkStats);
-  const baseCardRating = matchedCard.rating || matchedCard.ovr || 100;
-
-  if (!rzStats || !rzStats.avg1) {
-    return calculateDefaultStats(ovr, buffedOvr, pos);
-  }
-
-  // Calculate that specific player's exact offsets relative to their base card OVR
-  const d1 = (parseInt(rzStats.avg1, 10) || baseCardRating) - baseCardRating;
-  const d2 = (parseInt(rzStats.avg2, 10) || baseCardRating) - baseCardRating;
-  const d3 = (parseInt(rzStats.avg3, 10) || baseCardRating) - baseCardRating;
-  const d4 = (parseInt(rzStats.avg4, 10) || baseCardRating) - baseCardRating;
-  const d5 = (parseInt(rzStats.avg5, 10) || baseCardRating) - baseCardRating;
-  const d6 = (parseInt(rzStats.avg6, 10) || baseCardRating) - baseCardRating;
-
-  return {
-    is_gk: isGK,
-    avg1: Math.max(30, effectiveBase + d1),
-    avg2: Math.max(30, effectiveBase + d2),
-    avg3: Math.max(30, effectiveBase + d3),
-    avg4: Math.max(30, effectiveBase + d4),
-    avg5: Math.max(30, effectiveBase + d5),
-    avg6: Math.max(30, effectiveBase + d6),
-    labels: isGK ? ['DIV', 'POS', 'HAN', 'REF', 'KIC', 'PHY'] : ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY'],
-    names: isGK 
-      ? ['Diving', 'Positioning', 'Handling', 'Reflexes', 'Kicking', 'Physical'] 
-      : ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical']
-  };
-}
-
 export default function StatsSection({
-  playerName = '',
   ovr = 120,
   buffedOvr = '',
   position = 'ST',
   stats,
-  onChange,
-  onPositionSelect
+  onChange
 }) {
   const [autoSync, setAutoSync] = useState(true);
-  const [matchedPlayer, setMatchedPlayer] = useState(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchTimeoutRef = useRef(null);
 
-  // Debounced search for the specific player on RenderZ / official cards
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    const cleanName = (playerName || '').trim();
-    if (!cleanName || cleanName.length < 2) {
-      setMatchedPlayer(null);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/renderz/cards?query=${encodeURIComponent(cleanName)}&size=8`);
-        const data = await res.json();
-        
-        if (data.success && data.cards && data.cards.length > 0) {
-          const currentPos = (position || '').toUpperCase();
-          // Find matching position if available, else highest rated card for that player
-          const samePos = data.cards.find(c => (c.position || '').toUpperCase() === currentPos);
-          const bestMatch = samePos || data.cards[0];
-          
-          const isGK = (bestMatch.position || '').toUpperCase() === 'GK' || currentPos === 'GK';
-          const rzStats = isGK ? (bestMatch.avgGkStats || bestMatch.avgStats) : bestMatch.avgStats;
-
-          if (rzStats && rzStats.avg1) {
-            setMatchedPlayer({
-              id: bestMatch.id || bestMatch.assetId,
-              name: bestMatch.cardName || bestMatch.name,
-              rating: bestMatch.rating || bestMatch.ovr || 100,
-              position: bestMatch.position,
-              program: bestMatch.program?.name || '',
-              avgStats: rzStats,
-              avgGkStats: bestMatch.avgGkStats
-            });
-          } else {
-            setMatchedPlayer(null);
-          }
-        } else {
-          setMatchedPlayer(null);
-        }
-      } catch (err) {
-        console.error('Error fetching RenderZ player stats:', err);
-        setMatchedPlayer(null);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 450);
-
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, [playerName]);
-
-  // Sync stats when inputs or matched player changes, provided autoSync is active
+  // Sync automatically whenever OVR, Buffed OVR, or Position changes, unless user manually edited stats
   useEffect(() => {
     if (autoSync) {
-      let generated;
-      if (matchedPlayer) {
-        generated = calculatePlayerSpecificStats(matchedPlayer, ovr, buffedOvr, position);
-      } else {
-        generated = calculateDefaultStats(ovr, buffedOvr, position);
-      }
-
+      const generated = calculateDefaultStats(ovr, buffedOvr, position);
       onChange({
         avg1: generated.avg1,
         avg2: generated.avg2,
@@ -185,7 +81,7 @@ export default function StatsSection({
         is_gk: generated.is_gk
       });
     }
-  }, [matchedPlayer, ovr, buffedOvr, position, autoSync]);
+  }, [ovr, buffedOvr, position, autoSync]);
 
   const handleStatChange = (key, value) => {
     setAutoSync(false); // User touched an input manually
@@ -198,13 +94,7 @@ export default function StatsSection({
 
   const handleRegenerate = () => {
     setAutoSync(true);
-    let generated;
-    if (matchedPlayer) {
-      generated = calculatePlayerSpecificStats(matchedPlayer, ovr, buffedOvr, position);
-    } else {
-      generated = calculateDefaultStats(ovr, buffedOvr, position);
-    }
-
+    const generated = calculateDefaultStats(ovr, buffedOvr, position);
     onChange({
       avg1: generated.avg1,
       avg2: generated.avg2,
@@ -244,37 +134,23 @@ export default function StatsSection({
             <span className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse" />
             <h3 className="text-sm font-bold tracking-wide text-fuchsia-200 flex items-center gap-1.5 uppercase">
               <Activity className="w-4 h-4 text-fuchsia-400" />
-              RenderZ In-Game Attributes & Match Stats
+              Custom Card In-Game Stats (Editable)
             </h3>
           </div>
 
-          <div className="mt-1">
-            {isSearching ? (
-              <p className="text-xs text-fuchsia-300 flex items-center gap-1.5 animate-pulse">
-                <Search className="w-3.5 h-3.5" /> Searching RenderZ for authentic player stats...
-              </p>
-            ) : matchedPlayer ? (
-              <p className="text-xs text-emerald-300 flex items-center gap-1.5 font-medium">
-                <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                Auto-matched RenderZ player: <span className="font-bold underline text-white">{matchedPlayer.name}</span> ({matchedPlayer.rating} OVR {matchedPlayer.position})
-                <span className="text-[11px] text-neutral-400">→ scaled to {effectiveBase} OVR</span>
-              </p>
-            ) : (
-              <p className="text-xs text-[var(--text-main)] opacity-75">
-                Using empirical RenderZ position baseline for <span className="text-pink-300 font-semibold">{position || 'ST'}</span> at <span className="text-pink-300 font-semibold">{effectiveBase} OVR</span>.
-              </p>
-            )}
-          </div>
+          <p className="text-xs text-[var(--text-main)] opacity-75 mt-0.5">
+            Auto-generated for <span className="text-pink-300 font-semibold">{position || 'ST'}</span> at <span className="text-pink-300 font-semibold">{effectiveBase} OVR</span>. You can edit any stat below.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
           {autoSync ? (
             <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-              <Check className="w-3 h-3" /> Auto-Synced
+              <Check className="w-3 h-3" /> Auto-Generated
             </span>
           ) : (
             <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Custom Overrides Active
+              <Sparkles className="w-3 h-3" /> Manually Edited
             </span>
           )}
 
@@ -282,9 +158,9 @@ export default function StatsSection({
             type="button"
             onClick={handleRegenerate}
             className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-200 border border-fuchsia-500/40 transition-colors flex items-center gap-1.5"
-            title="Recalculate stats based on RenderZ player or position profile"
+            title="Recalculate baseline stats for this position and OVR"
           >
-            <RefreshCw className="w-3 h-3" /> Auto-Generate
+            <RefreshCw className="w-3 h-3" /> Reset to Baseline
           </button>
         </div>
       </div>
@@ -321,7 +197,7 @@ export default function StatsSection({
       </div>
 
       <div className="mt-3 pt-2.5 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-[var(--text-main)] opacity-70 gap-1">
-        <span>⚡ In H2H matches (/play), these authentic RenderZ stats drive finishing, speed, saves & assists.</span>
+        <span>⚡ Directly drives this custom card's finishing, pace, tackles & saves in Head-to-Head (/play).</span>
         <span className="font-mono text-fuchsia-300">
           {isGK ? 'DIV · POS · HAN · REF · KIC · PHY' : 'PAC · SHO · PAS · DRI · DEF · PHY'}
         </span>
