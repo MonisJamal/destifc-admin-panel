@@ -248,6 +248,43 @@ export default function SignatureBoxAdminPage() {
     }
   };
 
+  const handleCreateNewBox = () => {
+    if (!confirm('Start a fresh new Signature Box draft? This will clear the current form fields to blank defaults so you can upload a new box.')) return;
+
+    setSelectedPreset('');
+    setTitle('NEW SIGNATURE BOX');
+    setSubtitle('10 Exclusive Limited Time Rewards');
+    setIsActive(true);
+    setBannerUrl('');
+
+    const now = new Date();
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    setStartsAt(now.toISOString().slice(0, 16));
+    setExpiresAt(nextWeek.toISOString().slice(0, 16));
+
+    setCardName('');
+    setCardRating(122);
+    setCardPosition('ST');
+    setCardAltPositions('');
+    setCardClub('');
+    setCardNation('');
+    setCardBackgroundUrl('');
+    setCardBoost(1.25);
+    setCardMatchPower(153);
+    setCardPerks(DEFAULT_PERKS);
+
+    const freshRewards = DEFAULT_REWARDS.map(r => 
+      r.id === 10 ? { ...r, name: '🌟 Top Signature Card Prize' } : { ...r }
+    );
+    setRewards(freshRewards);
+    setDrawCosts([...DEFAULT_DRAW_COSTS]);
+
+    setMessage({ 
+      type: 'success', 
+      text: 'Fresh Signature Box template ready! Upload your card image, enter details, and click "Save and Publish Live".' 
+    });
+  };
+
   const handleDeleteBox = async () => {
     if (!confirm('Are you sure you want to delete and close the active Signature Box? The event will be closed in Discord.')) return;
     try {
@@ -320,6 +357,15 @@ export default function SignatureBoxAdminPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={handleCreateNewBox}
+              className="px-3.5 py-2.5 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/15 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+              title="Start a new Signature Box from scratch"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Create New Box
+            </button>
             <button
               type="button"
               onClick={handleDeleteBox}
