@@ -99,6 +99,8 @@ export async function GET(request) {
             },
             animation: p.animation || null,
             stats: p.stats || null,
+            avgStats: p.avgStats || null,
+            avgGkStats: p.avgGkStats || null,
             skillMoves: p.skillMoves || null,
             weakFoot: p.weakFoot || null
           };
@@ -206,6 +208,8 @@ export async function GET(request) {
         },
         animation: p.animation || null,
         stats: p.stats || null,
+        avgStats: p.avgStats || null,
+        avgGkStats: p.avgGkStats || null,
         skillMoves: p.skillMoves || null,
         weakFoot: p.weakFoot || null
       };

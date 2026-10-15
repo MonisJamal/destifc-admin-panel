@@ -482,6 +482,7 @@ export default function CustomCardsPage() {
 
               {/* RenderZ Stats Section */}
               <StatsSection
+                playerName={name}
                 ovr={ovr}
                 buffedOvr={buffedOvr}
                 position={position}
@@ -975,6 +976,7 @@ export default function CustomCardsPage() {
 
                   {/* RenderZ Stats Section */}
                   <StatsSection
+                    playerName={editName}
                     ovr={editOvr}
                     buffedOvr={editBuffedOvr}
                     position={editPosition}
